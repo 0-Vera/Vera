@@ -1,39 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Secure Site Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vera Secure Login</title>
   <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background: #f0f2f5; }
-    .container { max-width: 400px; margin: 100px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    h2 { text-align:center; margin-bottom: 20px; }
-    input[type=text], input[type=password], input[type=number] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    button { width: 100%; padding: 10px; background: #4CAF50; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size: 16px; }
-    button:hover { background: #45a049; }
-    .error { color: #d00; margin-top:10px; }
-    #success-section { text-align: center; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+    .container {
+      width: 300px;
+      padding: 2rem;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+    label { display: block; margin-top: 1rem; }
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 1rem;
+      background-color: #1976d2;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover { background-color: #1565c0; }
+    .error { color: #d32f2f; margin-top: 0.5rem; }
+    #success { color: #2e7d32; text-align: center; font-weight: bold; }
   </style>
 </head>
 <body>
-<div class="container">
-  <h2>Login</h2>
-  <div id="login-section">
-    <input id="username" type="text" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-    <div id="login-error" class="error"></div>
+  <div class="container">
+    <h2>Giris Yap</h2>
+    <div id="login-form">
+      <label for="username">Kullanıcı Adı</label>
+      <input id="username" type="text" />
+      <label for="password">Şifre</label>
+      <input id="password" type="password" />
+      <button id="login-btn">Giris</button>
+      <div class="error" id="login-error"></div>
+    </div>
+    <div id="totp-form" style="display:none;">
+      <label for="totp">6 Haneli Kod (Authenticator)</label>
+      <input id="totp" type="text" />
+      <button id="totp-btn">Doğrula</button>
+      <div class="error" id="totp-error"></div>
+    </div>
+    <div id="success" style="display:none;">
+      Giris başarılı! Hoş geldiniz.
+    </div>
   </div>
-  <div id="totp-section" style="display:none;">
-    <p>Enter the 6-digit code from your Authenticator app:</p>
-    <input id="totp-code" type="number" placeholder="123456">
-    <button onclick="verifyCode()">Verify Code</button>
-    <div id="totp-error" class="error"></div>
-  </div>
-  <div id="success-section" style="display:none;">
-    <h3>Access Granted</h3>
-    <p>Welcome! You have successfully logged in.</p>
-  </div>
-</div>
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
