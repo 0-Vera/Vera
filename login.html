@@ -14,17 +14,18 @@
       justify-content: center;
       background: #0f172a;
       color: #e5e7eb;
+      padding: 20px;
     }
     .card {
       width: 100%;
-      max-width: 420px;
+      max-width: 430px;
       background: rgba(255,255,255,.04);
       border: 1px solid rgba(255,255,255,.08);
       border-radius: 18px;
       padding: 24px;
     }
-    h1 { margin-top: 0; margin-bottom: 18px; }
-    label { display: block; margin-bottom: 8px; font-size: 14px; color: #cbd5e1; }
+    h1 { margin: 0 0 18px; }
+    label { display: block; margin: 0 0 8px; font-size: 14px; color: #cbd5e1; }
     input {
       width: 100%;
       padding: 12px;
@@ -32,7 +33,7 @@
       border-radius: 10px;
       border: 1px solid rgba(255,255,255,.12);
       background: #111827;
-      color: white;
+      color: #fff;
     }
     button {
       width: 100%;
@@ -43,8 +44,17 @@
       color: white;
       font-weight: 700;
       cursor: pointer;
+      margin-top: 4px;
     }
-    .muted {
+    .hidden { display: none; }
+    .msg {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+    .small {
       margin-top: 12px;
       font-size: 13px;
       color: #94a3b8;
@@ -55,16 +65,80 @@
 <body>
   <div class="card">
     <h1>Yönetici Girişi</h1>
-    <form>
+
+    <div id="step1">
       <label>Kullanıcı Adı</label>
-      <input type="text" placeholder="Kullanıcı adı" />
+      <input id="username" type="text" placeholder="Kullanıcı adı" />
 
       <label>Şifre</label>
-      <input type="password" placeholder="Şifre" />
+      <input id="password" type="password" placeholder="Şifre" />
 
-      <button type="button">Giriş Yap</button>
-    </form>
-    <div class="muted">Doğrulama kodu sonraki adımda e-posta ile gönderilecek.</div>
+      <button id="loginBtn" type="button">Giriş Yap</button>
+      <div class="small">Doğruysa ikinci aşamada doğrulama kodu istenecek.</div>
+    </div>
+
+    <div id="step2" class="hidden">
+      <label>6 Haneli Kod</label>
+      <input id="code" type="text" inputmode="numeric" maxlength="6" placeholder="Doğrulama kodu" />
+      <button id="verifyBtn" type="button">Kodu Doğrula</button>
+      <div class="small">Şimdilik test için kod ekranda gösterilecek.</div>
+    </div>
+
+    <div id="msg" class="msg"></div>
   </div>
+
+  <script>
+    let currentLoginId = "";
+
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const msg = document.getElementById("msg");
+
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      msg.textContent = "";
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+
+      if (!data.ok) {
+        msg.textContent = data.error || "Giriş başarısız";
+        return;
+      }
+
+      currentLoginId = data.loginId;
+      step1.classList.add("hidden");
+      step2.classList.remove("hidden");
+      msg.textContent = "İlk doğrulama geçti.\nTest kodu: " + data.debugCode;
+    });
+
+    document.getElementById("verifyBtn").addEventListener("click", async () => {
+      msg.textContent = "";
+
+      const code = document.getElementById("code").value.trim();
+
+      const res = await fetch("/api/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ loginId: currentLoginId, code })
+      });
+
+      const data = await res.json();
+
+      if (!data.ok) {
+        msg.textContent = data.error || "Kod doğrulama başarısız";
+        return;
+      }
+
+      window.location.href = "/admin";
+    });
+  </script>
 </body>
 </html>
