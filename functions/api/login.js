@@ -1,7 +1,9 @@
 async function sha256(text) {
   const data = new TextEncoder().encode(text);
   const hash = await crypto.subtle.digest("SHA-256", data);
-  return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, "0")).join("");
+  return [...new Uint8Array(hash)]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 function json(data, status = 200) {
@@ -58,25 +60,38 @@ export async function onRequestPost(context) {
     { expirationTtl: 300 }
   );
 
-await fetch("https://api.resend.com/emails", {
-  method: "POST",
-  headers: {
-    "Authorization": `Bearer ${env.RESEND_API_KEY}`,
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    from: "Vera <onboarding@resend.dev>",
-    to: env.ADMIN_EMAIL,
-    subject: "Vera giriş doğrulama kodu",
-    html: `<h2>Vera giriş doğrulama kodunuz</h2>
-           <p style="font-size:32px;font-weight:bold">${code}</p>
-           <p>Bu kod 5 dakika geçerlidir.</p>`
-  })
-});
+  const resendResponse = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: "Vera <onboarding@resend.dev>",
+      to: env.ADMIN_EMAIL,
+      subject: "Vera giriş doğrulama kodu",
+      html: `
+        <div style="font-family:Arial,sans-serif;line-height:1.6">
+          <h2>Vera giriş doğrulama kodunuz</h2>
+          <p style="font-size:32px;font-weight:bold;letter-spacing:4px">${code}</p>
+          <p>Bu kod 5 dakika geçerlidir.</p>
+        </div>
+      `
+    })
+  });
 
-return json({
-  ok: true,
-  message: "Doğrulama kodu mail gönderildi",
-  loginId
-});
+  if (!resendResponse.ok) {
+    const errorText = await resendResponse.text();
+    return json({
+      ok: false,
+      error: "Mail gönderilemedi",
+      detail: errorText
+    }, 500);
+  }
+
+  return json({
+    ok: true,
+    message: "Doğrulama kodu mail adresinize gönderildi.",
+    loginId
+  });
 }
