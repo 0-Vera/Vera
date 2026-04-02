@@ -81,7 +81,7 @@
       <label>6 Haneli Kod</label>
       <input id="code" type="text" inputmode="numeric" maxlength="6" placeholder="Doğrulama kodu" />
       <button id="verifyBtn" type="button">Kodu Doğrula</button>
-      <div class="small">Şimdilik test için kod ekranda gösterilecek.</div>
+      <div class="small">Kod e-posta adresinize gönderildi.</div>
     </div>
 
     <div id="msg" class="msg"></div>
@@ -100,23 +100,27 @@
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
 
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ username, password })
-      });
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!data.ok) {
-        msg.textContent = data.error || "Giriş başarısız";
-        return;
+        if (!data.ok) {
+          msg.textContent = data.error || "Giriş başarısız";
+          return;
+        }
+
+        currentLoginId = data.loginId;
+        step1.classList.add("hidden");
+        step2.classList.remove("hidden");
+        msg.textContent = data.message || "Doğrulama kodu mail adresinize gönderildi.";
+      } catch {
+        msg.textContent = "İstek gönderilirken hata oluştu.";
       }
-
-      currentLoginId = data.loginId;
-      step1.classList.add("hidden");
-      step2.classList.remove("hidden");
-      msg.textContent = "İlk doğrulama geçti.\nTest kodu: " + data.debugCode;
     });
 
     document.getElementById("verifyBtn").addEventListener("click", async () => {
@@ -124,20 +128,24 @@
 
       const code = document.getElementById("code").value.trim();
 
-      const res = await fetch("/api/verify", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ loginId: currentLoginId, code })
-      });
+      try {
+        const res = await fetch("/api/verify", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ loginId: currentLoginId, code })
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (!data.ok) {
-        msg.textContent = data.error || "Kod doğrulama başarısız";
-        return;
+        if (!data.ok) {
+          msg.textContent = data.error || "Kod doğrulama başarısız";
+          return;
+        }
+
+        window.location.href = "/admin";
+      } catch {
+        msg.textContent = "Doğrulama sırasında hata oluştu.";
       }
-
-      window.location.href = "/admin";
     });
   </script>
 </body>
