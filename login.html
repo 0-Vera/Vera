@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Giriş</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 24px;
+    }
+    h1 { margin-top: 0; margin-bottom: 18px; }
+    label { display: block; margin-bottom: 8px; font-size: 14px; color: #cbd5e1; }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: #111827;
+      color: white;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      border: 0;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .muted {
+      margin-top: 12px;
+      font-size: 13px;
+      color: #94a3b8;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Yönetici Girişi</h1>
+    <form>
+      <label>Kullanıcı Adı</label>
+      <input type="text" placeholder="Kullanıcı adı" />
+
+      <label>Şifre</label>
+      <input type="password" placeholder="Şifre" />
+
+      <button type="button">Giriş Yap</button>
+    </form>
+    <div class="muted">Doğrulama kodu sonraki adımda e-posta ile gönderilecek.</div>
+  </div>
+</body>
+</html>
