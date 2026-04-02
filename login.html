@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Giriş</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Admin Giriş</h2>
+        <div class="login-form">
+            <input id="username" type="text" placeholder="Kullanıcı Adı">
+            <input id="password" type="password" placeholder="Şifre">
+            <button onclick="login()">Giriş Yap</button>
+        </div>
+        <div id="otpSection" class="otp-section" style="display:none">
+            <input id="otp" type="text" placeholder="Doğrulama Kodu">
+            <button onclick="verify()">Onayla</button>
+        </div>
+        <p id="message" class="message"></p>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
