@@ -58,10 +58,25 @@ export async function onRequestPost(context) {
     { expirationTtl: 300 }
   );
 
-  return json({
-    ok: true,
-    message: "İlk doğrulama başarılı",
-    loginId,
-    debugCode: code
-  });
+await fetch("https://api.resend.com/emails", {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${env.RESEND_API_KEY}`,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    from: "Vera <onboarding@resend.dev>",
+    to: env.ADMIN_EMAIL,
+    subject: "Vera giriş doğrulama kodu",
+    html: `<h2>Vera giriş doğrulama kodunuz</h2>
+           <p style="font-size:32px;font-weight:bold">${code}</p>
+           <p>Bu kod 5 dakika geçerlidir.</p>`
+  })
+});
+
+return json({
+  ok: true,
+  message: "Doğrulama kodu mail gönderildi",
+  loginId
+});
 }
