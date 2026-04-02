@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; background: #0f172a; color: #e5e7eb; }
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 260px;
+      background: #111827;
+      border-right: 1px solid rgba(255,255,255,.08);
+      padding: 20px;
+    }
+    .sidebar h2 { margin-top: 0; font-size: 20px; }
+    .sidebar a {
+      display: block;
+      color: #cbd5e1;
+      text-decoration: none;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,.03);
+    }
+    .content {
+      flex: 1;
+      padding: 28px;
+    }
+    .card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2>Panel</h2>
+      <a href="#">Ana Sayfa</a>
+      <a href="#">Bilgiler</a>
+      <a href="#">Ayarlar</a>
+    </aside>
+    <main class="content">
+      <div class="card">
+        <h1>Admin Panel</h1>
+        <p>Bu alan yalnızca yetkili giriş sonrası açılacak şekilde bağlanacak.</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
