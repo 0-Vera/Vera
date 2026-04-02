@@ -1,73 +1,24 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vera Secure Login</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f5f5f5;
-    }
-    .container {
-      width: 300px;
-      padding: 2rem;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    h2 {
-      margin-top: 0;
-      text-align: center;
-    }
-    label { display: block; margin-top: 1rem; }
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 1rem;
-      background-color: #1976d2;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover { background-color: #1565c0; }
-    .error { color: #d32f2f; margin-top: 0.5rem; }
-    #success { color: #2e7d32; text-align: center; font-weight: bold; }
-  </style>
+  <meta charset="UTF-8">
+  <title>Vera Panel</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h2>Giris Yap</h2>
-    <div id="login-form">
-      <label for="username">Kullanıcı Adı</label>
-      <input id="username" type="text" />
-      <label for="password">Şifre</label>
-      <input id="password" type="password" />
-      <button id="login-btn">Giris</button>
-      <div class="error" id="login-error"></div>
-    </div>
-    <div id="totp-form" style="display:none;">
-      <label for="totp">6 Haneli Kod (Authenticator)</label>
-      <input id="totp" type="text" />
-      <button id="totp-btn">Doğrula</button>
-      <div class="error" id="totp-error"></div>
-    </div>
-    <div id="success" style="display:none;">
-      Giris başarılı! Hoş geldiniz.
-    </div>
+  <div class="sidebar">
+    <h2>Vera Panel</h2>
+    <ul>
+      <li><a href="#">Ana Sayfa</a></li>
+      <li><a href="#">Bilgiler</a></li>
+      <li><a href="#">Notlar</a></li>
+      <li><a href="#">API</a></li>
+      <li><a href="#">Ayarlar</a></li>
+    </ul>
   </div>
-  <script src="script.js"></script>
+  <div class="content">
+    <h1>Hoşgeldiniz</h1>
+    <p>Bu alan yalnızca yetkili erişim için hazırlanmış özel kontrol panelidir.</p>
+  </div>
 </body>
 </html>
