@@ -1,52 +1,138 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel</title>
-  <style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Panel</title>
+<style>
     * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { margin: 0; background: #0f172a; color: #e5e7eb; }
-    .layout { display: flex; min-height: 100vh; }
-    .sidebar {
-      width: 260px;
-      background: #111827;
-      border-right: 1px solid rgba(255,255,255,.08);
-      padding: 20px;
-    }
-    .sidebar h2 { margin-top: 0; font-size: 20px; }
-    .sidebar a {
-      display: block;
-      color: #cbd5e1;
-      text-decoration: none;
-      padding: 10px 12px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-      background: rgba(255,255,255,.03);
-    }
-    .content { flex: 1; padding: 28px; }
-    .card {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 18px;
-      padding: 24px;
-    }
-  </style>
+    body { margin:0; background:#0f172a; color:#e5e7eb; display:flex; min-height:100vh; }
+    .sidebar { width:250px; background:#111827; border-right:1px solid rgba(255,255,255,.08); padding:20px; }
+    .sidebar h2 { margin-top:0; font-size:20px; }
+    .sidebar a { display:block; color:#cbd5e1; text-decoration:none; margin-bottom:10px; padding:6px; border-radius:6px; }
+    .sidebar a:hover { background:rgba(255,255,255,.1); }
+    .content { flex:1; padding:20px; }
+    .card { background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:20px; margin-bottom:20px; }
+    label { display:block; margin-top:12px; margin-bottom:4px; color:#cbd5e1; }
+    input, textarea { width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,.1); background:#111827; color:#fff; resize:vertical; }
+    button { margin-top:12px; padding:10px; width:100%; background:#2563eb; color:#fff; font-weight:bold; border:none; border-radius:8px; cursor:pointer; }
+    ul { list-style:none; padding:0; margin:0; }
+    li { padding:6px; cursor:pointer; border-radius:6px; }
+    li.active, li:hover { background:rgba(37,99,235,.3); }
+</style>
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar">
-      <h2>Panel</h2>
-      <a href="/admin">Ana Sayfa</a>
-      <a href="#">Bilgiler</a>
-      <a href="#">Ayarlar</a>
-    </aside>
-    <main class="content">
-      <div class="card">
-        <h1>Admin Panel</h1>
-        <p>Bu alan oturum doğrulaması olmadan açılmaz.</p>
-      </div>
-    </main>
-  </div>
+<div class="sidebar">
+    <h2>Panel</h2>
+    <a id="logoutLink" href="#">Çıkış Yap</a>
+    <h3>Menüler</h3>
+    <ul id="menuList"></ul>
+    <button id="newMenuBtn">Yeni Menü Ekle</button>
+</div>
+<div class="content">
+    <div class="card">
+        <h1>Menü Düzenle</h1>
+        <form id="menuForm">
+            <label for="title">Başlık</label>
+            <input id="title" type="text" placeholder="Menü başlığı" />
+            <label for="slug">Slug</label>
+            <input id="slug" type="text" placeholder="menü-slug" />
+            <label for="content">İçerik</label>
+            <textarea id="content" rows="6" placeholder="Sayfa içeriği"></textarea>
+            <button type="submit">Kaydet</button>
+        </form>
+    </div>
+    <div id="status" class="card" style="display:none;"></div>
+</div>
+<script>
+let menus = [];
+let currentIndex = -1;
+
+async function loadMenus() {
+    try {
+        const res = await fetch('/api/menu');
+        const data = await res.json();
+        if (data.ok) {
+            menus = data.menus || [];
+            renderMenuList();
+        } else {
+            console.error(data);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function renderMenuList() {
+    const list = document.getElementById('menuList');
+    list.innerHTML = '';
+    menus.forEach((m, i) => {
+        const li = document.createElement('li');
+        li.textContent = m.title;
+        if (i === currentIndex) li.classList.add('active');
+        li.addEventListener('click', () => {
+            currentIndex = i;
+            fillForm(m);
+            renderMenuList();
+        });
+        list.appendChild(li);
+    });
+}
+
+function fillForm(menu) {
+    document.getElementById('title').value = menu.title || '';
+    document.getElementById('slug').value = menu.slug || '';
+    document.getElementById('content').value = menu.content || '';
+}
+
+document.getElementById('menuForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('title').value.trim();
+    const slug = document.getElementById('slug').value.trim();
+    const content = document.getElementById('content').value;
+    if (!title || !slug) {
+        alert('Başlık ve slug gereklidir.');
+        return;
+    }
+    const body = { title, slug, content };
+    try {
+        const res = await fetch('/api/menu', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.ok) {
+            menus = data.menus || [];
+            currentIndex = menus.findIndex((m) => m.slug === slug);
+            renderMenuList();
+            fillForm(menus[currentIndex]);
+            alert('Menü kaydedildi.');
+        } else {
+            alert(data.error || 'Hata oluştu.');
+        }
+    } catch (err) {
+        alert('Hata oluştu.');
+    }
+});
+
+document.getElementById('newMenuBtn').addEventListener('click', () => {
+    currentIndex = -1;
+    document.getElementById('title').value = '';
+    document.getElementById('slug').value = '';
+    document.getElementById('content').value = '';
+    renderMenuList();
+});
+
+document.getElementById('logoutLink').addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+        await fetch('/api/logout', { method: 'POST' });
+    } catch (err) {}
+    window.location.href = '/login.html';
+});
+
+loadMenus();
+</script>
 </body>
 </html>
