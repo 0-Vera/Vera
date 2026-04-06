@@ -4,8 +4,118 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vera</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 760px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 20px;
+      padding: 34px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 34px;
+    }
+
+    p {
+      margin: 0 0 24px;
+      color: #64748b;
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    a.btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      background: #ffffff;
+      min-width: 120px;
+    }
+
+    a.btn.primary {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+  </style>
 </head>
 <body>
-  Vera
+  <div class="wrap">
+    <div class="card">
+      <h1 id="siteTitle">Vera</h1>
+      <p id="siteDescription">Yükleniyor...</p>
+
+      <div class="actions">
+        <a id="primaryButton" class="btn primary" href="/admin">Admin</a>
+        <a id="secondaryButton" class="btn" href="/login">Giriş</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadPublicContent() {
+      try {
+        const res = await fetch("/api/site-content", {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        const data = await res.json();
+        const content = data.content || {};
+
+        document.title = content.siteTitle || "Vera";
+        document.getElementById("siteTitle").textContent = content.siteTitle || "Vera";
+        document.getElementById("siteDescription").textContent = content.siteDescription || "Hoş geldiniz.";
+
+        const primaryButton = document.getElementById("primaryButton");
+        primaryButton.textContent = content.primaryButtonText || "Admin";
+        primaryButton.href = content.primaryButtonLink || "/admin";
+
+        const secondaryButton = document.getElementById("secondaryButton");
+        secondaryButton.textContent = content.secondaryButtonText || "Giriş";
+        secondaryButton.href = content.secondaryButtonLink || "/login";
+      } catch (err) {
+        document.getElementById("siteDescription").textContent = "İçerik yüklenemedi.";
+      }
+    }
+
+    loadPublicContent();
+  </script>
 </body>
 </html>
