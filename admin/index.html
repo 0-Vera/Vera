@@ -3,228 +3,390 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Admin Panel</title>
+<title>Menü Yönetimi</title>
 <style>
-    * { box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { margin:0; background:#f9fafb; color:#1f2937; display:flex; min-height:100vh; }
-    .sidebar { width:260px; background:#ffffff; border-right:1px solid #e5e7eb; padding:20px; }
-    .sidebar h2 { margin-top:0; font-size:22px; color:#1f2937; }
-    .sidebar h3 { font-size:15px; margin-top:20px; margin-bottom:10px; color:#6b7280; text-transform:uppercase; letter-spacing:.04em; }
-    .sidebar a, .sidebar .nav-link {
-        display:block;
-        color:#374151;
-        text-decoration:none;
-        margin-bottom:8px;
-        padding:10px 12px;
-        border-radius:8px;
-        transition:background .2s,color .2s;
-        cursor:pointer;
-    }
-    .sidebar a:hover, .sidebar .nav-link:hover, .sidebar .active-nav {
-        background:#e0f2fe;
-        color:#111827;
-    }
-    .content { flex:1; padding:24px; }
-    .card {
-        background:#ffffff;
-        border:1px solid #e5e7eb;
-        border-radius:14px;
-        padding:20px;
-        margin-bottom:20px;
-        box-shadow:0 1px 2px rgba(0,0,0,.05);
-    }
-    label { display:block; margin-top:12px; margin-bottom:6px; color:#4b5563; }
-    input, textarea {
-        width:100%;
-        padding:10px 12px;
-        border-radius:10px;
-        border:1px solid #d1d5db;
-        background:#f9fafb;
-        color:#111827;
-        resize:vertical;
-    }
-    textarea { min-height:220px; }
-    button {
-        margin-top:12px;
-        padding:10px 14px;
-        background:#2563eb;
-        color:#fff;
-        font-weight:bold;
-        border:none;
-        border-radius:10px;
-        cursor:pointer;
-    }
-    .secondary-btn {
-        background:#e5e7eb;
-        color:#111827;
-        margin-left:8px;
-    }
-    ul { list-style:none; padding:0; margin:0; }
-    li {
-        padding:10px 12px;
-        cursor:pointer;
-        border-radius:8px;
-        color:#374151;
-        margin-bottom:8px;
-        border:1px solid #e5e7eb;
-    }
-    li.active, li:hover { background:#eff6ff; border-color:#93c5fd; }
-    .actions { display:flex; gap:10px; flex-wrap:wrap; }
-    .muted { color:#6b7280; font-size:14px; }
+  * { box-sizing: border-box; font-family: Arial, sans-serif; }
+  body { margin: 0; background: #f9fafb; color: #1f2937; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 260px;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    padding: 20px;
+  }
+  .sidebar h2 { margin: 0 0 20px; font-size: 22px; }
+  .sidebar a, .sidebar button.link-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+    color: #374151;
+    background: transparent;
+    border: 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .sidebar a:hover, .sidebar button.link-btn:hover, .sidebar .active {
+    background: #e0f2fe;
+    color: #111827;
+  }
+  .content { flex: 1; padding: 24px; }
+  .card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  label {
+    display: block;
+    font-size: 14px;
+    color: #4b5563;
+    margin-bottom: 6px;
+  }
+  input, select {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #f9fafb;
+    color: #111827;
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  button {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .primary { background: #2563eb; color: #fff; }
+  .danger { background: #dc2626; color: #fff; }
+  .secondary { background: #e5e7eb; color: #111827; }
+  .list-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  .list-item:hover, .list-item.active {
+    background: #eff6ff;
+    border-color: #93c5fd;
+  }
+  .muted { color: #6b7280; font-size: 13px; }
+  .status {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  .status.ok { display: block; background: #dcfce7; color: #166534; }
+  .status.error { display: block; background: #fee2e2; color: #991b1b; }
 </style>
 </head>
 <body>
-<div class="sidebar">
+<div class="layout">
+  <aside class="sidebar">
     <h2>CMS Panel</h2>
-
-    <h3>Navigasyon</h3>
-    <a href="/admin/" class="active-nav">Menü Yönetimi</a>
+    <a href="/admin/" class="active">Menü Yönetimi</a>
     <a href="/admin/pages.html">Sayfa Yönetimi</a>
     <a href="/" target="_blank">Siteyi Aç</a>
-    <a id="logoutLink" href="#">Çıkış Yap</a>
+    <button class="link-btn" id="logoutBtn">Çıkış Yap</button>
+  </aside>
 
-    <h3>Menüler</h3>
-    <ul id="menuList"></ul>
-    <button id="newMenuBtn">Yeni Menü Ekle</button>
-</div>
-
-<div class="content">
+  <main class="content">
     <div class="card">
-        <h1>Menü Düzenle</h1>
-        <p class="muted">Ana sitede görünecek menü öğelerini buradan yönetebilirsin.</p>
-
-        <form id="menuForm">
-            <label for="title">Başlık</label>
-            <input id="title" type="text" placeholder="Menü başlığı" />
-
-            <label for="slug">Slug</label>
-            <input id="slug" type="text" placeholder="menu-slug" />
-
-            <label for="content">İçerik</label>
-            <textarea id="content" rows="6" placeholder="Sayfa içeriği"></textarea>
-
-            <div class="actions">
-                <button type="submit">Kaydet</button>
-                <button type="button" class="secondary-btn" id="clearBtn">Temizle</button>
-            </div>
-        </form>
+      <h1>Menü Yönetimi</h1>
+      <p class="muted">Burada sadece menüyü ve hangi sayfaya gideceğini belirliyorsun.</p>
+      <div id="status" class="status"></div>
     </div>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label for="title">Menü Başlığı</label>
+          <input id="title" type="text" placeholder="Örn: Hakkımızda" />
+        </div>
+
+        <div>
+          <label for="slug">Menü Slug</label>
+          <input id="slug" type="text" placeholder="hakkimizda-menu" />
+        </div>
+
+        <div>
+          <label for="pageSlug">Bağlı Sayfa</label>
+          <select id="pageSlug"></select>
+        </div>
+
+        <div>
+          <label for="order">Sıra</label>
+          <input id="order" type="number" min="0" value="0" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="saveBtn">Kaydet</button>
+        <button class="secondary" id="newBtn">Yeni Menü</button>
+        <button class="danger" id="deleteBtn">Sil</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Kayıtlı Menüler</h2>
+      <div id="menuList"></div>
+    </div>
+  </main>
 </div>
 
 <script>
-let menus = [];
-let currentIndex = -1;
+  let menus = [];
+  let pages = [];
+  let currentSlug = "";
 
-async function loadMenus() {
-    try {
-        const res = await fetch('/api/menu');
-        const data = await res.json();
+  function showStatus(message, type) {
+    const box = document.getElementById("status");
+    box.className = "status " + type;
+    box.textContent = message;
+  }
 
-        if (data.ok) {
-            menus = data.menus || [];
-            renderMenuList();
-        } else {
-            console.error(data);
-        }
-    } catch (err) {
-        console.error(err);
+  function clearStatus() {
+    const box = document.getElementById("status");
+    box.className = "status";
+    box.textContent = "";
+  }
+
+  function slugify(text) {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/ğ/g, "g")
+      .replace(/ü/g, "u")
+      .replace(/ş/g, "s")
+      .replace(/ı/g, "i")
+      .replace(/ö/g, "o")
+      .replace(/ç/g, "c")
+      .replace(/[^a-z0-9\\s-]/g, "")
+      .replace(/\\s+/g, "-")
+      .replace(/-+/g, "-");
+  }
+
+  function fillPageOptions() {
+    const select = document.getElementById("pageSlug");
+    select.innerHTML = "";
+
+    if (!pages.length) {
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "Önce sayfa oluştur";
+      select.appendChild(option);
+      return;
     }
-}
 
-function renderMenuList() {
-    const list = document.getElementById('menuList');
-    list.innerHTML = '';
+    pages.forEach((page) => {
+      const option = document.createElement("option");
+      option.value = page.slug;
+      option.textContent = `${page.title} (${page.slug})`;
+      select.appendChild(option);
+    });
+  }
+
+  function fillForm(menu) {
+    document.getElementById("title").value = menu.title || "";
+    document.getElementById("slug").value = menu.slug || "";
+    document.getElementById("pageSlug").value = menu.pageSlug || "";
+    document.getElementById("order").value = Number.isFinite(menu.order) ? menu.order : 0;
+    currentSlug = menu.slug || "";
+  }
+
+  function clearForm() {
+    document.getElementById("title").value = "";
+    document.getElementById("slug").value = "";
+    document.getElementById("pageSlug").value = pages[0]?.slug || "";
+    document.getElementById("order").value = menus.length;
+    currentSlug = "";
+  }
+
+  function renderList() {
+    const list = document.getElementById("menuList");
+    list.innerHTML = "";
 
     if (!menus.length) {
-        const empty = document.createElement('li');
-        empty.textContent = 'Henüz menü yok';
-        empty.style.cursor = 'default';
-        list.appendChild(empty);
-        return;
+      list.innerHTML = '<div class="muted">Henüz menü yok.</div>';
+      return;
     }
 
-    menus.forEach((m, i) => {
-        const li = document.createElement('li');
-        li.textContent = m.title;
-        if (i === currentIndex) li.classList.add('active');
-
-        li.addEventListener('click', () => {
-            currentIndex = i;
-            fillForm(m);
-            renderMenuList();
+    menus
+      .slice()
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .forEach((menu) => {
+        const item = document.createElement("div");
+        item.className = "list-item" + (menu.slug === currentSlug ? " active" : "");
+        item.innerHTML = `
+          <strong>${menu.title || "-"}</strong>
+          <div class="muted">slug: ${menu.slug || "-"}</div>
+          <div class="muted">sayfa: ${menu.pageSlug || "-"}</div>
+          <div class="muted">sıra: ${menu.order ?? 0}</div>
+        `;
+        item.addEventListener("click", () => {
+          fillForm(menu);
+          renderList();
         });
+        list.appendChild(item);
+      });
+  }
 
-        list.appendChild(li);
-    });
-}
+  async function loadPages() {
+    const res = await fetch("/api/pages");
+    const data = await res.json();
+    pages = data.pages || [];
+    fillPageOptions();
+  }
 
-function fillForm(menu) {
-    document.getElementById('title').value = menu.title || '';
-    document.getElementById('slug').value = menu.slug || '';
-    document.getElementById('content').value = menu.content || '';
-}
+  async function loadMenus() {
+    const res = await fetch("/api/menu");
+    const data = await res.json();
+    menus = data.menus || [];
+    renderList();
+  }
 
-function clearForm() {
-    currentIndex = -1;
-    document.getElementById('title').value = '';
-    document.getElementById('slug').value = '';
-    document.getElementById('content').value = '';
-    renderMenuList();
-}
+  async function saveMenu() {
+    clearStatus();
 
-document.getElementById('menuForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    const title = document.getElementById("title").value.trim();
+    let slug = document.getElementById("slug").value.trim();
+    const pageSlug = document.getElementById("pageSlug").value.trim();
+    const order = Number(document.getElementById("order").value || 0);
 
-    const title = document.getElementById('title').value.trim();
-    const slug = document.getElementById('slug').value.trim();
-    const content = document.getElementById('content').value;
-
-    if (!title || !slug) {
-        alert('Başlık ve slug gereklidir.');
-        return;
+    if (!title) {
+      showStatus("Menü başlığı zorunludur.", "error");
+      return;
     }
 
-    const body = { title, slug, content };
+    if (!slug) {
+      slug = slugify(title);
+      document.getElementById("slug").value = slug;
+    } else {
+      slug = slugify(slug);
+      document.getElementById("slug").value = slug;
+    }
+
+    if (!pageSlug) {
+      showStatus("Bağlanacak bir sayfa seçmelisin.", "error");
+      return;
+    }
 
     try {
-        const res = await fetch('/api/menu', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-        });
+      const res = await fetch("/api/menu", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          slug,
+          pageSlug,
+          order
+        })
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (data.ok) {
-            menus = data.menus || [];
-            currentIndex = menus.findIndex((m) => m.slug === slug);
-            renderMenuList();
+      if (!data.ok) {
+        showStatus(data.error || "Kayıt sırasında hata oluştu.", "error");
+        return;
+      }
 
-            if (currentIndex >= 0) {
-                fillForm(menus[currentIndex]);
-            }
-
-            alert('Menü kaydedildi.');
-        } else {
-            alert(data.error || 'Hata oluştu.');
-        }
+      menus = data.menus || [];
+      currentSlug = slug;
+      renderList();
+      showStatus("Menü kaydedildi.", "ok");
     } catch (err) {
-        alert('Hata oluştu.');
+      showStatus("Kayıt sırasında hata oluştu.", "error");
     }
-});
+  }
 
-document.getElementById('newMenuBtn').addEventListener('click', clearForm);
-document.getElementById('clearBtn').addEventListener('click', clearForm);
+  async function deleteMenu() {
+    clearStatus();
 
-document.getElementById('logoutLink').addEventListener('click', async (e) => {
-    e.preventDefault();
+    const slug = document.getElementById("slug").value.trim();
+
+    if (!slug) {
+      showStatus("Silmek için önce bir menü seç.", "error");
+      return;
+    }
+
+    const confirmed = confirm(`"${slug}" menüsü silinsin mi?`);
+    if (!confirmed) return;
+
     try {
-        await fetch('/api/logout', { method: 'POST' });
-    } catch (err) {}
-    window.location.href = '/login.html';
-});
+      const res = await fetch("/api/menu?slug=" + encodeURIComponent(slug), {
+        method: "DELETE"
+      });
 
-loadMenus();
+      const data = await res.json();
+
+      if (!data.ok) {
+        showStatus(data.error || "Silme sırasında hata oluştu.", "error");
+        return;
+      }
+
+      menus = data.menus || [];
+      clearForm();
+      renderList();
+      showStatus("Menü silindi.", "ok");
+    } catch (err) {
+      showStatus("Silme sırasında hata oluştu.", "error");
+    }
+  }
+
+  document.getElementById("title").addEventListener("input", () => {
+    const slugInput = document.getElementById("slug");
+    if (!currentSlug && !slugInput.value.trim()) {
+      slugInput.value = slugify(document.getElementById("title").value);
+    }
+  });
+
+  document.getElementById("saveBtn").addEventListener("click", saveMenu);
+  document.getElementById("newBtn").addEventListener("click", () => {
+    clearForm();
+    clearStatus();
+    renderList();
+  });
+  document.getElementById("deleteBtn").addEventListener("click", deleteMenu);
+
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } catch (err) {}
+    window.location.href = "/login.html";
+  });
+
+  async function init() {
+    try {
+      await loadPages();
+      await loadMenus();
+      clearForm();
+    } catch (err) {
+      showStatus("Veriler yüklenemedi.", "error");
+    }
+  }
+
+  init();
 </script>
 </body>
 </html>
