@@ -27,14 +27,21 @@ async function checkSession(request, env) {
 
 export async function onRequestGet(context) {
   const { env } = context;
-  const raw = await env.AUTH_KV.get("menu");
-  let menus = [];
-  if (raw) {
-    try {
-      menus = JSON.parse(raw);
-    } catch {}
-  }
-  return json({ ok: true, menus });
+  const menus = (await env.AUTH_KV.get("menu", { type: "json" })) || [];
+  const pages = (await env.AUTH_KV.get("pages", { type: "json" })) || [];
+
+  const enriched = menus
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    .map((menu) => {
+      const page = pages.find((p) => p.slug === menu.pageSlug) || null;
+      return {
+        ...menu,
+        pageTitle: page?.title || "",
+        pageExists: !!page
+      };
+    });
+
+  return json({ ok: true, menus: enriched });
 }
 
 export async function onRequestPost(context) {
@@ -43,6 +50,7 @@ export async function onRequestPost(context) {
   if (!authorized) {
     return json({ ok: false, error: "Yetkisiz" }, 401);
   }
+
   let body;
   try {
     body = await request.json();
@@ -50,21 +58,64 @@ export async function onRequestPost(context) {
     return json({ ok: false, error: "Geçersiz istek" }, 400);
   }
 
-  let menus;
+  let menus = (await env.AUTH_KV.get("menu", { type: "json" })) || [];
+
   if (Array.isArray(body.menus)) {
-    menus = body.menus;
-  } else if (body.title && body.slug) {
-    const raw = await env.AUTH_KV.get("menu");
-    menus = raw ? JSON.parse(raw) : [];
-    const index = menus.findIndex((m) => m.slug === body.slug);
-    if (index >= 0) {
-      menus[index] = { ...menus[index], ...body };
-    } else {
-      menus.push({ title: body.title, slug: body.slug, content: body.content || "" });
-    }
+    menus = body.menus.map((item, index) => ({
+      title: (item.title || "").trim(),
+      slug: (item.slug || "").trim(),
+      pageSlug: (item.pageSlug || "").trim(),
+      order: typeof item.order === "number" ? item.order : index
+    }));
   } else {
-    return json({ ok: false, error: "Geçersiz veri" }, 400);
+    const item = {
+      title: (body.title || "").trim(),
+      slug: (body.slug || "").trim(),
+      pageSlug: (body.pageSlug || "").trim(),
+      order: Number.isFinite(body.order) ? body.order : menus.length
+    };
+
+    if (!item.title || !item.slug || !item.pageSlug) {
+      return json({ ok: false, error: "Başlık, slug ve sayfa seçimi gereklidir." }, 400);
+    }
+
+    const index = menus.findIndex((m) => m.slug === item.slug);
+
+    if (index >= 0) {
+      menus[index] = {
+        ...menus[index],
+        ...item
+      };
+    } else {
+      menus.push(item);
+    }
   }
+
+  menus = menus
+    .filter((m) => m.title && m.slug && m.pageSlug)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+    .map((m, index) => ({ ...m, order: index }));
+
+  await env.AUTH_KV.put("menu", JSON.stringify(menus));
+  return json({ ok: true, menus });
+}
+
+export async function onRequestDelete(context) {
+  const { request, env } = context;
+  const authorized = await checkSession(request, env);
+  if (!authorized) {
+    return json({ ok: false, error: "Yetkisiz" }, 401);
+  }
+
+  const url = new URL(request.url);
+  const slug = url.searchParams.get("slug");
+
+  if (!slug) {
+    return json({ ok: false, error: "Silmek için slug gerekli." }, 400);
+  }
+
+  let menus = (await env.AUTH_KV.get("menu", { type: "json" })) || [];
+  menus = menus.filter((m) => m.slug !== slug).map((m, index) => ({ ...m, order: index }));
 
   await env.AUTH_KV.put("menu", JSON.stringify(menus));
   return json({ ok: true, menus });
