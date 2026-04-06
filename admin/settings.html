@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Genel Site Ayarları</title>
+<style>
+  * { box-sizing: border-box; font-family: Arial, sans-serif; }
+  body { margin: 0; background: #f9fafb; color: #1f2937; }
+  .layout { display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 260px;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    padding: 20px;
+  }
+  .sidebar h2 { margin: 0 0 20px; font-size: 22px; }
+  .sidebar a, .sidebar button.link-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+    color: #374151;
+    background: transparent;
+    border: 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .sidebar a:hover, .sidebar button.link-btn:hover, .sidebar .active {
+    background: #e0f2fe;
+    color: #111827;
+  }
+  .content { flex: 1; padding: 24px; }
+  .card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 14px;
+  }
+  .col-6 { grid-column: span 6; }
+  .col-4 { grid-column: span 4; }
+  .full { grid-column: 1 / -1; }
+  label {
+    display: block;
+    font-size: 14px;
+    color: #4b5563;
+    margin-bottom: 6px;
+  }
+  input, textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #f9fafb;
+    color: #111827;
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  button {
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .primary { background: #2563eb; color: #fff; }
+  .secondary { background: #e5e7eb; color: #111827; }
+  .status {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+  }
+  .status.ok { display: block; background: #dcfce7; color: #166534; }
+  .status.error { display: block; background: #fee2e2; color: #991b1b; }
+  @media (max-width: 980px) {
+    .layout { display: block; }
+    .sidebar { width: 100%; border-right: 0; border-bottom: 1px solid #e5e7eb; }
+    .col-6, .col-4, .full { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h2>CMS Panel</h2>
+    <a href="/admin/">Menü Yönetimi</a>
+    <a href="/admin/pages.html">Sayfa Yönetimi</a>
+    <a href="/admin/settings.html" class="active">Genel Site Ayarları</a>
+    <a href="/" target="_blank">Siteyi Aç</a>
+    <button class="link-btn" id="logoutBtn">Çıkış Yap</button>
+  </aside>
+
+  <main class="content">
+    <div class="card">
+      <h1>Genel Site Ayarları</h1>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <div class="col-6">
+          <label for="siteTitle">Site Başlığı</label>
+          <input id="siteTitle" type="text" />
+        </div>
+
+        <div class="col-6">
+          <label for="headerMaxWidth">Site Genişliği (px)</label>
+          <input id="headerMaxWidth" type="number" min="640" max="2400" />
+        </div>
+
+        <div class="full">
+          <label for="siteDescription">Site Açıklaması</label>
+          <textarea id="siteDescription"></textarea>
+        </div>
+
+        <div class="col-4">
+          <label for="siteBg">Genel Arka Plan</label>
+          <input id="siteBg" type="color" />
+        </div>
+
+        <div class="col-4">
+          <label for="siteText">Genel Metin</label>
+          <input id="siteText" type="color" />
+        </div>
+
+        <div class="col-4">
+          <label for="siteAccent">Vurgu Rengi</label>
+          <input id="siteAccent" type="color" />
+        </div>
+
+        <div class="col-4">
+          <label for="siteCard">Kart Rengi</label>
+          <input id="siteCard" type="color" />
+        </div>
+
+        <div class="col-4">
+          <label for="siteBorder">Kenarlık Rengi</label>
+          <input id="siteBorder" type="color" />
+        </div>
+
+        <div class="col-4">
+          <label for="headerPadding">Dış Boşluk</label>
+          <input id="headerPadding" type="number" min="0" max="120" />
+        </div>
+
+        <div class="col-4">
+          <label for="navRadius">Menü Yuvarlaklığı</label>
+          <input id="navRadius" type="number" min="0" max="999" />
+        </div>
+
+        <div class="col-4">
+          <label for="mainRadius">İçerik Kart Yuvarlaklığı</label>
+          <input id="mainRadius" type="number" min="0" max="60" />
+        </div>
+
+        <div class="col-4">
+          <label for="mainPadding">İçerik Kart İç Boşluğu</label>
+          <input id="mainPadding" type="number" min="0" max="120" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="saveBtn" type="button">Kaydet</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  function showStatus(message, type) {
+    const box = document.getElementById("status");
+    box.className = "status " + type;
+    box.textContent = message;
+  }
+
+  async function loadSettings() {
+    try {
+      const res = await fetch("/api/settings");
+      const data = await res.json();
+      const s = data.settings || {};
+
+      Object.keys(s).forEach((key) => {
+        const el = document.getElementById(key);
+        if (el) el.value = s[key];
+      });
+    } catch (err) {
+      showStatus("Ayarlar yüklenemedi.", "error");
+    }
+  }
+
+  async function saveSettings() {
+    const payload = {
+      siteTitle: document.getElementById("siteTitle").value.trim(),
+      siteDescription: document.getElementById("siteDescription").value.trim(),
+      siteBg: document.getElementById("siteBg").value,
+      siteText: document.getElementById("siteText").value,
+      siteAccent: document.getElementById("siteAccent").value,
+      siteCard: document.getElementById("siteCard").value,
+      siteBorder: document.getElementById("siteBorder").value,
+      headerMaxWidth: Number(document.getElementById("headerMaxWidth").value || 1180),
+      headerPadding: Number(document.getElementById("headerPadding").value || 24),
+      navRadius: Number(document.getElementById("navRadius").value || 999),
+      mainRadius: Number(document.getElementById("mainRadius").value || 18),
+      mainPadding: Number(document.getElementById("mainPadding").value || 24)
+    };
+
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (!data.ok) {
+        showStatus(data.error || "Kayıt sırasında hata oluştu.", "error");
+        return;
+      }
+
+      showStatus("Genel ayarlar kaydedildi.", "ok");
+    } catch (err) {
+      showStatus("Kayıt sırasında hata oluştu.", "error");
+    }
+  }
+
+  document.getElementById("saveBtn").addEventListener("click", saveSettings);
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } catch (err) {}
+    window.location.href = "/login.html";
+  });
+
+  loadSettings();
+</script>
+</body>
+</html>
