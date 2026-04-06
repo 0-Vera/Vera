@@ -28,20 +28,7 @@ async function checkSession(request, env) {
 export async function onRequestGet(context) {
   const { env } = context;
   const menus = (await env.AUTH_KV.get("menu", { type: "json" })) || [];
-  const pages = (await env.AUTH_KV.get("pages", { type: "json" })) || [];
-
-  const enriched = menus
-    .sort((a, b) => (a.order || 0) - (b.order || 0))
-    .map((menu) => {
-      const page = pages.find((p) => p.slug === menu.pageSlug) || null;
-      return {
-        ...menu,
-        pageTitle: page?.title || "",
-        pageExists: !!page
-      };
-    });
-
-  return json({ ok: true, menus: enriched });
+  return json({ ok: true, menus });
 }
 
 export async function onRequestPost(context) {
