@@ -40,10 +40,22 @@ function normalizeMode(value) {
   return value === "code" ? "code" : "standard";
 }
 
+function normalizeSection(section = {}, index = 0) {
+  return {
+    id: String(section.id || `section-${Date.now()}-${index}`),
+    type: ["content", "html", "hero"].includes(section.type) ? section.type : "content",
+    title: String(section.title || "").trim(),
+    content: String(section.content || ""),
+    width: normalizeNumber(section.width, 100, 30, 100),
+    background: normalizeColor(section.background, "#ffffff"),
+    textColor: normalizeColor(section.textColor, "#0f172a"),
+    padding: normalizeNumber(section.padding, 24, 0, 120),
+    radius: normalizeNumber(section.radius, 18, 0, 50)
+  };
+}
+
 function defaultSettings(input = {}) {
   return {
-    maxWidth: normalizeNumber(input.maxWidth, 1120, 640, 1600),
-    textAlign: ["left", "center", "right"].includes(input.textAlign) ? input.textAlign : "left",
     pageBg: normalizeColor(input.pageBg, "#f8fafc"),
     contentBg: normalizeColor(input.contentBg, "#ffffff"),
     textColor: normalizeColor(input.textColor, "#0f172a"),
@@ -51,17 +63,26 @@ function defaultSettings(input = {}) {
     accentColor: normalizeColor(input.accentColor, "#2563eb"),
     buttonColor: normalizeColor(input.buttonColor, "#2563eb"),
     buttonTextColor: normalizeColor(input.buttonTextColor, "#ffffff"),
-    borderRadius: normalizeNumber(input.borderRadius, 18, 0, 40),
-    containerPadding: normalizeNumber(input.containerPadding, 24, 0, 80),
-    sectionGap: normalizeNumber(input.sectionGap, 18, 0, 80),
-    titleSize: normalizeNumber(input.titleSize, 40, 20, 84),
-    bodySize: normalizeNumber(input.bodySize, 17, 12, 28),
-    contentWidth: normalizeNumber(input.contentWidth, 100, 60, 100)
+    maxWidth: normalizeNumber(input.maxWidth, 1280, 640, 2400),
+    contentWidth: normalizeNumber(input.contentWidth, 100, 30, 100),
+    fullWidth: !!input.fullWidth,
+    textAlign: ["left", "center", "right"].includes(input.textAlign) ? input.textAlign : "left",
+    borderRadius: normalizeNumber(input.borderRadius, 18, 0, 60),
+    containerPadding: normalizeNumber(input.containerPadding, 24, 0, 120),
+    sectionGap: normalizeNumber(input.sectionGap, 18, 0, 120),
+    titleSize: normalizeNumber(input.titleSize, 40, 16, 120),
+    bodySize: normalizeNumber(input.bodySize, 17, 12, 40)
   };
 }
 
 function normalizePage(body = {}, previous = {}) {
   const mode = normalizeMode(body.mode || previous.mode);
+  const sectionsInput = Array.isArray(body.sections)
+    ? body.sections
+    : Array.isArray(previous.sections)
+      ? previous.sections
+      : [];
+
   return {
     title: String(body.title || previous.title || "").trim(),
     slug: String(body.slug || previous.slug || "").trim(),
@@ -73,6 +94,7 @@ function normalizePage(body = {}, previous = {}) {
     html: String(body.html ?? previous.html ?? ""),
     css: String(body.css ?? previous.css ?? ""),
     js: String(body.js ?? previous.js ?? ""),
+    sections: sectionsInput.map((section, index) => normalizeSection(section, index)),
     settings: defaultSettings(body.settings || previous.settings || {}),
     updatedAt: new Date().toISOString()
   };
@@ -146,7 +168,9 @@ export async function onRequest(context) {
     await kv.put("pages", JSON.stringify(filtered));
 
     const menus = (await kv.get("menu", { type: "json" })) || [];
-    const cleanedMenus = menus.filter((m) => m.pageSlug !== slug).map((m, index) => ({ ...m, order: index }));
+    const cleanedMenus = menus
+      .filter((m) => m.pageSlug !== slug)
+      .map((m, index) => ({ ...m, order: index }));
     await kv.put("menu", JSON.stringify(cleanedMenus));
 
     return json({ ok: true, pages: filtered });
