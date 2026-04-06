@@ -332,7 +332,6 @@
     </div>
   </main>
 </div>
-
 <script>
   let pages = [];
   let currentSlug = "";
@@ -389,7 +388,10 @@
     document.querySelectorAll(".tab").forEach((tab) => {
       tab.classList.toggle("active", tab.dataset.tab === tabName);
     });
-    document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
+
+    document.querySelectorAll(".panel").forEach((panel) => {
+      panel.classList.remove("active");
+    });
 
     const map = {
       content: "contentPanel",
@@ -423,6 +425,18 @@
       titleSize: Number(document.getElementById("titleSize").value || defaults.titleSize),
       bodySize: Number(document.getElementById("bodySize").value || defaults.bodySize)
     };
+  }
+
+  function escapeAttr(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function escapeTextarea(value) {
+    return String(value || "").replace(/<\/textarea>/gi, "<\\/textarea>");
   }
 
   function renderSections() {
@@ -549,18 +563,6 @@
     renderSections();
   }
 
-  function escapeAttr(value) {
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/"/g, "&quot;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
-  function escapeTextarea(value) {
-    return String(value || "").replace(/<\/textarea>/gi, "<\\/textarea>");
-  }
-
   function collectStandardPayload() {
     const title = document.getElementById("title").value.trim();
     const slug = slugify(document.getElementById("slug").value.trim() || title);
@@ -682,73 +684,73 @@ html,body{
     return { html, css, js };
   }
 
-function syncCodeFromStandard(forceOverwrite = true) {
-  const payload = collectStandardPayload();
-  const generated = buildStandardCode(payload);
-
-  const htmlEl = document.getElementById("html");
-  const cssEl = document.getElementById("css");
-  const jsEl = document.getElementById("js");
-
-  if (forceOverwrite) {
-    htmlEl.value = generated.html;
-    cssEl.value = generated.css;
-    jsEl.value = generated.js;
-    return;
-  }
-
-  if (!htmlEl.value.trim()) htmlEl.value = generated.html;
-  if (!cssEl.value.trim()) cssEl.value = generated.css;
-  if (!jsEl.value.trim()) jsEl.value = generated.js;
-}
-
-function applyCode() {
-  const htmlEl = document.getElementById("html");
-  const cssEl = document.getElementById("css");
-  const jsEl = document.getElementById("js");
-
-  if (!htmlEl.value.trim() && !cssEl.value.trim() && !jsEl.value.trim()) {
+  function syncCodeFromStandard(forceOverwrite = true) {
     const payload = collectStandardPayload();
     const generated = buildStandardCode(payload);
-    htmlEl.value = generated.html;
-    cssEl.value = generated.css;
-    jsEl.value = generated.js;
+
+    const htmlEl = document.getElementById("html");
+    const cssEl = document.getElementById("css");
+    const jsEl = document.getElementById("js");
+
+    if (forceOverwrite) {
+      htmlEl.value = generated.html;
+      cssEl.value = generated.css;
+      jsEl.value = generated.js;
+      return;
+    }
+
+    if (!htmlEl.value.trim()) htmlEl.value = generated.html;
+    if (!cssEl.value.trim()) cssEl.value = generated.css;
+    if (!jsEl.value.trim()) jsEl.value = generated.js;
   }
 
-  document.getElementById("mode").value = "code";
-  showStatus("Kod modu aktif edildi. Kaydet dediğinde canlı sayfaya pro kod hali yazılır.", "ok");
-}
+  function applyCode() {
+    const htmlEl = document.getElementById("html");
+    const cssEl = document.getElementById("css");
+    const jsEl = document.getElementById("js");
 
-function buildPayload() {
-  const standard = collectStandardPayload();
-  const mode = document.getElementById("mode").value;
+    if (!htmlEl.value.trim() && !cssEl.value.trim() && !jsEl.value.trim()) {
+      const payload = collectStandardPayload();
+      const generated = buildStandardCode(payload);
+      htmlEl.value = generated.html;
+      cssEl.value = generated.css;
+      jsEl.value = generated.js;
+    }
 
-  let html = document.getElementById("html").value;
-  let css = document.getElementById("css").value;
-  let js = document.getElementById("js").value;
+    document.getElementById("mode").value = "code";
+    showStatus("Kod modu aktif edildi. Kaydet dediğinde canlı sayfaya pro kod hali yazılır.", "ok");
+  }
 
-  if (mode === "standard") {
-    const generated = buildStandardCode(standard);
-    html = generated.html;
-    css = generated.css;
-    if (!js.trim()) js = generated.js;
-  } else {
-    if (!html.trim() && !css.trim() && !js.trim()) {
+  function buildPayload() {
+    const standard = collectStandardPayload();
+    const mode = document.getElementById("mode").value;
+
+    let html = document.getElementById("html").value;
+    let css = document.getElementById("css").value;
+    let js = document.getElementById("js").value;
+
+    if (mode === "standard") {
       const generated = buildStandardCode(standard);
       html = generated.html;
       css = generated.css;
-      js = generated.js;
+      if (!js.trim()) js = generated.js;
+    } else {
+      if (!html.trim() && !css.trim() && !js.trim()) {
+        const generated = buildStandardCode(standard);
+        html = generated.html;
+        css = generated.css;
+        js = generated.js;
+      }
     }
-  }
 
-  return {
-    ...standard,
-    mode,
-    html,
-    css,
-    js
-  };
-}
+    return {
+      ...standard,
+      mode,
+      html,
+      css,
+      js
+    };
+  }
 
   function fillForm(page) {
     const settings = { ...defaults, ...(page.settings || {}) };
@@ -850,47 +852,47 @@ function buildPayload() {
     }
   }
 
-async function savePage() {
-  clearStatus();
-  const payload = buildPayload();
+  async function savePage() {
+    clearStatus();
+    const payload = buildPayload();
 
-  if (!payload.title || !payload.slug) {
-    showStatus("Başlık ve slug zorunludur.", "error");
-    return;
-  }
-
-  if (payload.mode === "code" && !payload.html.trim() && !payload.css.trim() && !payload.js.trim()) {
-    showStatus("Pro kod modunda en azından HTML veya CSS alanı dolu olmalı.", "error");
-    return;
-  }
-
-  try {
-    const res = await fetch("/api/pages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    if (!data.ok) {
-      showStatus(data.error || "Kayıt sırasında hata oluştu.", "error");
+    if (!payload.title || !payload.slug) {
+      showStatus("Başlık ve slug zorunludur.", "error");
       return;
     }
 
-    pages = data.pages || [];
-    currentSlug = payload.slug;
-    renderList();
-    showStatus(
-      payload.mode === "code"
-        ? "Sayfa pro kod modunda kaydedildi."
-        : "Sayfa standart modda kaydedildi.",
-      "ok"
-    );
-  } catch (err) {
-    showStatus("Kayıt sırasında hata oluştu.", "error");
+    if (payload.mode === "code" && !payload.html.trim() && !payload.css.trim() && !payload.js.trim()) {
+      showStatus("Pro kod modunda en azından HTML veya CSS alanı dolu olmalı.", "error");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/pages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (!data.ok) {
+        showStatus(data.error || "Kayıt sırasında hata oluştu.", "error");
+        return;
+      }
+
+      pages = data.pages || [];
+      currentSlug = payload.slug;
+      renderList();
+      showStatus(
+        payload.mode === "code"
+          ? "Sayfa pro kod modunda kaydedildi."
+          : "Sayfa standart modda kaydedildi.",
+        "ok"
+      );
+    } catch (err) {
+      showStatus("Kayıt sırasında hata oluştu.", "error");
+    }
   }
-}
 
   async function deletePage() {
     clearStatus();
@@ -932,27 +934,33 @@ async function savePage() {
       slugInput.value = slugify(document.getElementById("title").value);
     }
   });
-document.getElementById("mode").addEventListener("change", () => {
-  const mode = document.getElementById("mode").value;
 
-  if (mode === "code") {
-    syncCodeFromStandard(false);
-    showStatus("Pro kod modu açıldı. Gerekirse 'Standarttan Kodu Yeniden Üret' ile güncel kodu çekebilirsin.", "ok");
-  } else {
-    showStatus("Standart mod aktif. Canlı sayfa standart yapıdan üretilecek.", "ok");
-  }
-});
+  document.getElementById("mode").addEventListener("change", () => {
+    const mode = document.getElementById("mode").value;
+
+    if (mode === "code") {
+      syncCodeFromStandard(false);
+      showStatus("Pro kod modu açıldı. Gerekirse 'Standarttan Kodu Yeniden Üret' ile güncel kodu çekebilirsin.", "ok");
+    } else {
+      showStatus("Standart mod aktif. Canlı sayfa standart yapıdan üretilecek.", "ok");
+    }
+  });
+
   document.getElementById("addSectionBtn").addEventListener("click", addSection);
+
   document.getElementById("syncFromStandardBtn").addEventListener("click", () => {
     syncCodeFromStandard(true);
     showStatus("Standart yapıya göre kod yeniden üretildi.", "ok");
   });
+
   document.getElementById("applyCodeBtn").addEventListener("click", applyCode);
   document.getElementById("saveBtn").addEventListener("click", savePage);
+
   document.getElementById("newBtn").addEventListener("click", () => {
     clearStatus();
     clearForm();
   });
+
   document.getElementById("deleteBtn").addEventListener("click", deletePage);
 
   document.getElementById("logoutBtn").addEventListener("click", async () => {
