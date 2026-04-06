@@ -1,88 +1,78 @@
-# Vera Admin Panel – Proje Notları
+# PROJE NOTLARI
 
-## Proje Amacı
-Cloudflare Pages + Functions + KV kullanan özel admin panel sistemi.
+## Proje
+Vera sitesi için Cloudflare Pages + Functions + KV tabanlı hafif ama kapsamlı bir CMS yapısı.
 
-Login akışı:
-username + password → email OTP → admin panel.
+## Mimari Hedef
+- Site ayarları ile global alanları yönetmek
+- Sayfa ayarları ile sayfa bazlı içerik ve yerleşim yönetmek
+- Standart içerik modu ve tam kod modu sunmak
+- Menü yönetimini sayfalardan bağımsız ama onlarla ilişkili tutmak
+- Ön yüzde güvenli ve kontrollü render akışı sağlamak
 
-## Altyapı
-- Platform: Cloudflare Pages
-- Fonksiyonlar: Cloudflare Pages Functions
-- Veri: Cloudflare KV
-- KV binding: `AUTH_KV`
-- KV namespace: `vera_auth`
+## İçerik Modelleri
 
-## Repo Yapısı
-- `index.html`
-- `login.html`
-- `admin/`
-- `functions/api/login.js`
-- `functions/api/verify.js`
-- `functions/api/menu.js`
-- `functions/api/logout.js`
-- `functions/api/ping.js`
-- `functions/admin.js`
-- `_routes.json`
-- `wrangler.toml`
+### 1. Site Settings
+Global sabit alanlar:
+- siteTitle
+- siteDescription
+- logoText
+- logoUrl
+- faviconUrl
+- headerHtml
+- footerHtml
+- headCode
+- footerCode
+- iletişim/sosyal alanları
+- global renkler
+- container/layout ayarları
 
-## API Endpointleri
-- `/api/login`
-- `/api/verify`
-- `/api/menu`
-- `/api/logout`
-- `/api/ping`
+### 2. Pages
+Her sayfa için:
+- title
+- slug
+- status
+- excerpt
+- seoTitle
+- seoDescription
+- mode: standard | code
+- template
+- content
+- html
+- css
+- js
+- settings
+- sections[]
+- createdAt
+- updatedAt
 
-Test endpoint:
-- `/api/ping`
-- Beklenen cevap: `{ "ok": true }` veya aktif durum JSON cevabı
+### 3. Menu
+Her menü için:
+- title
+- slug
+- type: page | url
+- pageSlug
+- url
+- target
+- parentSlug
+- visible
+- order
 
-## Deploy
-- Akış: `GitHub -> Cloudflare Pages`
-- Branch: `main`
-- Otomatik deploy için repo içinde `wrangler.toml` olmalı
-- Bu dosya şu komutla indirildi:
-  - `npx wrangler pages download config vera`
+## Render Mantığı
+- Site kabuğu her zaman global ayarlardan gelir.
+- Standart sayfalar güvenli içerik alanı içinde render edilir.
+- Kod modu sayfalar iframe `srcdoc` içinde izole edilir.
+- Full page code modu aktifse sayfanın içerik alanı yerine tam ekran iframe render edilir.
 
-## Manuel Deploy (acil durum)
-- `npx wrangler pages deploy . --project-name=vera`
+## Güvenlik / Kontrol
+- Admin yazma işlemlerinde session kontrolü var.
+- Kod modu içerikleri doğrudan ana DOM içine basılmıyor, iframe içinde render ediliyor.
+- GET endpointleri herkese açık, POST/DELETE yetkili oturum istiyor.
 
-## Cloudflare Ayarları
-### Environment Variables
-- `ADMIN_USERNAME`
-- `ADMIN_PASSWORD_HASH`
-- `ADMIN_EMAIL`
-- `RESEND_API_KEY`
-- `SESSION_SECRET`
+## Admin Panel Yapısı
+- `/admin/` → Dashboard + menü yönetimi
+- `/admin/pages.html` → gelişmiş sayfa editörü
+- `/admin/settings.html` → global site ayarları
 
-### Bindings
-- `AUTH_KV`
-
-## Login Akışı
-1. username + password
-2. `/api/login`
-3. email OTP
-4. `/api/verify`
-5. session cookie
-6. admin panel
-
-Session verileri KV içinde tutulur.
-
-## Sorun Giderme
-Kontrol sırası:
-1. `/api/ping` çalışıyor mu
-2. KV binding doğru mu
-3. environment variables var mı
-4. `wrangler.toml` repo içinde mi
-5. Cloudflare deploy log
-
-## Planlanan Güvenlik Geliştirmeleri
-Henüz eklenmedi:
-- login rate limit
-- OTP deneme limiti
-- brute force koruması
-- session timeout
-- logout sertleştirme
-
-## Çalışma Kuralı
-Her çalışmaya başlamadan önce bu dosyayı kontrol et ve gerekirse güncelle.
+## Not
+Bu sürüm WordPress benzeri kapsamlı ama bağımsız ve hafif CMS yaklaşımıyla hazırlandı.
