@@ -3,10 +3,412 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin</title>
+  <title>Vera Admin</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-soft: #dbeafe;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --sidebar: #0f172a;
+      --sidebar-text: #e2e8f0;
+      --sidebar-muted: #94a3b8;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .loading {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .layout {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+    }
+
+    .sidebar {
+      background: var(--sidebar);
+      color: var(--sidebar-text);
+      padding: 22px 18px;
+      border-right: 1px solid rgba(255,255,255,.06);
+    }
+
+    .brand {
+      margin-bottom: 24px;
+    }
+
+    .brand h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--sidebar-muted);
+      font-size: 13px;
+    }
+
+    .nav-title {
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--sidebar-muted);
+      margin: 22px 0 10px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      color: var(--sidebar-text);
+      padding: 12px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      background: rgba(255,255,255,.08);
+    }
+
+    .main {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .topbar-left h2 {
+      margin: 0 0 4px;
+      font-size: 20px;
+    }
+
+    .topbar-left p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .user-chip {
+      padding: 10px 14px;
+      background: #f1f5f9;
+      color: #334155;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #ffffff;
+    }
+
+    .content {
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr .95fr;
+      gap: 18px;
+    }
+
+    .big-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    .big-card h3 {
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+
+    .big-card p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .quick-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .quick-item {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #ffffff;
+    }
+
+    .quick-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .quick-item span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 18px;
+    }
+
+    .status-box {
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+
+    .status-box.ok {
+      background: #dcfce7;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+
+    .status-box.warn {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #fde68a;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid rgba(255,255,255,.06);
+      }
+
+      .cards,
+      .hero,
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div id="status">Kontrol ediliyor...</div>
+  <div id="loading" class="loading">Oturum kontrol ediliyor...</div>
+
+  <div id="app" class="layout hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>Vera Admin</h1>
+        <p>Kontrol paneli</p>
+      </div>
+
+      <div class="nav-title">Menü</div>
+      <button class="nav-btn active" type="button">Dashboard</button>
+      <button class="nav-btn" type="button">Ana Siteyi Düzenle</button>
+      <button class="nav-btn" type="button">Kod Editörü</button>
+      <button class="nav-btn" type="button">Site Ayarları</button>
+
+      <div class="nav-title">Oturum</div>
+      <button id="logoutBtnSide" class="nav-btn" type="button">Çıkış Yap</button>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h2>Admin Paneli</h2>
+          <p>Bozulma testi için ilk gerçek panel iskeleti</p>
+        </div>
+
+        <div class="topbar-right">
+          <div id="userChip" class="user-chip">Oturum aktif</div>
+          <button id="logoutBtnTop" class="btn btn-danger" type="button">Çıkış Yap</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="cards">
+          <div class="card">
+            <h3>Ana Site</h3>
+            <p>Giriş yapılmamış kullanıcının gördüğü ana alan burada yönetilecek.</p>
+          </div>
+
+          <div class="card">
+            <h3>Kod Editörü</h3>
+            <p>HTML, CSS ve JS seviyesinde tam müdahale için bu alan genişletilecek.</p>
+          </div>
+
+          <div class="card">
+            <h3>Site Ayarları</h3>
+            <p>Logo, tema, renk, genel yapı ve davranış ayarları burada toplanacak.</p>
+          </div>
+        </div>
+
+        <div class="hero">
+          <div class="big-card">
+            <h3>Ana siteyi düzenle</h3>
+            <p>
+              Burayı ileride blok tabanlı güçlü editör + tam kod modu şeklinde büyüteceğiz.
+              Şu an amaç login, admin koruması ve çıkış akışını bozmadan sağlam bir panel iskeleti görmek.
+            </p>
+
+            <div class="status-box ok">
+              Giriş başarılı. Session doğrulandı ve admin alanı açıldı.
+            </div>
+
+            <div class="actions">
+              <button class="btn btn-primary" type="button">Yeni Düzenleme Başlat</button>
+              <button class="btn btn-secondary" type="button">Kod Alanını Aç</button>
+            </div>
+          </div>
+
+          <div class="big-card">
+            <h3>Hızlı Not</h3>
+            <div class="quick-list">
+              <div class="quick-item">
+                <strong>1. Aşama</strong>
+                <span>Oturum sistemi sağlam mı, yönlendirme doğru mu, çıkış düzgün mü önce bunu test et.</span>
+              </div>
+              <div class="quick-item">
+                <strong>2. Aşama</strong>
+                <span>Sonra admin içine gerçek editör modüllerini ekleriz.</span>
+              </div>
+              <div class="quick-item">
+                <strong>3. Aşama</strong>
+                <span>En son public site editörünü ve kod alanını bağlarız.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-grid">
+          <div class="big-card">
+            <h3>Kod editörü alanı</h3>
+            <p>
+              Bu bölüm ileride tam HTML / CSS / JS düzenleme ekranına dönecek.
+              Şu an sadece admin panel yerleşimini görmek ve session akışını test etmek için placeholder olarak duruyor.
+            </p>
+            <div class="status-box">
+              Şimdilik canlı kod editörü bağlı değil.
+            </div>
+          </div>
+
+          <div class="big-card">
+            <h3>Site ayarları alanı</h3>
+            <p>
+              Bu bölüm logo, başlık, renk, footer ve diğer global ayarlar için kullanılacak.
+            </p>
+            <div class="status-box warn">
+              Şimdilik sadece iskelet durumunda.
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script>
     async function checkSession() {
@@ -14,7 +416,9 @@
         const res = await fetch("/api/verify", {
           method: "GET",
           credentials: "same-origin",
-          headers: { "Accept": "application/json" }
+          headers: {
+            "Accept": "application/json"
+          }
         });
 
         const data = await res.json();
@@ -24,11 +428,29 @@
           return;
         }
 
-        document.body.innerHTML = "Admin";
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("app").classList.remove("hidden");
       } catch (err) {
         window.location.replace("/login");
       }
     }
+
+    async function logout() {
+      try {
+        await fetch("/api/logout", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+      } catch (err) {}
+
+      window.location.replace("/login");
+    }
+
+    document.getElementById("logoutBtnTop").addEventListener("click", logout);
+    document.getElementById("logoutBtnSide").addEventListener("click", logout);
 
     checkSession();
   </script>
