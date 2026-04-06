@@ -695,20 +695,22 @@ html,body{
     if (forceOverwrite || !jsEl.value.trim()) jsEl.value = generated.js;
   }
 
-  function applyCode() {
+function applyCode() {
+  const htmlEl = document.getElementById("html");
+  const cssEl = document.getElementById("css");
+  const jsEl = document.getElementById("js");
+
+  if (!htmlEl.value.trim() && !cssEl.value.trim() && !jsEl.value.trim()) {
     const payload = collectStandardPayload();
     const generated = buildStandardCode(payload);
-
-    const htmlEl = document.getElementById("html");
-    const cssEl = document.getElementById("css");
-    const jsEl = document.getElementById("js");
-
-    if (!htmlEl.value.trim()) htmlEl.value = generated.html;
-    if (!cssEl.value.trim()) cssEl.value = generated.css;
-    if (!jsEl.value.trim()) jsEl.value = generated.js;
-
-    showStatus("Kod alanı güncellendi. Kaydet dersen canlı sayfaya yazılır.", "ok");
+    htmlEl.value = generated.html;
+    cssEl.value = generated.css;
+    jsEl.value = generated.js;
   }
+
+  document.getElementById("mode").value = "code";
+  showStatus("Kod modu aktif edildi. Kaydet dediğinde canlı sayfaya pro kod hali yazılır.", "ok");
+}
 
   function buildPayload() {
     const standard = collectStandardPayload();
