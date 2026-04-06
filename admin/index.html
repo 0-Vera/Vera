@@ -14,9 +14,7 @@
       --text: #0f172a;
       --muted: #64748b;
       --primary: #2563eb;
-      --primary-soft: #dbeafe;
       --danger: #dc2626;
-      --success: #16a34a;
       --sidebar: #0f172a;
       --sidebar-text: #e2e8f0;
       --sidebar-muted: #94a3b8;
@@ -169,9 +167,9 @@
       gap: 18px;
     }
 
-    .cards {
+    .panel-grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: 1.1fr .9fr;
       gap: 18px;
     }
 
@@ -179,103 +177,106 @@
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-    }
-
-    .card h3 {
-      margin: 0 0 10px;
-      font-size: 18px;
-    }
-
-    .card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.6;
-      font-size: 14px;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: 1.25fr .95fr;
-      gap: 18px;
-    }
-
-    .big-card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 18px;
       padding: 22px;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     }
 
-    .big-card h3 {
-      margin: 0 0 10px;
+    .card h3 {
+      margin: 0 0 12px;
       font-size: 22px;
     }
 
-    .big-card p {
+    .card p {
       margin: 0 0 18px;
       color: var(--muted);
       line-height: 1.7;
     }
 
-    .quick-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .quick-item {
-      padding: 14px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #ffffff;
-    }
-
-    .quick-item strong {
+    label {
       display: block;
       margin-bottom: 6px;
       font-size: 14px;
+      color: #475569;
     }
 
-    .quick-item span {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .panel-grid {
-      display: grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 18px;
-    }
-
-    .status-box {
-      padding: 14px;
-      border-radius: 14px;
+    input, textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
       font-size: 14px;
-      background: #eff6ff;
-      color: #1d4ed8;
-      border: 1px solid #bfdbfe;
+      color: var(--text);
+      background: #fff;
     }
 
-    .status-box.ok {
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .status {
+      display: none;
+      margin-top: 8px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.ok {
       background: #dcfce7;
       color: #166534;
-      border-color: #bbf7d0;
     }
 
-    .status-box.warn {
-      background: #fef3c7;
-      color: #92400e;
-      border-color: #fde68a;
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
     }
 
-    .actions {
+    .preview-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 18px;
+      background: #f8fafc;
+    }
+
+    .preview-box h4 {
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+
+    .preview-box p {
+      margin: 0 0 16px;
+      color: #64748b;
+      line-height: 1.7;
+    }
+
+    .preview-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 16px;
+    }
+
+    .preview-actions span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+    }
+
+    .preview-actions span.primary {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: #fff;
     }
 
     @media (max-width: 1100px) {
@@ -288,8 +289,6 @@
         border-bottom: 1px solid rgba(255,255,255,.06);
       }
 
-      .cards,
-      .hero,
       .panel-grid {
         grid-template-columns: 1fr;
       }
@@ -307,10 +306,7 @@
       </div>
 
       <div class="nav-title">Menü</div>
-      <button class="nav-btn active" type="button">Dashboard</button>
-      <button class="nav-btn" type="button">Ana Siteyi Düzenle</button>
-      <button class="nav-btn" type="button">Kod Editörü</button>
-      <button class="nav-btn" type="button">Site Ayarları</button>
+      <button class="nav-btn active" type="button">Ana Siteyi Düzenle</button>
 
       <div class="nav-title">Oturum</div>
       <button id="logoutBtnSide" class="nav-btn" type="button">Çıkış Yap</button>
@@ -319,90 +315,56 @@
     <main class="main">
       <header class="topbar">
         <div class="topbar-left">
-          <h2>Admin Paneli</h2>
-          <p>Bozulma testi için ilk gerçek panel iskeleti</p>
+          <h2>Ana Site Editörü</h2>
+          <p>Public ana sayfanın temel içeriğini düzenle</p>
         </div>
 
         <div class="topbar-right">
-          <div id="userChip" class="user-chip">Oturum aktif</div>
+          <div class="user-chip">Oturum aktif</div>
           <button id="logoutBtnTop" class="btn btn-danger" type="button">Çıkış Yap</button>
         </div>
       </header>
 
       <section class="content">
-        <div class="cards">
-          <div class="card">
-            <h3>Ana Site</h3>
-            <p>Giriş yapılmamış kullanıcının gördüğü ana alan burada yönetilecek.</p>
-          </div>
-
-          <div class="card">
-            <h3>Kod Editörü</h3>
-            <p>HTML, CSS ve JS seviyesinde tam müdahale için bu alan genişletilecek.</p>
-          </div>
-
-          <div class="card">
-            <h3>Site Ayarları</h3>
-            <p>Logo, tema, renk, genel yapı ve davranış ayarları burada toplanacak.</p>
-          </div>
-        </div>
-
-        <div class="hero">
-          <div class="big-card">
-            <h3>Ana siteyi düzenle</h3>
-            <p>
-              Burayı ileride blok tabanlı güçlü editör + tam kod modu şeklinde büyüteceğiz.
-              Şu an amaç login, admin koruması ve çıkış akışını bozmadan sağlam bir panel iskeleti görmek.
-            </p>
-
-            <div class="status-box ok">
-              Giriş başarılı. Session doğrulandı ve admin alanı açıldı.
-            </div>
-
-            <div class="actions">
-              <button class="btn btn-primary" type="button">Yeni Düzenleme Başlat</button>
-              <button class="btn btn-secondary" type="button">Kod Alanını Aç</button>
-            </div>
-          </div>
-
-          <div class="big-card">
-            <h3>Hızlı Not</h3>
-            <div class="quick-list">
-              <div class="quick-item">
-                <strong>1. Aşama</strong>
-                <span>Oturum sistemi sağlam mı, yönlendirme doğru mu, çıkış düzgün mü önce bunu test et.</span>
-              </div>
-              <div class="quick-item">
-                <strong>2. Aşama</strong>
-                <span>Sonra admin içine gerçek editör modüllerini ekleriz.</span>
-              </div>
-              <div class="quick-item">
-                <strong>3. Aşama</strong>
-                <span>En son public site editörünü ve kod alanını bağlarız.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="panel-grid">
-          <div class="big-card">
-            <h3>Kod editörü alanı</h3>
-            <p>
-              Bu bölüm ileride tam HTML / CSS / JS düzenleme ekranına dönecek.
-              Şu an sadece admin panel yerleşimini görmek ve session akışını test etmek için placeholder olarak duruyor.
-            </p>
-            <div class="status-box">
-              Şimdilik canlı kod editörü bağlı değil.
-            </div>
+          <div class="card">
+            <h3>İçerik</h3>
+            <p>Ana sayfada görünen temel alanları buradan yönetebilirsin.</p>
+
+            <label for="siteTitle">Başlık</label>
+            <input id="siteTitle" type="text" />
+
+            <label for="siteDescription">Açıklama</label>
+            <textarea id="siteDescription"></textarea>
+
+            <label for="primaryButtonText">Birinci Buton Metni</label>
+            <input id="primaryButtonText" type="text" />
+
+            <label for="primaryButtonLink">Birinci Buton Linki</label>
+            <input id="primaryButtonLink" type="text" />
+
+            <label for="secondaryButtonText">İkinci Buton Metni</label>
+            <input id="secondaryButtonText" type="text" />
+
+            <label for="secondaryButtonLink">İkinci Buton Linki</label>
+            <input id="secondaryButtonLink" type="text" />
+
+            <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
+
+            <div id="statusBox" class="status"></div>
           </div>
 
-          <div class="big-card">
-            <h3>Site ayarları alanı</h3>
-            <p>
-              Bu bölüm logo, başlık, renk, footer ve diğer global ayarlar için kullanılacak.
-            </p>
-            <div class="status-box warn">
-              Şimdilik sadece iskelet durumunda.
+          <div class="card">
+            <h3>Önizleme</h3>
+            <p>Kaydetmeden önce şu anki görünümü burada gör.</p>
+
+            <div class="preview-box">
+              <h4 id="previewTitle">Vera</h4>
+              <p id="previewDescription">Hoş geldiniz.</p>
+              <div class="preview-actions">
+                <span id="previewPrimary" class="primary">Admin</span>
+                <span id="previewSecondary">Giriş</span>
+              </div>
             </div>
           </div>
         </div>
@@ -411,6 +373,26 @@
   </div>
 
   <script>
+    function showStatus(message, type) {
+      const box = document.getElementById("statusBox");
+      box.className = "status show " + type;
+      box.textContent = message;
+    }
+
+    function syncPreview() {
+      document.getElementById("previewTitle").textContent =
+        document.getElementById("siteTitle").value.trim() || "Vera";
+
+      document.getElementById("previewDescription").textContent =
+        document.getElementById("siteDescription").value.trim() || "Hoş geldiniz.";
+
+      document.getElementById("previewPrimary").textContent =
+        document.getElementById("primaryButtonText").value.trim() || "Admin";
+
+      document.getElementById("previewSecondary").textContent =
+        document.getElementById("secondaryButtonText").value.trim() || "Giriş";
+    }
+
     async function checkSession() {
       try {
         const res = await fetch("/api/verify", {
@@ -435,6 +417,66 @@
       }
     }
 
+    async function loadContent() {
+      try {
+        const res = await fetch("/api/site-content", {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        const data = await res.json();
+        const content = data.content || {};
+
+        document.getElementById("siteTitle").value = content.siteTitle || "Vera";
+        document.getElementById("siteDescription").value = content.siteDescription || "Hoş geldiniz.";
+        document.getElementById("primaryButtonText").value = content.primaryButtonText || "Admin";
+        document.getElementById("primaryButtonLink").value = content.primaryButtonLink || "/admin";
+        document.getElementById("secondaryButtonText").value = content.secondaryButtonText || "Giriş";
+        document.getElementById("secondaryButtonLink").value = content.secondaryButtonLink || "/login";
+
+        syncPreview();
+      } catch (err) {
+        showStatus("İçerik yüklenemedi.", "error");
+      }
+    }
+
+    async function saveContent() {
+      const payload = {
+        siteTitle: document.getElementById("siteTitle").value.trim(),
+        siteDescription: document.getElementById("siteDescription").value.trim(),
+        primaryButtonText: document.getElementById("primaryButtonText").value.trim(),
+        primaryButtonLink: document.getElementById("primaryButtonLink").value.trim(),
+        secondaryButtonText: document.getElementById("secondaryButtonText").value.trim(),
+        secondaryButtonLink: document.getElementById("secondaryButtonLink").value.trim()
+      };
+
+      try {
+        const res = await fetch("/api/site-content", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) {
+          showStatus(data.error || "Kayıt başarısız.", "error");
+          return;
+        }
+
+        showStatus("Kaydedildi.", "ok");
+        syncPreview();
+      } catch (err) {
+        showStatus("İstek sırasında hata oluştu.", "error");
+      }
+    }
+
     async function logout() {
       try {
         await fetch("/api/logout", {
@@ -449,10 +491,27 @@
       window.location.replace("/login");
     }
 
+    [
+      "siteTitle",
+      "siteDescription",
+      "primaryButtonText",
+      "primaryButtonLink",
+      "secondaryButtonText",
+      "secondaryButtonLink"
+    ].forEach((id) => {
+      document.getElementById(id).addEventListener("input", syncPreview);
+    });
+
+    document.getElementById("saveBtn").addEventListener("click", saveContent);
     document.getElementById("logoutBtnTop").addEventListener("click", logout);
     document.getElementById("logoutBtnSide").addEventListener("click", logout);
 
-    checkSession();
+    async function init() {
+      await checkSession();
+      await loadContent();
+    }
+
+    init();
   </script>
 </body>
 </html>
