@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin</title>
+</head>
+<body>
+  <div id="status">Kontrol ediliyor...</div>
+
+  <script>
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/verify", {
+          method: "GET",
+          credentials: "same-origin",
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        const data = await res.json();
+
+        if (!data.ok || !data.authenticated) {
+          window.location.replace("/login");
+          return;
+        }
+
+        document.body.innerHTML = "Admin";
+      } catch (err) {
+        window.location.replace("/login");
+      }
+    }
+
+    checkSession();
+  </script>
+</body>
+</html>
