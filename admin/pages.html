@@ -721,16 +721,8 @@ function applyCode() {
 
 function buildPayload() {
   const standard = collectStandardPayload();
-document.getElementById("mode").addEventListener("change", () => {
   const mode = document.getElementById("mode").value;
 
-  if (mode === "code") {
-    syncCodeFromStandard(false);
-    showStatus("Pro kod modu açıldı. Gerekirse 'Standarttan Kodu Yeniden Üret' ile güncel kodu çekebilirsin.", "ok");
-  } else {
-    showStatus("Standart mod aktif. Canlı sayfa standart yapıdan üretilecek.", "ok");
-  }
-});
   let html = document.getElementById("html").value;
   let css = document.getElementById("css").value;
   let js = document.getElementById("js").value;
@@ -940,7 +932,16 @@ async function savePage() {
       slugInput.value = slugify(document.getElementById("title").value);
     }
   });
+document.getElementById("mode").addEventListener("change", () => {
+  const mode = document.getElementById("mode").value;
 
+  if (mode === "code") {
+    syncCodeFromStandard(false);
+    showStatus("Pro kod modu açıldı. Gerekirse 'Standarttan Kodu Yeniden Üret' ile güncel kodu çekebilirsin.", "ok");
+  } else {
+    showStatus("Standart mod aktif. Canlı sayfa standart yapıdan üretilecek.", "ok");
+  }
+});
   document.getElementById("addSectionBtn").addEventListener("click", addSection);
   document.getElementById("syncFromStandardBtn").addEventListener("click", () => {
     syncCodeFromStandard(true);
