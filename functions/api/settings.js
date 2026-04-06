@@ -1,0 +1,84 @@
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "content-type": "application/json; charset=utf-8"
+    }
+  });
+}
+
+function parseCookie(cookieHeader = "") {
+  const out = {};
+  for (const part of cookieHeader.split(";")) {
+    const [k, ...v] = part.trim().split("=");
+    if (!k) continue;
+    out[k] = v.join("=");
+  }
+  return out;
+}
+
+async function checkSession(request, env) {
+  const cookies = parseCookie(request.headers.get("cookie") || "");
+  const token = cookies.vera_session;
+  if (!token) return false;
+  const raw = await env.AUTH_KV.get(`session:${token}`);
+  return !!raw;
+}
+
+function normalizeColor(value, fallback) {
+  const str = String(value || "").trim();
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(str) ? str : fallback;
+}
+
+function normalizeNumber(value, fallback, min, max) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  return Math.min(max, Math.max(min, num));
+}
+
+function normalizeSettings(input = {}) {
+  return {
+    siteTitle: String(input.siteTitle || "Site Başlığı").trim() || "Site Başlığı",
+    siteDescription: String(input.siteDescription || "").trim(),
+    siteBg: normalizeColor(input.siteBg, "#f8fafc"),
+    siteText: normalizeColor(input.siteText, "#0f172a"),
+    siteAccent: normalizeColor(input.siteAccent, "#2563eb"),
+    siteCard: normalizeColor(input.siteCard, "#ffffff"),
+    siteBorder: normalizeColor(input.siteBorder, "#e2e8f0"),
+    headerMaxWidth: normalizeNumber(input.headerMaxWidth, 1180, 640, 2400),
+    headerPadding: normalizeNumber(input.headerPadding, 24, 0, 120),
+    navRadius: normalizeNumber(input.navRadius, 999, 0, 999),
+    mainRadius: normalizeNumber(input.mainRadius, 18, 0, 60),
+    mainPadding: normalizeNumber(input.mainPadding, 24, 0, 120)
+  };
+}
+
+export async function onRequest(context) {
+  const { request, env } = context;
+  const key = "site_settings";
+
+  if (request.method === "GET") {
+    const settings = (await env.AUTH_KV.get(key, { type: "json" })) || normalizeSettings({});
+    return json({ ok: true, settings });
+  }
+
+  const authorized = await checkSession(request, env);
+  if (!authorized) {
+    return json({ ok: false, error: "Yetkisiz" }, 401);
+  }
+
+  if (request.method === "POST") {
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return json({ ok: false, error: "Geçersiz istek" }, 400);
+    }
+
+    const settings = normalizeSettings(body || {});
+    await env.AUTH_KV.put(key, JSON.stringify(settings));
+    return json({ ok: true, settings });
+  }
+
+  return json({ ok: false, error: "Geçersiz metod" }, 405);
+}
