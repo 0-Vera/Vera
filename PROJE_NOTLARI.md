@@ -1,78 +1,10 @@
-# PROJE NOTLARI
+# Vera CMS Geliştirme Notları
 
-## Proje
-Vera sitesi için Cloudflare Pages + Functions + KV tabanlı hafif ama kapsamlı bir CMS yapısı.
+Bu proje, WordPress benzeri kapsamlı bir içerik yönetim sistemi sunmak için yeniden yapılandırıldı. Aşağıdaki başlıklar altında projenin mimari kararları ve önemli noktalar özetlenmektedir:
 
-## Mimari Hedef
-- Site ayarları ile global alanları yönetmek
-- Sayfa ayarları ile sayfa bazlı içerik ve yerleşim yönetmek
-- Standart içerik modu ve tam kod modu sunmak
-- Menü yönetimini sayfalardan bağımsız ama onlarla ilişkili tutmak
-- Ön yüzde güvenli ve kontrollü render akışı sağlamak
+- **Site Ayarları**: Global alanlar (logo, favicon, renkler, maksimum genişlik, nav yuvarlaklığı vb.) ve SEO özellikleri `functions/api/settings.js` aracılığıyla yönetilir. `admin/settings.html` bu ayarları düzenlemek için kullanılır.
+- **Sayfa Yönetimi**: Her sayfa başlık, slug, SEO başlık/açıklama, bölüm listesi veya tam kod (HTML/CSS/JS) modundan oluşur. `admin/pages.html` sayfa editörü hem görsel bölüm düzenleyicisi hem de tam kod editörü içerir.
+- **Menü Yönetimi**: `admin/index.html` menüleri yönetmek için kullanılır; sayfalara veya harici linklere bağlanabilir, üst menü ve sıra belirlenebilir.
+- **Ön Yüz**: `index.html` site ayarlarını, menüleri ve sayfa verisini yükleyerek kullanıcıya sunar. Sayfalar standart modda oluşturulmuşsa bölümleri belirlenen ayarlara göre render eder, kod modunda ise HTML/CSS/JS içeriğini iframe içinde izole şekilde gösterir.
 
-## İçerik Modelleri
-
-### 1. Site Settings
-Global sabit alanlar:
-- siteTitle
-- siteDescription
-- logoText
-- logoUrl
-- faviconUrl
-- headerHtml
-- footerHtml
-- headCode
-- footerCode
-- iletişim/sosyal alanları
-- global renkler
-- container/layout ayarları
-
-### 2. Pages
-Her sayfa için:
-- title
-- slug
-- status
-- excerpt
-- seoTitle
-- seoDescription
-- mode: standard | code
-- template
-- content
-- html
-- css
-- js
-- settings
-- sections[]
-- createdAt
-- updatedAt
-
-### 3. Menu
-Her menü için:
-- title
-- slug
-- type: page | url
-- pageSlug
-- url
-- target
-- parentSlug
-- visible
-- order
-
-## Render Mantığı
-- Site kabuğu her zaman global ayarlardan gelir.
-- Standart sayfalar güvenli içerik alanı içinde render edilir.
-- Kod modu sayfalar iframe `srcdoc` içinde izole edilir.
-- Full page code modu aktifse sayfanın içerik alanı yerine tam ekran iframe render edilir.
-
-## Güvenlik / Kontrol
-- Admin yazma işlemlerinde session kontrolü var.
-- Kod modu içerikleri doğrudan ana DOM içine basılmıyor, iframe içinde render ediliyor.
-- GET endpointleri herkese açık, POST/DELETE yetkili oturum istiyor.
-
-## Admin Panel Yapısı
-- `/admin/` → Dashboard + menü yönetimi
-- `/admin/pages.html` → gelişmiş sayfa editörü
-- `/admin/settings.html` → global site ayarları
-
-## Not
-Bu sürüm WordPress benzeri kapsamlı ama bağımsız ve hafif CMS yaklaşımıyla hazırlandı.
+Bu notlar, geliştiricilerin projeyi daha rahat anlayıp geliştirebilmeleri için hazırlanmıştır.
