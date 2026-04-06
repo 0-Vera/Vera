@@ -3,341 +3,437 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sayfa Yönetimi</title>
+<title>Vera CMS - Sayfa Yönetimi</title>
 <style>
-  * { box-sizing: border-box; font-family: Arial, sans-serif; }
-  body { margin: 0; background: #f9fafb; color: #1f2937; }
-  .layout { display: flex; min-height: 100vh; }
-  .sidebar {
-    width: 260px;
-    background: #ffffff;
-    border-right: 1px solid #e5e7eb;
-    padding: 20px;
+  * { box-sizing: border-box; }
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+    --accent: #2563eb;
+    --accent-soft: #dbeafe;
+    --danger: #dc2626;
   }
-  .sidebar h2 { margin: 0 0 20px; font-size: 22px; }
-  .sidebar a, .sidebar button.link-btn {
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid var(--border);
+    padding: 24px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: auto;
+  }
+  .brand h1 { margin: 0 0 6px; font-size: 24px; }
+  .brand p { margin: 0 0 24px; color: var(--muted); font-size: 13px; }
+  .nav a, .nav button {
     display: block;
     width: 100%;
     text-align: left;
     text-decoration: none;
-    color: #374151;
+    color: #334155;
     background: transparent;
     border: 0;
-    padding: 10px 12px;
-    border-radius: 8px;
+    border-radius: 12px;
+    padding: 12px 14px;
     margin-bottom: 8px;
-    cursor: pointer;
     font-size: 14px;
+    cursor: pointer;
   }
-  .sidebar a:hover, .sidebar button.link-btn:hover, .sidebar .active {
-    background: #e0f2fe;
-    color: #111827;
+  .nav a:hover, .nav button:hover, .nav .active {
+    background: var(--accent-soft);
+    color: #0f172a;
   }
-  .content { flex: 1; padding: 24px; }
+  .main { padding: 24px; }
+  .hero-card,
   .card {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.04);
   }
-  .grid {
+  .hero-card { padding: 22px; margin-bottom: 18px; }
+  .editor-layout {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 14px;
+    grid-template-columns: 360px 1fr;
+    gap: 18px;
   }
-  .col-6 { grid-column: span 6; }
-  .col-4 { grid-column: span 4; }
-  .col-3 { grid-column: span 3; }
-  .full { grid-column: 1 / -1; }
-  label {
-    display: block;
-    font-size: 14px;
-    color: #4b5563;
-    margin-bottom: 6px;
-  }
-  input, textarea, select {
-    width: 100%;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    padding: 10px 12px;
-    background: #f9fafb;
-    color: #111827;
-  }
-  textarea {
-    min-height: 180px;
-    resize: vertical;
-    font-family: Consolas, Monaco, monospace;
-  }
-  .actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 14px;
-  }
-  button {
-    border: 0;
-    border-radius: 10px;
-    padding: 10px 16px;
-    cursor: pointer;
-    font-weight: 700;
-  }
-  .primary { background: #2563eb; color: #fff; }
-  .danger { background: #dc2626; color: #fff; }
-  .secondary { background: #e5e7eb; color: #111827; }
+  .card { padding: 18px; }
   .list-item {
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
     margin-bottom: 10px;
     cursor: pointer;
   }
-  .list-item:hover, .list-item.active {
-    background: #eff6ff;
+  .list-item:hover,
+  .list-item.active {
     border-color: #93c5fd;
+    background: #eff6ff;
   }
-  .muted { color: #6b7280; font-size: 13px; }
-  .status {
-    display: none;
-    margin-top: 12px;
-    padding: 12px;
-    border-radius: 10px;
+  .muted { color: var(--muted); }
+  label {
+    display: block;
+    margin: 0 0 6px;
     font-size: 14px;
+    color: #475569;
   }
-  .status.ok { display: block; background: #dcfce7; color: #166534; }
-  .status.error { display: block; background: #fee2e2; color: #991b1b; }
+  input, select, textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    border-radius: 12px;
+    padding: 11px 12px;
+    color: var(--text);
+  }
+  textarea { min-height: 120px; resize: vertical; }
   .tabs {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     margin-bottom: 16px;
   }
-  .tab {
-    padding: 9px 14px;
-    border-radius: 999px;
-    border: 1px solid #cbd5e1;
+  .tab-btn {
+    border: 1px solid var(--border);
     background: #fff;
     color: #334155;
+    border-radius: 999px;
+    padding: 10px 14px;
     cursor: pointer;
     font-weight: 700;
   }
-  .tab.active {
-    background: #2563eb;
+  .tab-btn.active {
+    background: var(--accent);
     color: #fff;
-    border-color: #2563eb;
+    border-color: var(--accent);
   }
-  .panel { display: none; }
-  .panel.active { display: block; }
-  .block {
-    border: 1px solid #e5e7eb;
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  button.btn {
+    border: 0;
     border-radius: 12px;
+    padding: 11px 16px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .primary { background: var(--accent); color: #fff; }
+  .secondary { background: #e2e8f0; color: var(--text); }
+  .danger { background: var(--danger); color: #fff; }
+  .row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .section-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
     padding: 14px;
     margin-bottom: 12px;
     background: #fff;
   }
-  .block h4 {
-    margin: 0 0 12px;
-    font-size: 15px;
+  .status {
+    display: none;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 14px;
   }
-  .small-note {
-    margin-top: 8px;
-    font-size: 12px;
-    color: #64748b;
+  .status.ok { display: block; background: #dcfce7; color: #166534; }
+  .status.error { display: block; background: #fee2e2; color: #991b1b; }
+  .preview-shell {
+    width: 100%;
+    min-height: 760px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
   }
-  @media (max-width: 980px) {
-    .layout { display: block; }
-    .sidebar { width: 100%; border-right: 0; border-bottom: 1px solid #e5e7eb; }
-    .col-6, .col-4, .col-3, .full { grid-column: 1 / -1; }
+  .code-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .code-grid textarea {
+    min-height: 220px;
+    font-family: Consolas, Monaco, monospace;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-color: #1e293b;
+  }
+  @media (max-width: 1300px) {
+    .editor-layout { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { height: auto; position: static; border-right: 0; border-bottom: 1px solid var(--border); }
+    .row-2, .row-3 { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
 <div class="layout">
   <aside class="sidebar">
-    <h2>CMS Panel</h2>
-    <a href="/admin/">Menü Yönetimi</a>
-    <a href="/admin/pages.html" class="active">Sayfa Yönetimi</a>
-    <a href="/admin/settings.html">Genel Site Ayarları</a>
-    <a href="/" target="_blank">Siteyi Aç</a>
-    <button class="link-btn" id="logoutBtn">Çıkış Yap</button>
+    <div class="brand">
+      <h1>Vera CMS</h1>
+      <p>Gelişmiş sayfa editörü</p>
+    </div>
+    <nav class="nav">
+      <a href="/admin/">Dashboard</a>
+      <a href="/admin/pages.html" class="active">Sayfa Yönetimi</a>
+      <a href="/admin/settings.html">Site Ayarları</a>
+      <a href="/" target="_blank">Siteyi Aç</a>
+      <button id="logoutBtn">Çıkış Yap</button>
+    </nav>
   </aside>
 
-  <main class="content">
-    <div class="card">
-      <h1>Sayfa Yönetimi</h1>
-      <p class="muted">Bir sayfaya birden fazla içerik bloğu ekleyebilirsin. Pro modda mevcut sayfanın kodunu düzenlersin. Ön izleme kaldırıldı.</p>
+  <main class="main">
+    <section class="hero-card">
+      <h1 style="margin:0 0 8px;">Sayfa Yönetimi</h1>
+      <p class="muted" style="margin:0;">Standart içerik modu, section sistemi ve tam HTML/CSS/JS kod modu tek panelde.</p>
       <div id="status" class="status"></div>
-    </div>
+    </section>
 
-    <div class="card">
-      <div class="tabs">
-        <button class="tab active" data-tab="content" type="button">İçerik</button>
-        <button class="tab" data-tab="design" type="button">Tasarım</button>
-        <button class="tab" data-tab="code" type="button">Pro Kod</button>
-      </div>
+    <div class="editor-layout">
+      <aside class="card">
+        <h2 style="margin-top:0;">Kayıtlı Sayfalar</h2>
+        <div id="pageList"></div>
+      </aside>
 
-      <div class="grid">
-        <div class="col-6">
-          <label for="title">Başlık</label>
-          <input id="title" type="text" placeholder="Örn: Hakkımızda" />
+      <section class="card">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="general">Genel</button>
+          <button class="tab-btn" data-tab="layout">Yerleşim</button>
+          <button class="tab-btn" data-tab="sections">Section</button>
+          <button class="tab-btn" data-tab="code">Kod</button>
+          <button class="tab-btn" data-tab="preview">Önizleme</button>
         </div>
 
-        <div class="col-6">
-          <label for="slug">Slug</label>
-          <input id="slug" type="text" placeholder="hakkimizda" />
-        </div>
-
-        <div class="full">
-          <label for="excerpt">Kısa Açıklama</label>
-          <input id="excerpt" type="text" placeholder="Sayfa üst açıklaması" />
-        </div>
-
-        <div class="full">
-          <label for="seoTitle">SEO Başlık</label>
-          <input id="seoTitle" type="text" placeholder="Google başlığı" />
-        </div>
-
-        <div class="full">
-          <label for="seoDescription">SEO Açıklama</label>
-          <textarea id="seoDescription" style="min-height:90px;" placeholder="Google açıklaması"></textarea>
-        </div>
-
-        <div class="col-4">
-          <label for="mode">Düzenleme Modu</label>
-          <select id="mode">
-            <option value="standard">Standart</option>
-            <option value="code">Pro Kod</option>
-          </select>
-        </div>
-
-        <div class="col-4">
-          <label for="maxWidth">Sayfa Maksimum Genişliği (px)</label>
-          <input id="maxWidth" type="number" min="640" max="2400" value="1280" />
-        </div>
-
-        <div class="col-4">
-          <label for="contentWidth">İçerik Genişliği (%)</label>
-          <input id="contentWidth" type="number" min="30" max="100" value="100" />
-        </div>
-
-        <div class="col-4">
-          <label for="fullWidth">Tam Genişlik Modu</label>
-          <select id="fullWidth">
-            <option value="false">Kapalı</option>
-            <option value="true">Açık</option>
-          </select>
-        </div>
-      </div>
-
-      <div id="contentPanel" class="panel active" style="margin-top:18px;">
-        <div class="actions" style="margin-top:0;margin-bottom:12px;">
-          <button class="secondary" id="addSectionBtn" type="button">İçerik Bloğu Ekle</button>
-        </div>
-        <div id="sectionsWrap"></div>
-      </div>
-
-      <div id="designPanel" class="panel" style="margin-top:18px;">
-        <div class="grid">
-          <div class="col-3">
-            <label for="pageBg">Sayfa Arka Planı</label>
-            <input id="pageBg" type="color" value="#f8fafc" />
-          </div>
-          <div class="col-3">
-            <label for="contentBg">İçerik Alanı</label>
-            <input id="contentBg" type="color" value="#ffffff" />
-          </div>
-          <div class="col-3">
-            <label for="textColor">Metin Rengi</label>
-            <input id="textColor" type="color" value="#0f172a" />
-          </div>
-          <div class="col-3">
-            <label for="mutedColor">Soluk Metin</label>
-            <input id="mutedColor" type="color" value="#475569" />
+        <div class="tab-pane active" data-pane="general">
+          <div class="row-2">
+            <div>
+              <label for="title">Başlık</label>
+              <input id="title" type="text" placeholder="Örn: Hakkımızda" />
+            </div>
+            <div>
+              <label for="slug">Slug</label>
+              <input id="slug" type="text" placeholder="hakkimizda" />
+            </div>
           </div>
 
-          <div class="col-3">
-            <label for="accentColor">Vurgu Rengi</label>
-            <input id="accentColor" type="color" value="#2563eb" />
+          <div class="row-2" style="margin-top:12px;">
+            <div>
+              <label for="statusField">Durum</label>
+              <select id="statusField">
+                <option value="draft">Taslak</option>
+                <option value="published">Yayında</option>
+              </select>
+            </div>
+            <div>
+              <label for="mode">İçerik Modu</label>
+              <select id="mode">
+                <option value="standard">Standart</option>
+                <option value="code">Tam Kod</option>
+              </select>
+            </div>
           </div>
-          <div class="col-3">
-            <label for="buttonColor">Buton Rengi</label>
-            <input id="buttonColor" type="color" value="#2563eb" />
-          </div>
-          <div class="col-3">
-            <label for="buttonTextColor">Buton Yazısı</label>
-            <input id="buttonTextColor" type="color" value="#ffffff" />
-          </div>
-          <div class="col-3">
-            <label for="textAlign">Metin Hizası</label>
-            <select id="textAlign">
-              <option value="left">Sol</option>
-              <option value="center">Orta</option>
-              <option value="right">Sağ</option>
+
+          <div style="margin-top:12px;">
+            <label for="template">Şablon</label>
+            <select id="template">
+              <option value="default">Varsayılan</option>
+              <option value="landing">Landing Page</option>
+              <option value="content">İçerik Sayfası</option>
+              <option value="contact">İletişim</option>
             </select>
           </div>
 
-          <div class="col-4">
-            <label for="borderRadius">Köşe Yuvarlaklığı</label>
-            <input id="borderRadius" type="number" min="0" max="60" value="18" />
-          </div>
-          <div class="col-4">
-            <label for="containerPadding">İç Boşluk</label>
-            <input id="containerPadding" type="number" min="0" max="120" value="24" />
-          </div>
-          <div class="col-4">
-            <label for="sectionGap">Bloklar Arası Boşluk</label>
-            <input id="sectionGap" type="number" min="0" max="120" value="18" />
+          <div style="margin-top:12px;">
+            <label for="excerpt">Kısa Açıklama</label>
+            <textarea id="excerpt" style="min-height:90px;" placeholder="Sayfa özeti"></textarea>
           </div>
 
-          <div class="col-6">
-            <label for="titleSize">Başlık Boyutu</label>
-            <input id="titleSize" type="number" min="16" max="120" value="40" />
+          <div style="margin-top:12px;">
+            <label for="seoTitle">SEO Başlık</label>
+            <input id="seoTitle" type="text" placeholder="Google başlığı" />
           </div>
-          <div class="col-6">
-            <label for="bodySize">Metin Boyutu</label>
-            <input id="bodySize" type="number" min="12" max="40" value="17" />
+
+          <div style="margin-top:12px;">
+            <label for="seoDescription">SEO Açıklama</label>
+            <textarea id="seoDescription" style="min-height:100px;" placeholder="Google açıklaması"></textarea>
+          </div>
+
+          <div style="margin-top:12px;">
+            <label for="content">Standart İçerik</label>
+            <textarea id="content" placeholder="Standart mod için temel içerik"></textarea>
           </div>
         </div>
-      </div>
 
-      <div id="codePanel" class="panel" style="margin-top:18px;">
-        <div class="actions" style="margin-top:0;margin-bottom:12px;">
-          <button class="secondary" id="syncFromStandardBtn" type="button">Standarttan Kodu Yeniden Üret</button>
-          <button class="primary" id="applyCodeBtn" type="button">Kod Modunu Etkinleştir</button>
+        <div class="tab-pane" data-pane="layout">
+          <div class="row-3">
+            <div>
+              <label for="pageBg">Sayfa Arka Plan</label>
+              <input id="pageBg" type="color" />
+            </div>
+            <div>
+              <label for="contentBg">İçerik Arka Plan</label>
+              <input id="contentBg" type="color" />
+            </div>
+            <div>
+              <label for="textColor">Metin Rengi</label>
+              <input id="textColor" type="color" />
+            </div>
+          </div>
+
+          <div class="row-3" style="margin-top:12px;">
+            <div>
+              <label for="mutedColor">İkincil Metin</label>
+              <input id="mutedColor" type="color" />
+            </div>
+            <div>
+              <label for="accentColor">Vurgu Rengi</label>
+              <input id="accentColor" type="color" />
+            </div>
+            <div>
+              <label for="buttonColor">Buton Rengi</label>
+              <input id="buttonColor" type="color" />
+            </div>
+          </div>
+
+          <div class="row-3" style="margin-top:12px;">
+            <div>
+              <label for="buttonTextColor">Buton Yazı Rengi</label>
+              <input id="buttonTextColor" type="color" />
+            </div>
+            <div>
+              <label for="maxWidth">Maks. Genişlik (px)</label>
+              <input id="maxWidth" type="number" min="640" max="2400" />
+            </div>
+            <div>
+              <label for="contentWidth">İçerik Genişliği (%)</label>
+              <input id="contentWidth" type="number" min="30" max="100" />
+            </div>
+          </div>
+
+          <div class="row-3" style="margin-top:12px;">
+            <div>
+              <label for="textAlign">Metin Hizası</label>
+              <select id="textAlign">
+                <option value="left">Sol</option>
+                <option value="center">Orta</option>
+                <option value="right">Sağ</option>
+              </select>
+            </div>
+            <div>
+              <label for="borderRadius">Kart Yuvarlaklığı</label>
+              <input id="borderRadius" type="number" min="0" max="60" />
+            </div>
+            <div>
+              <label for="containerPadding">İç Boşluk</label>
+              <input id="containerPadding" type="number" min="0" max="120" />
+            </div>
+          </div>
+
+          <div class="row-3" style="margin-top:12px;">
+            <div>
+              <label for="sectionGap">Section Boşluğu</label>
+              <input id="sectionGap" type="number" min="0" max="120" />
+            </div>
+            <div>
+              <label for="titleSize">Başlık Boyutu</label>
+              <input id="titleSize" type="number" min="16" max="120" />
+            </div>
+            <div>
+              <label for="bodySize">Gövde Boyutu</label>
+              <input id="bodySize" type="number" min="12" max="40" />
+            </div>
+          </div>
+
+          <div class="row-2" style="margin-top:12px;">
+            <div>
+              <label for="fullWidth">Tam Genişlik</label>
+              <select id="fullWidth">
+                <option value="false">Hayır</option>
+                <option value="true">Evet</option>
+              </select>
+            </div>
+            <div>
+              <label for="fullPageCode">Kod Modunda Tüm Sayfa</label>
+              <select id="fullPageCode">
+                <option value="false">Hayır</option>
+                <option value="true">Evet</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <label for="html">HTML</label>
-        <textarea id="html"></textarea>
+        <div class="tab-pane" data-pane="sections">
+          <div class="actions" style="margin-top:0;margin-bottom:12px;">
+            <button class="btn primary" id="addSectionBtn">Section Ekle</button>
+            <button class="btn secondary" id="loadTemplateBtn">Şablon Section Yükle</button>
+          </div>
+          <div id="sectionsWrap"></div>
+        </div>
 
-        <label for="css" style="margin-top:14px;">CSS</label>
-        <textarea id="css"></textarea>
+        <div class="tab-pane" data-pane="code">
+          <div class="code-grid">
+            <div>
+              <label for="htmlCode">HTML</label>
+              <textarea id="htmlCode" placeholder="<section>...</section>"></textarea>
+            </div>
+            <div>
+              <label for="cssCode">CSS</label>
+              <textarea id="cssCode" placeholder="body { ... }"></textarea>
+            </div>
+            <div>
+              <label for="jsCode">JavaScript</label>
+              <textarea id="jsCode" placeholder="console.log('merhaba')"></textarea>
+            </div>
+          </div>
+        </div>
 
-        <label for="js" style="margin-top:14px;">JavaScript</label>
-        <textarea id="js"></textarea>
+        <div class="tab-pane" data-pane="preview">
+          <iframe id="previewFrame" class="preview-shell"></iframe>
+        </div>
 
-        <div class="small-note">Kodu Uygula butonu mevcut alanları sayfaya işler. Kaydet dediğinde canlı sayfaya yazılır.</div>
-      </div>
-
-      <div class="actions">
-        <button class="primary" id="saveBtn" type="button">Kaydet</button>
-        <button class="secondary" id="newBtn" type="button">Yeni Sayfa</button>
-        <button class="danger" id="deleteBtn" type="button">Sil</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Kayıtlı Sayfalar</h2>
-      <div id="pageList"></div>
+        <div class="actions">
+          <button class="btn primary" id="saveBtn">Kaydet</button>
+          <button class="btn secondary" id="newBtn">Yeni Sayfa</button>
+          <button class="btn secondary" id="previewBtn">Önizlemeyi Yenile</button>
+          <button class="btn danger" id="deleteBtn">Sil</button>
+        </div>
+      </section>
     </div>
   </main>
 </div>
+
 <script>
   let pages = [];
   let currentSlug = "";
   let sections = [];
 
-  const defaults = {
+  const defaultSettings = {
     pageBg: "#f8fafc",
     contentBg: "#ffffff",
     textColor: "#0f172a",
@@ -353,7 +449,8 @@
     containerPadding: 24,
     sectionGap: 18,
     titleSize: 40,
-    bodySize: 17
+    bodySize: 17,
+    fullPageCode: false
   };
 
   function showStatus(message, type) {
@@ -369,8 +466,7 @@
   }
 
   function slugify(text) {
-    return text
-      .toString()
+    return String(text || "")
       .toLowerCase()
       .trim()
       .replace(/ğ/g, "g")
@@ -384,29 +480,11 @@
       .replace(/-+/g, "-");
   }
 
-  function setTab(tabName) {
-    document.querySelectorAll(".tab").forEach((tab) => {
-      tab.classList.toggle("active", tab.dataset.tab === tabName);
-    });
-
-    document.querySelectorAll(".panel").forEach((panel) => {
-      panel.classList.remove("active");
-    });
-
-    const map = {
-      content: "contentPanel",
-      design: "designPanel",
-      code: "codePanel"
-    };
-
-    document.getElementById(map[tabName]).classList.add("active");
-
-    if (tabName === "code") {
-      syncCodeFromStandard(false);
-    }
+  function uid(prefix) {
+    return prefix + "-" + Date.now() + "-" + Math.random().toString(36).slice(2, 8);
   }
 
-  function collectSettings() {
+  function getPageSettings() {
     return {
       pageBg: document.getElementById("pageBg").value,
       contentBg: document.getElementById("contentBg").value,
@@ -415,16 +493,154 @@
       accentColor: document.getElementById("accentColor").value,
       buttonColor: document.getElementById("buttonColor").value,
       buttonTextColor: document.getElementById("buttonTextColor").value,
-      maxWidth: Number(document.getElementById("maxWidth").value || defaults.maxWidth),
-      contentWidth: Number(document.getElementById("contentWidth").value || defaults.contentWidth),
+      maxWidth: Number(document.getElementById("maxWidth").value || 1280),
+      contentWidth: Number(document.getElementById("contentWidth").value || 100),
       fullWidth: document.getElementById("fullWidth").value === "true",
       textAlign: document.getElementById("textAlign").value,
-      borderRadius: Number(document.getElementById("borderRadius").value || defaults.borderRadius),
-      containerPadding: Number(document.getElementById("containerPadding").value || defaults.containerPadding),
-      sectionGap: Number(document.getElementById("sectionGap").value || defaults.sectionGap),
-      titleSize: Number(document.getElementById("titleSize").value || defaults.titleSize),
-      bodySize: Number(document.getElementById("bodySize").value || defaults.bodySize)
+      borderRadius: Number(document.getElementById("borderRadius").value || 18),
+      containerPadding: Number(document.getElementById("containerPadding").value || 24),
+      sectionGap: Number(document.getElementById("sectionGap").value || 18),
+      titleSize: Number(document.getElementById("titleSize").value || 40),
+      bodySize: Number(document.getElementById("bodySize").value || 17),
+      fullPageCode: document.getElementById("fullPageCode").value === "true"
     };
+  }
+
+  function setPageSettings(settings = {}) {
+    const s = { ...defaultSettings, ...(settings || {}) };
+    document.getElementById("pageBg").value = s.pageBg;
+    document.getElementById("contentBg").value = s.contentBg;
+    document.getElementById("textColor").value = s.textColor;
+    document.getElementById("mutedColor").value = s.mutedColor;
+    document.getElementById("accentColor").value = s.accentColor;
+    document.getElementById("buttonColor").value = s.buttonColor;
+    document.getElementById("buttonTextColor").value = s.buttonTextColor;
+    document.getElementById("maxWidth").value = s.maxWidth;
+    document.getElementById("contentWidth").value = s.contentWidth;
+    document.getElementById("fullWidth").value = String(!!s.fullWidth);
+    document.getElementById("textAlign").value = s.textAlign;
+    document.getElementById("borderRadius").value = s.borderRadius;
+    document.getElementById("containerPadding").value = s.containerPadding;
+    document.getElementById("sectionGap").value = s.sectionGap;
+    document.getElementById("titleSize").value = s.titleSize;
+    document.getElementById("bodySize").value = s.bodySize;
+    document.getElementById("fullPageCode").value = String(!!s.fullPageCode);
+  }
+
+  function createEmptySection() {
+    return {
+      id: uid("section"),
+      type: "content",
+      title: "",
+      content: "",
+      width: 100,
+      background: "#ffffff",
+      textColor: "#0f172a",
+      padding: 24,
+      radius: 18
+    };
+  }
+
+  function renderSections() {
+    const wrap = document.getElementById("sectionsWrap");
+    wrap.innerHTML = "";
+
+    if (!sections.length) {
+      wrap.innerHTML = '<div class="muted">Henüz section yok.</div>';
+      return;
+    }
+
+    sections.forEach((section, index) => {
+      const card = document.createElement("div");
+      card.className = "section-card";
+      card.innerHTML = `
+        <div class="row-2">
+          <div>
+            <label>Tip</label>
+            <select data-field="type">
+              <option value="content" ${section.type === "content" ? "selected" : ""}>Content</option>
+              <option value="hero" ${section.type === "hero" ? "selected" : ""}>Hero</option>
+              <option value="html" ${section.type === "html" ? "selected" : ""}>HTML</option>
+            </select>
+          </div>
+          <div>
+            <label>Başlık</label>
+            <input data-field="title" value="${escapeAttr(section.title)}" />
+          </div>
+        </div>
+        <div style="margin-top:12px;">
+          <label>İçerik</label>
+          <textarea data-field="content" style="min-height:120px;">${escapeText(section.content)}</textarea>
+        </div>
+        <div class="row-3" style="margin-top:12px;">
+          <div>
+            <label>Genişlik (%)</label>
+            <input data-field="width" type="number" min="30" max="100" value="${Number(section.width || 100)}" />
+          </div>
+          <div>
+            <label>Padding</label>
+            <input data-field="padding" type="number" min="0" max="120" value="${Number(section.padding || 24)}" />
+          </div>
+          <div>
+            <label>Radius</label>
+            <input data-field="radius" type="number" min="0" max="60" value="${Number(section.radius || 18)}" />
+          </div>
+        </div>
+        <div class="row-2" style="margin-top:12px;">
+          <div>
+            <label>Arka Plan</label>
+            <input data-field="background" type="color" value="${section.background || "#ffffff"}" />
+          </div>
+          <div>
+            <label>Metin</label>
+            <input data-field="textColor" type="color" value="${section.textColor || "#0f172a"}" />
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn secondary move-up">Yukarı</button>
+          <button type="button" class="btn secondary move-down">Aşağı</button>
+          <button type="button" class="btn danger remove-section">Sil</button>
+        </div>
+      `;
+
+      card.querySelectorAll("[data-field]").forEach((field) => {
+        field.addEventListener("input", (e) => {
+          const name = e.target.getAttribute("data-field");
+          sections[index][name] = ["width", "padding", "radius"].includes(name)
+            ? Number(e.target.value || 0)
+            : e.target.value;
+        });
+        field.addEventListener("change", (e) => {
+          const name = e.target.getAttribute("data-field");
+          sections[index][name] = ["width", "padding", "radius"].includes(name)
+            ? Number(e.target.value || 0)
+            : e.target.value;
+        });
+      });
+
+      card.querySelector(".remove-section").addEventListener("click", () => {
+        sections.splice(index, 1);
+        renderSections();
+      });
+
+      card.querySelector(".move-up").addEventListener("click", () => {
+        if (index === 0) return;
+        const temp = sections[index - 1];
+        sections[index - 1] = sections[index];
+        sections[index] = temp;
+        renderSections();
+      });
+
+      card.querySelector(".move-down").addEventListener("click", () => {
+        if (index >= sections.length - 1) return;
+        const temp = sections[index + 1];
+        sections[index + 1] = sections[index];
+        sections[index] = temp;
+        renderSections();
+      });
+
+      wrap.appendChild(card);
+    });
   }
 
   function escapeAttr(value) {
@@ -435,395 +651,59 @@
       .replace(/>/g, "&gt;");
   }
 
-  function escapeTextarea(value) {
-    return String(value || "").replace(/<\/textarea>/gi, "<\\/textarea>");
-  }
-
-  function renderSections() {
-    const wrap = document.getElementById("sectionsWrap");
-    wrap.innerHTML = "";
-
-    if (!sections.length) {
-      wrap.innerHTML = '<div class="muted">Henüz içerik bloğu yok. "İçerik Bloğu Ekle" ile başlayabilirsin.</div>';
-      return;
-    }
-
-    sections.forEach((section, index) => {
-      const block = document.createElement("div");
-      block.className = "block";
-      block.innerHTML = `
-        <h4>Blok ${index + 1}</h4>
-        <div class="grid">
-          <div class="col-4">
-            <label>Blok Tipi</label>
-            <select data-key="type" data-index="${index}">
-              <option value="content" ${section.type === "content" ? "selected" : ""}>İçerik</option>
-              <option value="html" ${section.type === "html" ? "selected" : ""}>Serbest HTML</option>
-              <option value="hero" ${section.type === "hero" ? "selected" : ""}>Hero</option>
-            </select>
-          </div>
-          <div class="col-4">
-            <label>Blok Başlığı</label>
-            <input data-key="title" data-index="${index}" type="text" value="${escapeAttr(section.title || "")}" />
-          </div>
-          <div class="col-4">
-            <label>Blok Genişliği (%)</label>
-            <input data-key="width" data-index="${index}" type="number" min="30" max="100" value="${Number(section.width || 100)}" />
-          </div>
-          <div class="col-3">
-            <label>Arka Plan</label>
-            <input data-key="background" data-index="${index}" type="color" value="${section.background || "#ffffff"}" />
-          </div>
-          <div class="col-3">
-            <label>Yazı Rengi</label>
-            <input data-key="textColor" data-index="${index}" type="color" value="${section.textColor || "#0f172a"}" />
-          </div>
-          <div class="col-3">
-            <label>İç Boşluk</label>
-            <input data-key="padding" data-index="${index}" type="number" min="0" max="120" value="${Number(section.padding || 24)}" />
-          </div>
-          <div class="col-3">
-            <label>Köşe Yuvarlaklığı</label>
-            <input data-key="radius" data-index="${index}" type="number" min="0" max="50" value="${Number(section.radius || 18)}" />
-          </div>
-          <div class="full">
-            <label>İçerik</label>
-            <textarea data-key="content" data-index="${index}">${escapeTextarea(section.content || "")}</textarea>
-          </div>
-        </div>
-        <div class="actions">
-          <button type="button" class="secondary move-up-btn" data-index="${index}">Yukarı Al</button>
-          <button type="button" class="secondary move-down-btn" data-index="${index}">Aşağı Al</button>
-          <button type="button" class="danger remove-section-btn" data-index="${index}">Bloğu Sil</button>
-        </div>
-      `;
-      wrap.appendChild(block);
-    });
-
-    wrap.querySelectorAll("[data-key]").forEach((el) => {
-      el.addEventListener("input", handleSectionChange);
-      el.addEventListener("change", handleSectionChange);
-    });
-
-    wrap.querySelectorAll(".remove-section-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const index = Number(btn.dataset.index);
-        sections.splice(index, 1);
-        renderSections();
-      });
-    });
-
-    wrap.querySelectorAll(".move-up-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const index = Number(btn.dataset.index);
-        if (index <= 0) return;
-        const temp = sections[index - 1];
-        sections[index - 1] = sections[index];
-        sections[index] = temp;
-        renderSections();
-      });
-    });
-
-    wrap.querySelectorAll(".move-down-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const index = Number(btn.dataset.index);
-        if (index >= sections.length - 1) return;
-        const temp = sections[index + 1];
-        sections[index + 1] = sections[index];
-        sections[index] = temp;
-        renderSections();
-      });
-    });
-  }
-
-  function handleSectionChange(e) {
-    const index = Number(e.target.dataset.index);
-    const key = e.target.dataset.key;
-    let value = e.target.value;
-
-    if (["width", "padding", "radius"].includes(key)) {
-      value = Number(value || 0);
-    }
-
-    sections[index][key] = value;
-  }
-
-  function addSection() {
-    sections.push({
-      id: "section-" + Date.now(),
-      type: "content",
-      title: "",
-      content: "",
-      width: 100,
-      background: "#ffffff",
-      textColor: "#0f172a",
-      padding: 24,
-      radius: 18
-    });
-    renderSections();
-  }
-
-  function collectStandardPayload() {
-    const title = document.getElementById("title").value.trim();
-    const slug = slugify(document.getElementById("slug").value.trim() || title);
-    document.getElementById("slug").value = slug;
-
-    return {
-      title,
-      slug,
-      excerpt: document.getElementById("excerpt").value.trim(),
-      seoTitle: document.getElementById("seoTitle").value.trim(),
-      seoDescription: document.getElementById("seoDescription").value.trim(),
-      mode: document.getElementById("mode").value,
-      sections: sections,
-      settings: collectSettings()
-    };
-  }
-
-  function buildStandardCode(payload) {
-    const s = payload.settings || defaults;
-    const articleWidth = s.fullWidth ? 100 : s.contentWidth;
-    const shellMax = s.fullWidth ? 2400 : s.maxWidth;
-
-    const html = `
-<div class="page-wrap">
-  <article class="page-box">
-    <header class="page-header">
-      <h1>${payload.title || ""}</h1>
-      ${payload.excerpt ? `<p class="page-excerpt">${payload.excerpt}</p>` : ""}
-    </header>
-    <div class="page-sections">
-      ${(payload.sections || []).map((section) => `
-        <section class="page-section section-${section.type || "content"}" style="width:${Number(section.width || 100)}%;background:${section.background || "#ffffff"};color:${section.textColor || "#0f172a"};padding:${Number(section.padding || 24)}px;border-radius:${Number(section.radius || 18)}px;">
-          ${section.title ? `<h2>${section.title}</h2>` : ""}
-          <div>${section.content || ""}</div>
-        </section>
-      `).join("")}
-    </div>
-  </article>
-</div>`.trim();
-
-    const css = `
-:root{
-  --page-bg:${s.pageBg};
-  --content-bg:${s.contentBg};
-  --text-color:${s.textColor};
-  --muted-color:${s.mutedColor};
-  --accent-color:${s.accentColor};
-  --button-color:${s.buttonColor};
-  --button-text-color:${s.buttonTextColor};
-  --page-max-width:${shellMax}px;
-  --content-width:${articleWidth}%;
-  --page-radius:${s.borderRadius}px;
-  --page-padding:${s.containerPadding}px;
-  --section-gap:${s.sectionGap}px;
-  --title-size:${s.titleSize}px;
-  --body-size:${s.bodySize}px;
-  --text-align:${s.textAlign};
-}
-html,body{
-  margin:0;
-  padding:0;
-  font-family:Arial,sans-serif;
-  background:var(--page-bg);
-  color:var(--text-color);
-}
-.page-wrap{
-  max-width:var(--page-max-width);
-  width:100%;
-  margin:0 auto;
-  padding:24px;
-}
-.page-box{
-  width:var(--content-width);
-  margin:0 auto;
-  background:var(--content-bg);
-  color:var(--text-color);
-  border-radius:var(--page-radius);
-  padding:var(--page-padding);
-  text-align:var(--text-align);
-  font-size:var(--body-size);
-  line-height:1.75;
-}
-.page-header{margin-bottom:var(--section-gap);}
-.page-header h1{
-  margin:0 0 12px;
-  font-size:var(--title-size);
-  line-height:1.1;
-}
-.page-excerpt{margin:0;color:var(--muted-color);}
-.page-sections{
-  display:flex;
-  flex-direction:column;
-  gap:var(--section-gap);
-}
-.page-section{
-  max-width:100%;
-}
-.page-section h2{
-  margin:0 0 12px;
-}
-.page-box a{color:var(--accent-color);}
-.page-box button,.page-box .btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  border:0;
-  border-radius:999px;
-  padding:12px 18px;
-  background:var(--button-color);
-  color:var(--button-text-color);
-  font-weight:700;
-  text-decoration:none;
-  cursor:pointer;
-}`.trim();
-
-    const js = `/* Standart sayfa için ek script gerekirse buraya yazılabilir. */`;
-
-    return { html, css, js };
-  }
-
-  function syncCodeFromStandard(forceOverwrite = true) {
-    const payload = collectStandardPayload();
-    const generated = buildStandardCode(payload);
-
-    const htmlEl = document.getElementById("html");
-    const cssEl = document.getElementById("css");
-    const jsEl = document.getElementById("js");
-
-    if (forceOverwrite) {
-      htmlEl.value = generated.html;
-      cssEl.value = generated.css;
-      jsEl.value = generated.js;
-      return;
-    }
-
-    if (!htmlEl.value.trim()) htmlEl.value = generated.html;
-    if (!cssEl.value.trim()) cssEl.value = generated.css;
-    if (!jsEl.value.trim()) jsEl.value = generated.js;
-  }
-
-  function applyCode() {
-    const htmlEl = document.getElementById("html");
-    const cssEl = document.getElementById("css");
-    const jsEl = document.getElementById("js");
-
-    if (!htmlEl.value.trim() && !cssEl.value.trim() && !jsEl.value.trim()) {
-      const payload = collectStandardPayload();
-      const generated = buildStandardCode(payload);
-      htmlEl.value = generated.html;
-      cssEl.value = generated.css;
-      jsEl.value = generated.js;
-    }
-
-    document.getElementById("mode").value = "code";
-    showStatus("Kod modu aktif edildi. Kaydet dediğinde canlı sayfaya pro kod hali yazılır.", "ok");
-  }
-
-  function buildPayload() {
-    const standard = collectStandardPayload();
-    const mode = document.getElementById("mode").value;
-
-    let html = document.getElementById("html").value;
-    let css = document.getElementById("css").value;
-    let js = document.getElementById("js").value;
-
-    if (mode === "standard") {
-      const generated = buildStandardCode(standard);
-      html = generated.html;
-      css = generated.css;
-      if (!js.trim()) js = generated.js;
-    } else {
-      if (!html.trim() && !css.trim() && !js.trim()) {
-        const generated = buildStandardCode(standard);
-        html = generated.html;
-        css = generated.css;
-        js = generated.js;
-      }
-    }
-
-    return {
-      ...standard,
-      mode,
-      html,
-      css,
-      js
-    };
+  function escapeText(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
   function fillForm(page) {
-    const settings = { ...defaults, ...(page.settings || {}) };
-
     document.getElementById("title").value = page.title || "";
     document.getElementById("slug").value = page.slug || "";
+    document.getElementById("statusField").value = page.status || "draft";
+    document.getElementById("mode").value = page.mode || "standard";
+    document.getElementById("template").value = page.template || "default";
     document.getElementById("excerpt").value = page.excerpt || "";
     document.getElementById("seoTitle").value = page.seoTitle || "";
     document.getElementById("seoDescription").value = page.seoDescription || "";
-    document.getElementById("mode").value = page.mode || "standard";
-
-    Object.keys(defaults).forEach((key) => {
-      const input = document.getElementById(key);
-      if (input) {
-        if (key === "fullWidth") {
-          input.value = String(!!settings[key]);
-        } else {
-          input.value = settings[key];
-        }
-      }
-    });
-
-    sections = Array.isArray(page.sections) ? page.sections.map((s) => ({ ...s })) : [];
-    if (!sections.length) addSection();
-    else renderSections();
-
+    document.getElementById("content").value = page.content || "";
+    document.getElementById("htmlCode").value = page.html || "";
+    document.getElementById("cssCode").value = page.css || "";
+    document.getElementById("jsCode").value = page.js || "";
+    sections = Array.isArray(page.sections) ? page.sections : [];
+    setPageSettings(page.settings || {});
     currentSlug = page.slug || "";
-
-    if (page.html || page.css || page.js) {
-      document.getElementById("html").value = page.html || "";
-      document.getElementById("css").value = page.css || "";
-      document.getElementById("js").value = page.js || "";
-    } else {
-      syncCodeFromStandard(true);
-    }
-
-    renderList();
+    renderSections();
+    refreshPreview();
   }
 
   function clearForm() {
     currentSlug = "";
     document.getElementById("title").value = "";
     document.getElementById("slug").value = "";
+    document.getElementById("statusField").value = "draft";
+    document.getElementById("mode").value = "standard";
+    document.getElementById("template").value = "default";
     document.getElementById("excerpt").value = "";
     document.getElementById("seoTitle").value = "";
     document.getElementById("seoDescription").value = "";
-    document.getElementById("mode").value = "standard";
-
-    Object.keys(defaults).forEach((key) => {
-      const input = document.getElementById(key);
-      if (input) {
-        if (key === "fullWidth") input.value = "false";
-        else input.value = defaults[key];
-      }
-    });
-
+    document.getElementById("content").value = "";
+    document.getElementById("htmlCode").value = "";
+    document.getElementById("cssCode").value = "";
+    document.getElementById("jsCode").value = "";
     sections = [];
-    addSection();
-
-    document.getElementById("html").value = "";
-    document.getElementById("css").value = "";
-    document.getElementById("js").value = "";
-
-    syncCodeFromStandard(true);
-    renderList();
+    setPageSettings(defaultSettings);
+    renderSections();
+    refreshPreview();
   }
 
-  function renderList() {
+  function renderPageList() {
     const list = document.getElementById("pageList");
     list.innerHTML = "";
 
     if (!pages.length) {
-      list.innerHTML = '<div class="muted">Henüz kayıtlı sayfa yok.</div>';
+      list.innerHTML = '<div class="muted">Henüz sayfa yok.</div>';
       return;
     }
 
@@ -833,145 +713,29 @@ html,body{
       item.innerHTML = `
         <strong>${page.title || "-"}</strong>
         <div class="muted">/${page.slug || ""}</div>
-        <div class="muted">mod: ${page.mode === "code" ? "pro kod" : "standart"} | blok: ${(page.sections || []).length}</div>
+        <div class="muted">durum: ${page.status || "draft"} · mod: ${page.mode || "standard"}</div>
       `;
-      item.addEventListener("click", () => fillForm(page));
+      item.addEventListener("click", () => {
+        fillForm(page);
+        renderPageList();
+      });
       list.appendChild(item);
     });
   }
 
-  async function loadPages() {
-    clearStatus();
-    try {
-      const res = await fetch("/api/pages");
-      const data = await res.json();
-      pages = data.pages || [];
-      renderList();
-    } catch (err) {
-      showStatus("Sayfalar yüklenemedi.", "error");
-    }
-  }
+  function collectPayload() {
+    let slug = document.getElementById("slug").value.trim();
+    const title = document.getElementById("title").value.trim();
+    slug = slugify(slug || title);
+    document.getElementById("slug").value = slug;
 
-  async function savePage() {
-    clearStatus();
-    const payload = buildPayload();
-
-    if (!payload.title || !payload.slug) {
-      showStatus("Başlık ve slug zorunludur.", "error");
-      return;
-    }
-
-    if (payload.mode === "code" && !payload.html.trim() && !payload.css.trim() && !payload.js.trim()) {
-      showStatus("Pro kod modunda en azından HTML veya CSS alanı dolu olmalı.", "error");
-      return;
-    }
-
-    try {
-      const res = await fetch("/api/pages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-
-      if (!data.ok) {
-        showStatus(data.error || "Kayıt sırasında hata oluştu.", "error");
-        return;
-      }
-
-      pages = data.pages || [];
-      currentSlug = payload.slug;
-      renderList();
-      showStatus(
-        payload.mode === "code"
-          ? "Sayfa pro kod modunda kaydedildi."
-          : "Sayfa standart modda kaydedildi.",
-        "ok"
-      );
-    } catch (err) {
-      showStatus("Kayıt sırasında hata oluştu.", "error");
-    }
-  }
-
-  async function deletePage() {
-    clearStatus();
-    const slug = document.getElementById("slug").value.trim();
-
-    if (!slug) {
-      showStatus("Silmek için önce bir sayfa seç.", "error");
-      return;
-    }
-
-    if (!confirm(`"${slug}" sayfası silinsin mi?`)) return;
-
-    try {
-      const res = await fetch("/api/pages?slug=" + encodeURIComponent(slug), {
-        method: "DELETE"
-      });
-      const data = await res.json();
-
-      if (!data.ok) {
-        showStatus(data.error || "Silme sırasında hata oluştu.", "error");
-        return;
-      }
-
-      pages = data.pages || [];
-      clearForm();
-      showStatus("Sayfa silindi.", "ok");
-    } catch (err) {
-      showStatus("Silme sırasında hata oluştu.", "error");
-    }
-  }
-
-  document.querySelectorAll(".tab").forEach((tab) => {
-    tab.addEventListener("click", () => setTab(tab.dataset.tab));
-  });
-
-  document.getElementById("title").addEventListener("input", () => {
-    const slugInput = document.getElementById("slug");
-    if (!currentSlug && !slugInput.value.trim()) {
-      slugInput.value = slugify(document.getElementById("title").value);
-    }
-  });
-
-  document.getElementById("mode").addEventListener("change", () => {
-    const mode = document.getElementById("mode").value;
-
-    if (mode === "code") {
-      syncCodeFromStandard(false);
-      showStatus("Pro kod modu açıldı. Gerekirse 'Standarttan Kodu Yeniden Üret' ile güncel kodu çekebilirsin.", "ok");
-    } else {
-      showStatus("Standart mod aktif. Canlı sayfa standart yapıdan üretilecek.", "ok");
-    }
-  });
-
-  document.getElementById("addSectionBtn").addEventListener("click", addSection);
-
-  document.getElementById("syncFromStandardBtn").addEventListener("click", () => {
-    syncCodeFromStandard(true);
-    showStatus("Standart yapıya göre kod yeniden üretildi.", "ok");
-  });
-
-  document.getElementById("applyCodeBtn").addEventListener("click", applyCode);
-  document.getElementById("saveBtn").addEventListener("click", savePage);
-
-  document.getElementById("newBtn").addEventListener("click", () => {
-    clearStatus();
-    clearForm();
-  });
-
-  document.getElementById("deleteBtn").addEventListener("click", deletePage);
-
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
-    try {
-      await fetch("/api/logout", { method: "POST" });
-    } catch (err) {}
-    window.location.href = "/login.html";
-  });
-
-  loadPages();
-  clearForm();
-</script>
-</body>
-</html>
+    return {
+      title,
+      slug,
+      status: document.getElementById("statusField").value,
+      mode: document.getElementById("mode").value,
+      template: document.getElementById("template").value,
+      excerpt: document.getElementById("excerpt").value.trim(),
+      seoTitle: document.getElementById("seoTitle").value.trim(),
+      seoDescription: document.getElementById("seoDescription").value.trim(),
+      content: document.getElementById
