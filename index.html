@@ -11,6 +11,11 @@
       --site-card: #ffffff;
       --site-border: #e2e8f0;
       --site-accent: #2563eb;
+      --site-width: 1180px;
+      --site-padding: 24px;
+      --nav-radius: 999px;
+      --main-radius: 18px;
+      --main-padding: 24px;
     }
     * { box-sizing: border-box; }
     body {
@@ -22,9 +27,9 @@
     }
     .container {
       width: 100%;
-      max-width: 1180px;
+      max-width: var(--site-width);
       margin: auto;
-      padding: 24px;
+      padding: var(--site-padding);
     }
     header {
       display: flex;
@@ -49,7 +54,7 @@
     nav li {
       cursor: pointer;
       padding: 9px 14px;
-      border-radius: 999px;
+      border-radius: var(--nav-radius);
       transition: background .2s, color .2s, border-color .2s;
       color: #334155;
       border: 1px solid #dbeafe;
@@ -65,8 +70,8 @@
     }
     main {
       background: var(--site-card);
-      padding: 24px;
-      border-radius: 18px;
+      padding: var(--main-padding);
+      border-radius: var(--main-radius);
       min-height: 360px;
       border: 1px solid var(--site-border);
       box-shadow: 0 1px 2px rgba(0,0,0,.04);
@@ -82,12 +87,13 @@
     }
     .page-shell {
       margin: 0 auto;
+      width: 100%;
     }
-    .page-prose a {
+    .page-shell a {
       color: var(--accent-color, var(--site-accent));
     }
-    .page-prose button,
-    .page-prose .btn {
+    .page-shell button,
+    .page-shell .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -113,7 +119,7 @@
 <body>
   <div class="container">
     <header>
-      <h1>Site Başlığı</h1>
+      <h1 id="siteTitle">Site Başlığı</h1>
       <a href="/login.html" class="admin-link">Yönetici Girişi</a>
     </header>
 
@@ -127,6 +133,7 @@
   <script>
     let menus = [];
     let pages = [];
+    let siteSettings = {};
 
     function getQueryPage() {
       const url = new URL(window.location.href);
@@ -157,33 +164,65 @@
         .replace(/"/g, "&quot;");
     }
 
+    function applySiteSettings(settings) {
+      siteSettings = settings || {};
+      document.getElementById("siteTitle").textContent = siteSettings.siteTitle || "Site Başlığı";
+      document.title = siteSettings.siteTitle || "Site";
+
+      document.documentElement.style.setProperty("--site-bg", siteSettings.siteBg || "#f8fafc");
+      document.documentElement.style.setProperty("--site-text", siteSettings.siteText || "#0f172a");
+      document.documentElement.style.setProperty("--site-card", siteSettings.siteCard || "#ffffff");
+      document.documentElement.style.setProperty("--site-border", siteSettings.siteBorder || "#e2e8f0");
+      document.documentElement.style.setProperty("--site-accent", siteSettings.siteAccent || "#2563eb");
+      document.documentElement.style.setProperty("--site-width", (siteSettings.headerMaxWidth || 1180) + "px");
+      document.documentElement.style.setProperty("--site-padding", (siteSettings.headerPadding || 24) + "px");
+      document.documentElement.style.setProperty("--nav-radius", (siteSettings.navRadius || 999) + "px");
+      document.documentElement.style.setProperty("--main-radius", (siteSettings.mainRadius || 18) + "px");
+      document.documentElement.style.setProperty("--main-padding", (siteSettings.mainPadding || 24) + "px");
+    }
+
     function renderStandardPage(page) {
       const content = document.getElementById("content");
-      const settings = page.settings || {};
-      const accent = settings.accentColor || "#2563eb";
-      const buttonColor = settings.buttonColor || accent;
-      const buttonTextColor = settings.buttonTextColor || "#ffffff";
-      const bg = settings.pageBg || "#f8fafc";
-      const surface = settings.contentBg || "#ffffff";
-      const text = settings.textColor || "#0f172a";
-      const muted = settings.mutedColor || "#475569";
-      const titleSize = Number(settings.titleSize || 40);
-      const bodySize = Number(settings.bodySize || 17);
-      const radius = Number(settings.borderRadius || 18);
-      const shellMax = Number(settings.maxWidth || 1120);
-      const shellWidth = Number(settings.contentWidth || 100);
-      const containerPadding = Number(settings.containerPadding || 24);
-      const sectionGap = Number(settings.sectionGap || 18);
-      const textAlign = settings.textAlign || "left";
+      const s = page.settings || {};
+      const accent = s.accentColor || "#2563eb";
+      const buttonColor = s.buttonColor || accent;
+      const buttonTextColor = s.buttonTextColor || "#ffffff";
+      const bg = s.pageBg || "#f8fafc";
+      const surface = s.contentBg || "#ffffff";
+      const text = s.textColor || "#0f172a";
+      const muted = s.mutedColor || "#475569";
+      const titleSize = Number(s.titleSize || 40);
+      const bodySize = Number(s.bodySize || 17);
+      const radius = Number(s.borderRadius || 18);
+      const shellMax = Number(s.fullWidth ? 2400 : (s.maxWidth || 1280));
+      const shellWidth = Number(s.fullWidth ? 100 : (s.contentWidth || 100));
+      const containerPadding = Number(s.containerPadding || 24);
+      const sectionGap = Number(s.sectionGap || 18);
+      const textAlign = s.textAlign || "left";
 
       document.body.style.background = bg;
-      document.documentElement.style.setProperty("--site-bg", bg);
       document.documentElement.style.setProperty("--site-accent", accent);
+
+      const sectionsHtml = (page.sections || []).map((section) => `
+        <section
+          style="
+            width:${Number(section.width || 100)}%;
+            max-width:100%;
+            background:${section.background || "#ffffff"};
+            color:${section.textColor || text};
+            padding:${Number(section.padding || 24)}px;
+            border-radius:${Number(section.radius || 18)}px;
+            margin:0 auto;
+          "
+        >
+          ${section.title ? `<h2 style="margin:0 0 12px;">${section.title}</h2>` : ""}
+          <div>${section.content || ""}</div>
+        </section>
+      `).join("");
 
       content.innerHTML = `
         <section class="page-shell" style="max-width:${shellMax}px;">
           <article
-            class="page-prose"
             style="
               width:${shellWidth}%;
               margin:0 auto;
@@ -203,7 +242,9 @@
               <h2 style="margin:0 0 12px;font-size:${titleSize}px;line-height:1.1;">${page.title || ""}</h2>
               ${page.excerpt ? `<p style="margin:0;color:${muted};">${page.excerpt}</p>` : ""}
             </header>
-            <div>${page.content || ""}</div>
+            <div style="display:flex;flex-direction:column;gap:${sectionGap}px;">
+              ${sectionsHtml}
+            </div>
           </article>
         </section>
       `;
@@ -239,10 +280,6 @@ ${js.replace(/<\/script>/gi, "<\\/script>")}
 
     function renderCodePage(page) {
       const content = document.getElementById("content");
-      document.body.style.background = "#f8fafc";
-      document.documentElement.style.setProperty("--site-bg", "#f8fafc");
-      document.documentElement.style.setProperty("--site-accent", page.settings?.accentColor || "#2563eb");
-
       const iframe = document.createElement("iframe");
       iframe.className = "page-frame";
       iframe.setAttribute("sandbox", "allow-scripts allow-forms allow-modals");
@@ -254,13 +291,12 @@ ${js.replace(/<\/script>/gi, "<\\/script>")}
     function renderContent(page) {
       if (!page) {
         document.getElementById("content").innerHTML = "<h2>Sayfa bulunamadı</h2><p class='muted'>İçerik mevcut değil.</p>";
-        document.title = "Sayfa bulunamadı";
         ensureMetaDescription("");
         return;
       }
 
-      document.title = page.seoTitle || page.title || "Site";
-      ensureMetaDescription(page.seoDescription || page.excerpt || "");
+      document.title = page.seoTitle || page.title || siteSettings.siteTitle || "Site";
+      ensureMetaDescription(page.seoDescription || page.excerpt || siteSettings.siteDescription || "");
 
       if (page.mode === "code") {
         renderCodePage(page);
@@ -324,16 +360,20 @@ ${js.replace(/<\/script>/gi, "<\\/script>")}
 
     async function loadSite() {
       try {
-        const [menuRes, pagesRes] = await Promise.all([
+        const [settingsRes, menuRes, pagesRes] = await Promise.all([
+          fetch("/api/settings"),
           fetch("/api/menu"),
           fetch("/api/pages")
         ]);
 
+        const settingsData = await settingsRes.json();
         const menuData = await menuRes.json();
         const pagesData = await pagesRes.json();
 
+        applySiteSettings(settingsData.settings || {});
         menus = (menuData.menus || []).sort((a, b) => (a.order || 0) - (b.order || 0));
         pages = pagesData.pages || [];
+
         renderMenus();
       } catch (err) {
         document.getElementById("content").textContent = "Veriler yüklenemedi: " + err.message;
