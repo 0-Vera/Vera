@@ -304,7 +304,7 @@
       <div id="codePanel" class="panel" style="margin-top:18px;">
         <div class="actions" style="margin-top:0;margin-bottom:12px;">
           <button class="secondary" id="syncFromStandardBtn" type="button">Standarttan Kodu Yeniden Üret</button>
-          <button class="primary" id="applyCodeBtn" type="button">Kodu Uygula</button>
+          <button class="primary" id="applyCodeBtn" type="button">Kod Modunu Etkinleştir</button>
         </div>
 
         <label for="html">HTML</label>
@@ -682,18 +682,25 @@ html,body{
     return { html, css, js };
   }
 
-  function syncCodeFromStandard(forceOverwrite = true) {
-    const payload = collectStandardPayload();
-    const generated = buildStandardCode(payload);
+function syncCodeFromStandard(forceOverwrite = true) {
+  const payload = collectStandardPayload();
+  const generated = buildStandardCode(payload);
 
-    const htmlEl = document.getElementById("html");
-    const cssEl = document.getElementById("css");
-    const jsEl = document.getElementById("js");
+  const htmlEl = document.getElementById("html");
+  const cssEl = document.getElementById("css");
+  const jsEl = document.getElementById("js");
 
-    if (forceOverwrite || !htmlEl.value.trim()) htmlEl.value = generated.html;
-    if (forceOverwrite || !cssEl.value.trim()) cssEl.value = generated.css;
-    if (forceOverwrite || !jsEl.value.trim()) jsEl.value = generated.js;
+  if (forceOverwrite) {
+    htmlEl.value = generated.html;
+    cssEl.value = generated.css;
+    jsEl.value = generated.js;
+    return;
   }
+
+  if (!htmlEl.value.trim()) htmlEl.value = generated.html;
+  if (!cssEl.value.trim()) cssEl.value = generated.css;
+  if (!jsEl.value.trim()) jsEl.value = generated.js;
+}
 
 function applyCode() {
   const htmlEl = document.getElementById("html");
@@ -712,27 +719,44 @@ function applyCode() {
   showStatus("Kod modu aktif edildi. Kaydet dediğinde canlı sayfaya pro kod hali yazılır.", "ok");
 }
 
-  function buildPayload() {
-    const standard = collectStandardPayload();
+function buildPayload() {
+  const standard = collectStandardPayload();
+document.getElementById("mode").addEventListener("change", () => {
+  const mode = document.getElementById("mode").value;
 
-    let html = document.getElementById("html").value;
-    let css = document.getElementById("css").value;
-    let js = document.getElementById("js").value;
-
-    if (!html.trim() || !css.trim()) {
-      const generated = buildStandardCode(standard);
-      if (!html.trim()) html = generated.html;
-      if (!css.trim()) css = generated.css;
-      if (!js.trim()) js = generated.js;
-    }
-
-    return {
-      ...standard,
-      html,
-      css,
-      js
-    };
+  if (mode === "code") {
+    syncCodeFromStandard(false);
+    showStatus("Pro kod modu açıldı. Gerekirse 'Standarttan Kodu Yeniden Üret' ile güncel kodu çekebilirsin.", "ok");
+  } else {
+    showStatus("Standart mod aktif. Canlı sayfa standart yapıdan üretilecek.", "ok");
   }
+});
+  let html = document.getElementById("html").value;
+  let css = document.getElementById("css").value;
+  let js = document.getElementById("js").value;
+
+  if (mode === "standard") {
+    const generated = buildStandardCode(standard);
+    html = generated.html;
+    css = generated.css;
+    if (!js.trim()) js = generated.js;
+  } else {
+    if (!html.trim() && !css.trim() && !js.trim()) {
+      const generated = buildStandardCode(standard);
+      html = generated.html;
+      css = generated.css;
+      js = generated.js;
+    }
+  }
+
+  return {
+    ...standard,
+    mode,
+    html,
+    css,
+    js
+  };
+}
 
   function fillForm(page) {
     const settings = { ...defaults, ...(page.settings || {}) };
@@ -834,37 +858,47 @@ function applyCode() {
     }
   }
 
-  async function savePage() {
-    clearStatus();
-    const payload = buildPayload();
+async function savePage() {
+  clearStatus();
+  const payload = buildPayload();
 
-    if (!payload.title || !payload.slug) {
-      showStatus("Başlık ve slug zorunludur.", "error");
+  if (!payload.title || !payload.slug) {
+    showStatus("Başlık ve slug zorunludur.", "error");
+    return;
+  }
+
+  if (payload.mode === "code" && !payload.html.trim() && !payload.css.trim() && !payload.js.trim()) {
+    showStatus("Pro kod modunda en azından HTML veya CSS alanı dolu olmalı.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/pages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!data.ok) {
+      showStatus(data.error || "Kayıt sırasında hata oluştu.", "error");
       return;
     }
 
-    try {
-      const res = await fetch("/api/pages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      const data = await res.json();
-
-      if (!data.ok) {
-        showStatus(data.error || "Kayıt sırasında hata oluştu.", "error");
-        return;
-      }
-
-      pages = data.pages || [];
-      currentSlug = payload.slug;
-      renderList();
-      showStatus("Sayfa kaydedildi.", "ok");
-    } catch (err) {
-      showStatus("Kayıt sırasında hata oluştu.", "error");
-    }
+    pages = data.pages || [];
+    currentSlug = payload.slug;
+    renderList();
+    showStatus(
+      payload.mode === "code"
+        ? "Sayfa pro kod modunda kaydedildi."
+        : "Sayfa standart modda kaydedildi.",
+      "ok"
+    );
+  } catch (err) {
+    showStatus("Kayıt sırasında hata oluştu.", "error");
   }
+}
 
   async function deletePage() {
     clearStatus();
