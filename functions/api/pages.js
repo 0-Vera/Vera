@@ -25,6 +25,59 @@ async function checkSession(request, env) {
   return !!raw;
 }
 
+function normalizeColor(value, fallback) {
+  const str = String(value || "").trim();
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(str) ? str : fallback;
+}
+
+function normalizeNumber(value, fallback, min, max) {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  return Math.min(max, Math.max(min, num));
+}
+
+function normalizeMode(value) {
+  return value === "code" ? "code" : "standard";
+}
+
+function defaultSettings(input = {}) {
+  return {
+    maxWidth: normalizeNumber(input.maxWidth, 1120, 640, 1600),
+    textAlign: ["left", "center", "right"].includes(input.textAlign) ? input.textAlign : "left",
+    pageBg: normalizeColor(input.pageBg, "#f8fafc"),
+    contentBg: normalizeColor(input.contentBg, "#ffffff"),
+    textColor: normalizeColor(input.textColor, "#0f172a"),
+    mutedColor: normalizeColor(input.mutedColor, "#475569"),
+    accentColor: normalizeColor(input.accentColor, "#2563eb"),
+    buttonColor: normalizeColor(input.buttonColor, "#2563eb"),
+    buttonTextColor: normalizeColor(input.buttonTextColor, "#ffffff"),
+    borderRadius: normalizeNumber(input.borderRadius, 18, 0, 40),
+    containerPadding: normalizeNumber(input.containerPadding, 24, 0, 80),
+    sectionGap: normalizeNumber(input.sectionGap, 18, 0, 80),
+    titleSize: normalizeNumber(input.titleSize, 40, 20, 84),
+    bodySize: normalizeNumber(input.bodySize, 17, 12, 28),
+    contentWidth: normalizeNumber(input.contentWidth, 100, 60, 100)
+  };
+}
+
+function normalizePage(body = {}, previous = {}) {
+  const mode = normalizeMode(body.mode || previous.mode);
+  return {
+    title: String(body.title || previous.title || "").trim(),
+    slug: String(body.slug || previous.slug || "").trim(),
+    excerpt: String(body.excerpt || previous.excerpt || "").trim(),
+    seoTitle: String(body.seoTitle || previous.seoTitle || "").trim(),
+    seoDescription: String(body.seoDescription || previous.seoDescription || "").trim(),
+    mode,
+    content: String(body.content ?? previous.content ?? ""),
+    html: String(body.html ?? previous.html ?? ""),
+    css: String(body.css ?? previous.css ?? ""),
+    js: String(body.js ?? previous.js ?? ""),
+    settings: defaultSettings(body.settings || previous.settings || {}),
+    updatedAt: new Date().toISOString()
+  };
+}
+
 export async function onRequest(context) {
   const { request, env } = context;
   const kv = env.AUTH_KV;
@@ -39,7 +92,10 @@ export async function onRequest(context) {
       return json({ ok: true, page });
     }
 
-    return json({ ok: true, pages });
+    return json({
+      ok: true,
+      pages: pages.sort((a, b) => String(a.title || "").localeCompare(String(b.title || ""), "tr"))
+    });
   }
 
   const authorized = await checkSession(request, env);
@@ -56,25 +112,17 @@ export async function onRequest(context) {
     }
 
     const pages = (await kv.get("pages", { type: "json" })) || [];
-
-    const cleanPage = {
-      title: (body.title || "").trim(),
-      slug: (body.slug || "").trim(),
-      content: body.content || "",
-      seoTitle: (body.seoTitle || "").trim(),
-      seoDescription: (body.seoDescription || "").trim(),
-      updatedAt: new Date().toISOString()
-    };
+    const index = pages.findIndex((p) => p.slug === String(body.slug || "").trim());
+    const previous = index >= 0 ? pages[index] : {};
+    const cleanPage = normalizePage(body, previous);
 
     if (!cleanPage.title || !cleanPage.slug) {
       return json({ ok: false, error: "Başlık ve slug gereklidir." }, 400);
     }
 
-    const index = pages.findIndex((p) => p.slug === cleanPage.slug);
-
     if (index >= 0) {
       pages[index] = {
-        ...pages[index],
+        ...previous,
         ...cleanPage
       };
     } else {
@@ -95,8 +143,11 @@ export async function onRequest(context) {
 
     const pages = (await kv.get("pages", { type: "json" })) || [];
     const filtered = pages.filter((p) => p.slug !== slug);
-
     await kv.put("pages", JSON.stringify(filtered));
+
+    const menus = (await kv.get("menu", { type: "json" })) || [];
+    const cleanedMenus = menus.filter((m) => m.pageSlug !== slug).map((m, index) => ({ ...m, order: index }));
+    await kv.put("menu", JSON.stringify(cleanedMenus));
 
     return json({ ok: true, pages: filtered });
   }
