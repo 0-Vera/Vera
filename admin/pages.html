@@ -44,9 +44,12 @@
   }
   .grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(12, 1fr);
     gap: 14px;
   }
+  .col-6 { grid-column: span 6; }
+  .col-4 { grid-column: span 4; }
+  .col-3 { grid-column: span 3; }
   .full { grid-column: 1 / -1; }
   label {
     display: block;
@@ -54,7 +57,7 @@
     color: #4b5563;
     margin-bottom: 6px;
   }
-  input, textarea {
+  input, textarea, select {
     width: 100%;
     border: 1px solid #d1d5db;
     border-radius: 10px;
@@ -62,7 +65,7 @@
     background: #f9fafb;
     color: #111827;
   }
-  textarea { min-height: 220px; resize: vertical; }
+  textarea { min-height: 220px; resize: vertical; font-family: Consolas, Monaco, monospace; }
   .actions {
     display: flex;
     gap: 10px;
@@ -100,6 +103,45 @@
   }
   .status.ok { display: block; background: #dcfce7; color: #166534; }
   .status.error { display: block; background: #fee2e2; color: #991b1b; }
+  .tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .tab {
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .tab.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+  }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .preview-frame {
+    width: 100%;
+    min-height: 720px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #fff;
+  }
+  .code-help {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 8px;
+  }
+  @media (max-width: 980px) {
+    .layout { display: block; }
+    .sidebar { width: 100%; border-right: 0; border-bottom: 1px solid #e5e7eb; }
+    .col-6, .col-4, .col-3, .full { grid-column: 1 / -1; }
+  }
 </style>
 </head>
 <body>
@@ -115,20 +157,32 @@
   <main class="content">
     <div class="card">
       <h1>Sayfa Yönetimi</h1>
-      <p class="muted">İçerik burada tutulur. Menüleri bu sayfalara bağlayacaksın.</p>
+      <p class="muted">Standart modda güvenli ve hızlı içerik düzenle. Pro Kod modunda HTML/CSS/JS ile doğrudan sayfayı oluştur. Ön izleme, kaydetmeden önce son hali gösterir.</p>
       <div id="status" class="status"></div>
     </div>
 
     <div class="card">
+      <div class="tabs">
+        <button class="tab active" data-tab="content" type="button">İçerik</button>
+        <button class="tab" data-tab="design" type="button">Tasarım</button>
+        <button class="tab" data-tab="code" type="button">Pro Kod</button>
+        <button class="tab" data-tab="preview" type="button">Ön İzleme</button>
+      </div>
+
       <div class="grid">
-        <div>
+        <div class="col-6">
           <label for="title">Başlık</label>
           <input id="title" type="text" placeholder="Örn: Hakkımızda" />
         </div>
 
-        <div>
+        <div class="col-6">
           <label for="slug">Slug</label>
           <input id="slug" type="text" placeholder="hakkimizda" />
+        </div>
+
+        <div class="full">
+          <label for="excerpt">Kısa Açıklama</label>
+          <input id="excerpt" type="text" placeholder="Sayfa üst açıklaması" />
         </div>
 
         <div class="full">
@@ -141,16 +195,118 @@
           <textarea id="seoDescription" style="min-height:90px;" placeholder="Google açıklaması"></textarea>
         </div>
 
-        <div class="full">
-          <label for="content">İçerik</label>
-          <textarea id="content" placeholder="Sayfa içeriği"></textarea>
+        <div class="col-4">
+          <label for="mode">Düzenleme Modu</label>
+          <select id="mode">
+            <option value="standard">Standart</option>
+            <option value="code">Pro Kod</option>
+          </select>
+        </div>
+
+        <div class="col-4">
+          <label for="maxWidth">Sayfa Genişliği (px)</label>
+          <input id="maxWidth" type="number" min="640" max="1600" value="1120" />
+        </div>
+
+        <div class="col-4">
+          <label for="contentWidth">İçerik Alanı (%)</label>
+          <input id="contentWidth" type="number" min="60" max="100" value="100" />
         </div>
       </div>
 
+      <div id="contentPanel" class="panel active" style="margin-top:18px;">
+        <label for="content">Standart İçerik (HTML kabul eder)</label>
+        <textarea id="content" placeholder="<p>Sayfa içeriği</p>"></textarea>
+      </div>
+
+      <div id="designPanel" class="panel" style="margin-top:18px;">
+        <div class="grid">
+          <div class="col-3">
+            <label for="pageBg">Sayfa Arka Planı</label>
+            <input id="pageBg" type="color" value="#f8fafc" />
+          </div>
+          <div class="col-3">
+            <label for="contentBg">İçerik Kutusu</label>
+            <input id="contentBg" type="color" value="#ffffff" />
+          </div>
+          <div class="col-3">
+            <label for="textColor">Metin Rengi</label>
+            <input id="textColor" type="color" value="#0f172a" />
+          </div>
+          <div class="col-3">
+            <label for="mutedColor">Soluk Metin</label>
+            <input id="mutedColor" type="color" value="#475569" />
+          </div>
+
+          <div class="col-3">
+            <label for="accentColor">Vurgu Rengi</label>
+            <input id="accentColor" type="color" value="#2563eb" />
+          </div>
+          <div class="col-3">
+            <label for="buttonColor">Buton Rengi</label>
+            <input id="buttonColor" type="color" value="#2563eb" />
+          </div>
+          <div class="col-3">
+            <label for="buttonTextColor">Buton Yazısı</label>
+            <input id="buttonTextColor" type="color" value="#ffffff" />
+          </div>
+          <div class="col-3">
+            <label for="textAlign">Metin Hizası</label>
+            <select id="textAlign">
+              <option value="left">Sol</option>
+              <option value="center">Orta</option>
+              <option value="right">Sağ</option>
+            </select>
+          </div>
+
+          <div class="col-4">
+            <label for="borderRadius">Köşe Yuvarlaklığı</label>
+            <input id="borderRadius" type="number" min="0" max="40" value="18" />
+          </div>
+          <div class="col-4">
+            <label for="containerPadding">İç Boşluk</label>
+            <input id="containerPadding" type="number" min="0" max="80" value="24" />
+          </div>
+          <div class="col-4">
+            <label for="sectionGap">Başlık / İçerik Boşluğu</label>
+            <input id="sectionGap" type="number" min="0" max="80" value="18" />
+          </div>
+
+          <div class="col-6">
+            <label for="titleSize">Başlık Boyutu</label>
+            <input id="titleSize" type="number" min="20" max="84" value="40" />
+          </div>
+          <div class="col-6">
+            <label for="bodySize">Metin Boyutu</label>
+            <input id="bodySize" type="number" min="12" max="28" value="17" />
+          </div>
+        </div>
+      </div>
+
+      <div id="codePanel" class="panel" style="margin-top:18px;">
+        <label for="html">HTML</label>
+        <textarea id="html" placeholder="<section>...</section>"></textarea>
+
+        <label for="css" style="margin-top:14px;">CSS</label>
+        <textarea id="css" placeholder="body { background: #fff; }"></textarea>
+
+        <label for="js" style="margin-top:14px;">JavaScript</label>
+        <textarea id="js" placeholder="document.querySelector(...)"></textarea>
+
+        <div class="code-help">Pro mod, ön izleme ve canlı sayfada iframe içinde çalışır. Böylece ana yapıyı bozma riski azalır.</div>
+      </div>
+
+      <div id="previewPanel" class="panel" style="margin-top:18px;">
+        <div class="actions" style="margin-top:0;margin-bottom:12px;">
+          <button class="secondary" id="refreshPreviewBtn" type="button">Ön İzlemeyi Yenile</button>
+        </div>
+        <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts allow-forms allow-modals"></iframe>
+      </div>
+
       <div class="actions">
-        <button class="primary" id="saveBtn">Kaydet</button>
-        <button class="secondary" id="newBtn">Yeni Sayfa</button>
-        <button class="danger" id="deleteBtn">Sil</button>
+        <button class="primary" id="saveBtn" type="button">Kaydet</button>
+        <button class="secondary" id="newBtn" type="button">Yeni Sayfa</button>
+        <button class="danger" id="deleteBtn" type="button">Sil</button>
       </div>
     </div>
 
@@ -164,6 +320,24 @@
 <script>
   let pages = [];
   let currentSlug = "";
+
+  const defaults = {
+    maxWidth: 1120,
+    contentWidth: 100,
+    textAlign: "left",
+    pageBg: "#f8fafc",
+    contentBg: "#ffffff",
+    textColor: "#0f172a",
+    mutedColor: "#475569",
+    accentColor: "#2563eb",
+    buttonColor: "#2563eb",
+    buttonTextColor: "#ffffff",
+    borderRadius: 18,
+    containerPadding: 24,
+    sectionGap: 18,
+    titleSize: 40,
+    bodySize: 17
+  };
 
   function showStatus(message, type) {
     const box = document.getElementById("status");
@@ -188,27 +362,113 @@
       .replace(/ı/g, "i")
       .replace(/ö/g, "o")
       .replace(/ç/g, "c")
-      .replace(/[^a-z0-9\\s-]/g, "")
-      .replace(/\\s+/g, "-")
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
   }
 
+  function setTab(tabName) {
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.classList.toggle("active", tab.dataset.tab === tabName);
+    });
+    document.querySelectorAll(".panel").forEach((panel) => {
+      panel.classList.remove("active");
+    });
+    const map = {
+      content: "contentPanel",
+      design: "designPanel",
+      code: "codePanel",
+      preview: "previewPanel"
+    };
+    document.getElementById(map[tabName]).classList.add("active");
+    if (tabName === "preview") {
+      renderPreview();
+    }
+  }
+
+  function collectSettings() {
+    return {
+      maxWidth: Number(document.getElementById("maxWidth").value || defaults.maxWidth),
+      contentWidth: Number(document.getElementById("contentWidth").value || defaults.contentWidth),
+      textAlign: document.getElementById("textAlign").value,
+      pageBg: document.getElementById("pageBg").value,
+      contentBg: document.getElementById("contentBg").value,
+      textColor: document.getElementById("textColor").value,
+      mutedColor: document.getElementById("mutedColor").value,
+      accentColor: document.getElementById("accentColor").value,
+      buttonColor: document.getElementById("buttonColor").value,
+      buttonTextColor: document.getElementById("buttonTextColor").value,
+      borderRadius: Number(document.getElementById("borderRadius").value || defaults.borderRadius),
+      containerPadding: Number(document.getElementById("containerPadding").value || defaults.containerPadding),
+      sectionGap: Number(document.getElementById("sectionGap").value || defaults.sectionGap),
+      titleSize: Number(document.getElementById("titleSize").value || defaults.titleSize),
+      bodySize: Number(document.getElementById("bodySize").value || defaults.bodySize)
+    };
+  }
+
+  function buildPayload() {
+    const title = document.getElementById("title").value.trim();
+    const slug = slugify(document.getElementById("slug").value.trim() || title);
+    document.getElementById("slug").value = slug;
+
+    return {
+      title,
+      slug,
+      excerpt: document.getElementById("excerpt").value.trim(),
+      seoTitle: document.getElementById("seoTitle").value.trim(),
+      seoDescription: document.getElementById("seoDescription").value.trim(),
+      mode: document.getElementById("mode").value,
+      content: document.getElementById("content").value,
+      html: document.getElementById("html").value,
+      css: document.getElementById("css").value,
+      js: document.getElementById("js").value,
+      settings: collectSettings()
+    };
+  }
+
   function fillForm(page) {
+    const settings = { ...defaults, ...(page.settings || {}) };
     document.getElementById("title").value = page.title || "";
     document.getElementById("slug").value = page.slug || "";
+    document.getElementById("excerpt").value = page.excerpt || "";
     document.getElementById("seoTitle").value = page.seoTitle || "";
     document.getElementById("seoDescription").value = page.seoDescription || "";
+    document.getElementById("mode").value = page.mode || "standard";
     document.getElementById("content").value = page.content || "";
+    document.getElementById("html").value = page.html || "";
+    document.getElementById("css").value = page.css || "";
+    document.getElementById("js").value = page.js || "";
+
+    Object.keys(defaults).forEach((key) => {
+      const input = document.getElementById(key);
+      if (input) input.value = settings[key];
+    });
+
     currentSlug = page.slug || "";
+    renderList();
+    renderPreview();
   }
 
   function clearForm() {
+    currentSlug = "";
     document.getElementById("title").value = "";
     document.getElementById("slug").value = "";
+    document.getElementById("excerpt").value = "";
     document.getElementById("seoTitle").value = "";
     document.getElementById("seoDescription").value = "";
+    document.getElementById("mode").value = "standard";
     document.getElementById("content").value = "";
-    currentSlug = "";
+    document.getElementById("html").value = "";
+    document.getElementById("css").value = "";
+    document.getElementById("js").value = "";
+
+    Object.keys(defaults).forEach((key) => {
+      const input = document.getElementById(key);
+      if (input) input.value = defaults[key];
+    });
+
+    renderList();
+    renderPreview();
   }
 
   function renderList() {
@@ -226,13 +486,98 @@
       item.innerHTML = `
         <strong>${page.title || "-"}</strong>
         <div class="muted">/${page.slug || ""}</div>
+        <div class="muted">mod: ${page.mode === "code" ? "pro kod" : "standart"}</div>
       `;
-      item.addEventListener("click", () => {
-        fillForm(page);
-        renderList();
-      });
+      item.addEventListener("click", () => fillForm(page));
       list.appendChild(item);
     });
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function buildPreviewDocument(payload) {
+    if (payload.mode === "code") {
+      return `<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(payload.seoTitle || payload.title || "Ön İzleme")}</title>
+<style>
+html,body{margin:0;padding:0;font-family:Arial,sans-serif}
+${payload.css || ""}
+</style>
+</head>
+<body>
+${payload.html || ""}
+<script>
+${(payload.js || "").replace(/<\/script>/gi, "<\\/script>")}
+<\/script>
+</body>
+</html>`;
+    }
+
+    const s = payload.settings || defaults;
+    return `<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(payload.seoTitle || payload.title || "Ön İzleme")}</title>
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:${s.pageBg};
+  color:${s.textColor};
+  line-height:1.75;
+}
+.wrap{max-width:${s.maxWidth}px;margin:0 auto;padding:24px;}
+.article{
+  width:${s.contentWidth}%;
+  margin:0 auto;
+  background:${s.contentBg};
+  color:${s.textColor};
+  border-radius:${s.borderRadius}px;
+  padding:${s.containerPadding}px;
+  text-align:${s.textAlign};
+}
+.article h1{margin:0 0 12px;font-size:${s.titleSize}px;line-height:1.1;}
+.article .excerpt{margin:0 0 ${s.sectionGap}px;color:${s.mutedColor};}
+.article{font-size:${s.bodySize}px;}
+.article a{color:${s.accentColor};}
+.article button,.article .btn{
+  border:0;
+  border-radius:999px;
+  padding:12px 18px;
+  background:${s.buttonColor};
+  color:${s.buttonTextColor};
+  font-weight:700;
+}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <article class="article">
+      <h1>${payload.title || ""}</h1>
+      ${payload.excerpt ? `<p class="excerpt">${payload.excerpt}</p>` : ""}
+      <div>${payload.content || ""}</div>
+    </article>
+  </div>
+</body>
+</html>`;
+  }
+
+  function renderPreview() {
+    const payload = buildPayload();
+    const frame = document.getElementById("previewFrame");
+    frame.srcdoc = buildPreviewDocument(payload);
   }
 
   async function loadPages() {
@@ -249,37 +594,18 @@
 
   async function savePage() {
     clearStatus();
+    const payload = buildPayload();
 
-    const title = document.getElementById("title").value.trim();
-    let slug = document.getElementById("slug").value.trim();
-    const seoTitle = document.getElementById("seoTitle").value.trim();
-    const seoDescription = document.getElementById("seoDescription").value.trim();
-    const content = document.getElementById("content").value;
-
-    if (!title) {
-      showStatus("Başlık zorunludur.", "error");
+    if (!payload.title || !payload.slug) {
+      showStatus("Başlık ve slug zorunludur.", "error");
       return;
-    }
-
-    if (!slug) {
-      slug = slugify(title);
-      document.getElementById("slug").value = slug;
-    } else {
-      slug = slugify(slug);
-      document.getElementById("slug").value = slug;
     }
 
     try {
       const res = await fetch("/api/pages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          slug,
-          seoTitle,
-          seoDescription,
-          content
-        })
+        body: JSON.stringify(payload)
       });
 
       const data = await res.json();
@@ -290,8 +616,9 @@
       }
 
       pages = data.pages || [];
-      currentSlug = slug;
+      currentSlug = payload.slug;
       renderList();
+      renderPreview();
       showStatus("Sayfa kaydedildi.", "ok");
     } catch (err) {
       showStatus("Kayıt sırasında hata oluştu.", "error");
@@ -300,7 +627,6 @@
 
   async function deletePage() {
     clearStatus();
-
     const slug = document.getElementById("slug").value.trim();
 
     if (!slug) {
@@ -308,14 +634,12 @@
       return;
     }
 
-    const confirmed = confirm(`"${slug}" sayfası silinsin mi?`);
-    if (!confirmed) return;
+    if (!confirm(`"${slug}" sayfası silinsin mi?`)) return;
 
     try {
       const res = await fetch("/api/pages?slug=" + encodeURIComponent(slug), {
         method: "DELETE"
       });
-
       const data = await res.json();
 
       if (!data.ok) {
@@ -325,27 +649,43 @@
 
       pages = data.pages || [];
       clearForm();
-      renderList();
       showStatus("Sayfa silindi.", "ok");
     } catch (err) {
       showStatus("Silme sırasında hata oluştu.", "error");
     }
   }
 
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => setTab(tab.dataset.tab));
+  });
+
   document.getElementById("title").addEventListener("input", () => {
     const slugInput = document.getElementById("slug");
     if (!currentSlug && !slugInput.value.trim()) {
       slugInput.value = slugify(document.getElementById("title").value);
     }
+    renderPreview();
+  });
+
+  [
+    "slug","excerpt","seoTitle","seoDescription","mode","content","html","css","js",
+    "maxWidth","contentWidth","textAlign","pageBg","contentBg","textColor","mutedColor",
+    "accentColor","buttonColor","buttonTextColor","borderRadius","containerPadding",
+    "sectionGap","titleSize","bodySize"
+  ].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("input", renderPreview);
+    el.addEventListener("change", renderPreview);
   });
 
   document.getElementById("saveBtn").addEventListener("click", savePage);
   document.getElementById("newBtn").addEventListener("click", () => {
-    clearForm();
     clearStatus();
-    renderList();
+    clearForm();
   });
   document.getElementById("deleteBtn").addEventListener("click", deletePage);
+  document.getElementById("refreshPreviewBtn").addEventListener("click", renderPreview);
 
   document.getElementById("logoutBtn").addEventListener("click", async () => {
     try {
@@ -355,6 +695,7 @@
   });
 
   loadPages();
+  renderPreview();
 </script>
 </body>
 </html>
