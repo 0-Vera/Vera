@@ -66,7 +66,7 @@
     color: #111827;
   }
   textarea {
-    min-height: 220px;
+    min-height: 180px;
     resize: vertical;
     font-family: Consolas, Monaco, monospace;
   }
@@ -129,17 +129,16 @@
   }
   .panel { display: none; }
   .panel.active { display: block; }
-  .preview-frame {
-    width: 100%;
-    min-height: 720px;
+  .block {
     border: 1px solid #e5e7eb;
-    border-radius: 14px;
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
     background: #fff;
   }
-  .code-help {
-    font-size: 12px;
-    color: #64748b;
-    margin-top: 8px;
+  .block h4 {
+    margin: 0 0 12px;
+    font-size: 15px;
   }
   .small-note {
     margin-top: 8px;
@@ -159,6 +158,7 @@
     <h2>CMS Panel</h2>
     <a href="/admin/">Menü Yönetimi</a>
     <a href="/admin/pages.html" class="active">Sayfa Yönetimi</a>
+    <a href="/admin/settings.html">Genel Site Ayarları</a>
     <a href="/" target="_blank">Siteyi Aç</a>
     <button class="link-btn" id="logoutBtn">Çıkış Yap</button>
   </aside>
@@ -166,7 +166,7 @@
   <main class="content">
     <div class="card">
       <h1>Sayfa Yönetimi</h1>
-      <p class="muted">Standart modda güvenli düzenleme yap. Pro modda ise o sayfanın hazır çalışan kodunu doğrudan düzenle.</p>
+      <p class="muted">Bir sayfaya birden fazla içerik bloğu ekleyebilirsin. Pro modda mevcut sayfanın kodunu düzenlersin. Ön izleme kaldırıldı.</p>
       <div id="status" class="status"></div>
     </div>
 
@@ -175,7 +175,6 @@
         <button class="tab active" data-tab="content" type="button">İçerik</button>
         <button class="tab" data-tab="design" type="button">Tasarım</button>
         <button class="tab" data-tab="code" type="button">Pro Kod</button>
-        <button class="tab" data-tab="preview" type="button">Ön İzleme</button>
       </div>
 
       <div class="grid">
@@ -213,19 +212,29 @@
         </div>
 
         <div class="col-4">
-          <label for="maxWidth">Sayfa Genişliği (px)</label>
-          <input id="maxWidth" type="number" min="640" max="1600" value="1120" />
+          <label for="maxWidth">Sayfa Maksimum Genişliği (px)</label>
+          <input id="maxWidth" type="number" min="640" max="2400" value="1280" />
         </div>
 
         <div class="col-4">
-          <label for="contentWidth">İçerik Alanı (%)</label>
-          <input id="contentWidth" type="number" min="60" max="100" value="100" />
+          <label for="contentWidth">İçerik Genişliği (%)</label>
+          <input id="contentWidth" type="number" min="30" max="100" value="100" />
+        </div>
+
+        <div class="col-4">
+          <label for="fullWidth">Tam Genişlik Modu</label>
+          <select id="fullWidth">
+            <option value="false">Kapalı</option>
+            <option value="true">Açık</option>
+          </select>
         </div>
       </div>
 
       <div id="contentPanel" class="panel active" style="margin-top:18px;">
-        <label for="content">Standart İçerik (HTML kabul eder)</label>
-        <textarea id="content" placeholder="<p>Sayfa içeriği</p>"></textarea>
+        <div class="actions" style="margin-top:0;margin-bottom:12px;">
+          <button class="secondary" id="addSectionBtn" type="button">İçerik Bloğu Ekle</button>
+        </div>
+        <div id="sectionsWrap"></div>
       </div>
 
       <div id="designPanel" class="panel" style="margin-top:18px;">
@@ -235,7 +244,7 @@
             <input id="pageBg" type="color" value="#f8fafc" />
           </div>
           <div class="col-3">
-            <label for="contentBg">İçerik Kutusu</label>
+            <label for="contentBg">İçerik Alanı</label>
             <input id="contentBg" type="color" value="#ffffff" />
           </div>
           <div class="col-3">
@@ -270,24 +279,24 @@
 
           <div class="col-4">
             <label for="borderRadius">Köşe Yuvarlaklığı</label>
-            <input id="borderRadius" type="number" min="0" max="40" value="18" />
+            <input id="borderRadius" type="number" min="0" max="60" value="18" />
           </div>
           <div class="col-4">
             <label for="containerPadding">İç Boşluk</label>
-            <input id="containerPadding" type="number" min="0" max="80" value="24" />
+            <input id="containerPadding" type="number" min="0" max="120" value="24" />
           </div>
           <div class="col-4">
-            <label for="sectionGap">Başlık / İçerik Boşluğu</label>
-            <input id="sectionGap" type="number" min="0" max="80" value="18" />
+            <label for="sectionGap">Bloklar Arası Boşluk</label>
+            <input id="sectionGap" type="number" min="0" max="120" value="18" />
           </div>
 
           <div class="col-6">
             <label for="titleSize">Başlık Boyutu</label>
-            <input id="titleSize" type="number" min="20" max="84" value="40" />
+            <input id="titleSize" type="number" min="16" max="120" value="40" />
           </div>
           <div class="col-6">
             <label for="bodySize">Metin Boyutu</label>
-            <input id="bodySize" type="number" min="12" max="28" value="17" />
+            <input id="bodySize" type="number" min="12" max="40" value="17" />
           </div>
         </div>
       </div>
@@ -295,26 +304,19 @@
       <div id="codePanel" class="panel" style="margin-top:18px;">
         <div class="actions" style="margin-top:0;margin-bottom:12px;">
           <button class="secondary" id="syncFromStandardBtn" type="button">Standarttan Kodu Yeniden Üret</button>
+          <button class="primary" id="applyCodeBtn" type="button">Kodu Uygula</button>
         </div>
 
         <label for="html">HTML</label>
-        <textarea id="html" placeholder="<section>...</section>"></textarea>
+        <textarea id="html"></textarea>
 
         <label for="css" style="margin-top:14px;">CSS</label>
-        <textarea id="css" placeholder="body { background: #fff; }"></textarea>
+        <textarea id="css"></textarea>
 
         <label for="js" style="margin-top:14px;">JavaScript</label>
-        <textarea id="js" placeholder="document.querySelector(...)"></textarea>
+        <textarea id="js"></textarea>
 
-        <div class="code-help">Pro moda geçtiğinde mevcut standart sayfanın tam çalışan kodu otomatik doldurulur. İstersen buradan devam ederek ince ayar yapabilirsin.</div>
-      </div>
-
-      <div id="previewPanel" class="panel" style="margin-top:18px;">
-        <div class="actions" style="margin-top:0;margin-bottom:12px;">
-          <button class="secondary" id="refreshPreviewBtn" type="button">Ön İzlemeyi Yenile</button>
-        </div>
-        <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts allow-forms allow-modals"></iframe>
-        <div class="small-note">Ön izleme hem standart mod hem pro mod için çalışır.</div>
+        <div class="small-note">Kodu Uygula butonu mevcut alanları sayfaya işler. Kaydet dediğinde canlı sayfaya yazılır.</div>
       </div>
 
       <div class="actions">
@@ -334,11 +336,9 @@
 <script>
   let pages = [];
   let currentSlug = "";
+  let sections = [];
 
   const defaults = {
-    maxWidth: 1120,
-    contentWidth: 100,
-    textAlign: "left",
     pageBg: "#f8fafc",
     contentBg: "#ffffff",
     textColor: "#0f172a",
@@ -346,6 +346,10 @@
     accentColor: "#2563eb",
     buttonColor: "#2563eb",
     buttonTextColor: "#ffffff",
+    maxWidth: 1280,
+    contentWidth: 100,
+    fullWidth: false,
+    textAlign: "left",
     borderRadius: 18,
     containerPadding: 24,
     sectionGap: 18,
@@ -385,33 +389,23 @@
     document.querySelectorAll(".tab").forEach((tab) => {
       tab.classList.toggle("active", tab.dataset.tab === tabName);
     });
-    document.querySelectorAll(".panel").forEach((panel) => {
-      panel.classList.remove("active");
-    });
+    document.querySelectorAll(".panel").forEach((panel) => panel.classList.remove("active"));
 
     const map = {
       content: "contentPanel",
       design: "designPanel",
-      code: "codePanel",
-      preview: "previewPanel"
+      code: "codePanel"
     };
 
     document.getElementById(map[tabName]).classList.add("active");
 
     if (tabName === "code") {
-      syncCodeFromCurrentState(false);
-    }
-
-    if (tabName === "preview") {
-      renderPreview();
+      syncCodeFromStandard(false);
     }
   }
 
   function collectSettings() {
     return {
-      maxWidth: Number(document.getElementById("maxWidth").value || defaults.maxWidth),
-      contentWidth: Number(document.getElementById("contentWidth").value || defaults.contentWidth),
-      textAlign: document.getElementById("textAlign").value,
       pageBg: document.getElementById("pageBg").value,
       contentBg: document.getElementById("contentBg").value,
       textColor: document.getElementById("textColor").value,
@@ -419,12 +413,152 @@
       accentColor: document.getElementById("accentColor").value,
       buttonColor: document.getElementById("buttonColor").value,
       buttonTextColor: document.getElementById("buttonTextColor").value,
+      maxWidth: Number(document.getElementById("maxWidth").value || defaults.maxWidth),
+      contentWidth: Number(document.getElementById("contentWidth").value || defaults.contentWidth),
+      fullWidth: document.getElementById("fullWidth").value === "true",
+      textAlign: document.getElementById("textAlign").value,
       borderRadius: Number(document.getElementById("borderRadius").value || defaults.borderRadius),
       containerPadding: Number(document.getElementById("containerPadding").value || defaults.containerPadding),
       sectionGap: Number(document.getElementById("sectionGap").value || defaults.sectionGap),
       titleSize: Number(document.getElementById("titleSize").value || defaults.titleSize),
       bodySize: Number(document.getElementById("bodySize").value || defaults.bodySize)
     };
+  }
+
+  function renderSections() {
+    const wrap = document.getElementById("sectionsWrap");
+    wrap.innerHTML = "";
+
+    if (!sections.length) {
+      wrap.innerHTML = '<div class="muted">Henüz içerik bloğu yok. "İçerik Bloğu Ekle" ile başlayabilirsin.</div>';
+      return;
+    }
+
+    sections.forEach((section, index) => {
+      const block = document.createElement("div");
+      block.className = "block";
+      block.innerHTML = `
+        <h4>Blok ${index + 1}</h4>
+        <div class="grid">
+          <div class="col-4">
+            <label>Blok Tipi</label>
+            <select data-key="type" data-index="${index}">
+              <option value="content" ${section.type === "content" ? "selected" : ""}>İçerik</option>
+              <option value="html" ${section.type === "html" ? "selected" : ""}>Serbest HTML</option>
+              <option value="hero" ${section.type === "hero" ? "selected" : ""}>Hero</option>
+            </select>
+          </div>
+          <div class="col-4">
+            <label>Blok Başlığı</label>
+            <input data-key="title" data-index="${index}" type="text" value="${escapeAttr(section.title || "")}" />
+          </div>
+          <div class="col-4">
+            <label>Blok Genişliği (%)</label>
+            <input data-key="width" data-index="${index}" type="number" min="30" max="100" value="${Number(section.width || 100)}" />
+          </div>
+          <div class="col-3">
+            <label>Arka Plan</label>
+            <input data-key="background" data-index="${index}" type="color" value="${section.background || "#ffffff"}" />
+          </div>
+          <div class="col-3">
+            <label>Yazı Rengi</label>
+            <input data-key="textColor" data-index="${index}" type="color" value="${section.textColor || "#0f172a"}" />
+          </div>
+          <div class="col-3">
+            <label>İç Boşluk</label>
+            <input data-key="padding" data-index="${index}" type="number" min="0" max="120" value="${Number(section.padding || 24)}" />
+          </div>
+          <div class="col-3">
+            <label>Köşe Yuvarlaklığı</label>
+            <input data-key="radius" data-index="${index}" type="number" min="0" max="50" value="${Number(section.radius || 18)}" />
+          </div>
+          <div class="full">
+            <label>İçerik</label>
+            <textarea data-key="content" data-index="${index}">${escapeTextarea(section.content || "")}</textarea>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="secondary move-up-btn" data-index="${index}">Yukarı Al</button>
+          <button type="button" class="secondary move-down-btn" data-index="${index}">Aşağı Al</button>
+          <button type="button" class="danger remove-section-btn" data-index="${index}">Bloğu Sil</button>
+        </div>
+      `;
+      wrap.appendChild(block);
+    });
+
+    wrap.querySelectorAll("[data-key]").forEach((el) => {
+      el.addEventListener("input", handleSectionChange);
+      el.addEventListener("change", handleSectionChange);
+    });
+
+    wrap.querySelectorAll(".remove-section-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const index = Number(btn.dataset.index);
+        sections.splice(index, 1);
+        renderSections();
+      });
+    });
+
+    wrap.querySelectorAll(".move-up-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const index = Number(btn.dataset.index);
+        if (index <= 0) return;
+        const temp = sections[index - 1];
+        sections[index - 1] = sections[index];
+        sections[index] = temp;
+        renderSections();
+      });
+    });
+
+    wrap.querySelectorAll(".move-down-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const index = Number(btn.dataset.index);
+        if (index >= sections.length - 1) return;
+        const temp = sections[index + 1];
+        sections[index + 1] = sections[index];
+        sections[index] = temp;
+        renderSections();
+      });
+    });
+  }
+
+  function handleSectionChange(e) {
+    const index = Number(e.target.dataset.index);
+    const key = e.target.dataset.key;
+    let value = e.target.value;
+
+    if (["width", "padding", "radius"].includes(key)) {
+      value = Number(value || 0);
+    }
+
+    sections[index][key] = value;
+  }
+
+  function addSection() {
+    sections.push({
+      id: "section-" + Date.now(),
+      type: "content",
+      title: "",
+      content: "",
+      width: 100,
+      background: "#ffffff",
+      textColor: "#0f172a",
+      padding: 24,
+      radius: 18
+    });
+    renderSections();
+  }
+
+  function escapeAttr(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function escapeTextarea(value) {
+    return String(value || "").replace(/<\/textarea>/gi, "<\\/textarea>");
   }
 
   function collectStandardPayload() {
@@ -439,13 +573,16 @@
       seoTitle: document.getElementById("seoTitle").value.trim(),
       seoDescription: document.getElementById("seoDescription").value.trim(),
       mode: document.getElementById("mode").value,
-      content: document.getElementById("content").value,
+      sections: sections,
       settings: collectSettings()
     };
   }
 
   function buildStandardCode(payload) {
     const s = payload.settings || defaults;
+    const articleWidth = s.fullWidth ? 100 : s.contentWidth;
+    const shellMax = s.fullWidth ? 2400 : s.maxWidth;
+
     const html = `
 <div class="page-wrap">
   <article class="page-box">
@@ -453,9 +590,14 @@
       <h1>${payload.title || ""}</h1>
       ${payload.excerpt ? `<p class="page-excerpt">${payload.excerpt}</p>` : ""}
     </header>
-    <section class="page-content">
-      ${payload.content || ""}
-    </section>
+    <div class="page-sections">
+      ${(payload.sections || []).map((section) => `
+        <section class="page-section section-${section.type || "content"}" style="width:${Number(section.width || 100)}%;background:${section.background || "#ffffff"};color:${section.textColor || "#0f172a"};padding:${Number(section.padding || 24)}px;border-radius:${Number(section.radius || 18)}px;">
+          ${section.title ? `<h2>${section.title}</h2>` : ""}
+          <div>${section.content || ""}</div>
+        </section>
+      `).join("")}
+    </div>
   </article>
 </div>`.trim();
 
@@ -468,8 +610,8 @@
   --accent-color:${s.accentColor};
   --button-color:${s.buttonColor};
   --button-text-color:${s.buttonTextColor};
-  --page-max-width:${s.maxWidth}px;
-  --content-width:${s.contentWidth}%;
+  --page-max-width:${shellMax}px;
+  --content-width:${articleWidth}%;
   --page-radius:${s.borderRadius}px;
   --page-padding:${s.containerPadding}px;
   --section-gap:${s.sectionGap}px;
@@ -486,6 +628,7 @@ html,body{
 }
 .page-wrap{
   max-width:var(--page-max-width);
+  width:100%;
   margin:0 auto;
   padding:24px;
 }
@@ -500,23 +643,26 @@ html,body{
   font-size:var(--body-size);
   line-height:1.75;
 }
-.page-header{
-  margin-bottom:var(--section-gap);
-}
+.page-header{margin-bottom:var(--section-gap);}
 .page-header h1{
   margin:0 0 12px;
   font-size:var(--title-size);
   line-height:1.1;
 }
-.page-excerpt{
-  margin:0;
-  color:var(--muted-color);
+.page-excerpt{margin:0;color:var(--muted-color);}
+.page-sections{
+  display:flex;
+  flex-direction:column;
+  gap:var(--section-gap);
 }
-.page-content a{
-  color:var(--accent-color);
+.page-section{
+  max-width:100%;
 }
-.page-content button,
-.page-content .btn{
+.page-section h2{
+  margin:0 0 12px;
+}
+.page-box a{color:var(--accent-color);}
+.page-box button,.page-box .btn{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -531,12 +677,12 @@ html,body{
   cursor:pointer;
 }`.trim();
 
-    const js = `/* İsteğe bağlı JS alanı. Şu an standart görünüm için ek script gerekmiyor. */`;
+    const js = `/* Standart sayfa için ek script gerekirse buraya yazılabilir. */`;
 
     return { html, css, js };
   }
 
-  function syncCodeFromCurrentState(forceOverwrite = true) {
+  function syncCodeFromStandard(forceOverwrite = true) {
     const payload = collectStandardPayload();
     const generated = buildStandardCode(payload);
 
@@ -547,6 +693,21 @@ html,body{
     if (forceOverwrite || !htmlEl.value.trim()) htmlEl.value = generated.html;
     if (forceOverwrite || !cssEl.value.trim()) cssEl.value = generated.css;
     if (forceOverwrite || !jsEl.value.trim()) jsEl.value = generated.js;
+  }
+
+  function applyCode() {
+    const payload = collectStandardPayload();
+    const generated = buildStandardCode(payload);
+
+    const htmlEl = document.getElementById("html");
+    const cssEl = document.getElementById("css");
+    const jsEl = document.getElementById("js");
+
+    if (!htmlEl.value.trim()) htmlEl.value = generated.html;
+    if (!cssEl.value.trim()) cssEl.value = generated.css;
+    if (!jsEl.value.trim()) jsEl.value = generated.js;
+
+    showStatus("Kod alanı güncellendi. Kaydet dersen canlı sayfaya yazılır.", "ok");
   }
 
   function buildPayload() {
@@ -580,12 +741,21 @@ html,body{
     document.getElementById("seoTitle").value = page.seoTitle || "";
     document.getElementById("seoDescription").value = page.seoDescription || "";
     document.getElementById("mode").value = page.mode || "standard";
-    document.getElementById("content").value = page.content || "";
 
     Object.keys(defaults).forEach((key) => {
       const input = document.getElementById(key);
-      if (input) input.value = settings[key];
+      if (input) {
+        if (key === "fullWidth") {
+          input.value = String(!!settings[key]);
+        } else {
+          input.value = settings[key];
+        }
+      }
     });
+
+    sections = Array.isArray(page.sections) ? page.sections.map((s) => ({ ...s })) : [];
+    if (!sections.length) addSection();
+    else renderSections();
 
     currentSlug = page.slug || "";
 
@@ -594,11 +764,10 @@ html,body{
       document.getElementById("css").value = page.css || "";
       document.getElementById("js").value = page.js || "";
     } else {
-      syncCodeFromCurrentState(true);
+      syncCodeFromStandard(true);
     }
 
     renderList();
-    renderPreview();
   }
 
   function clearForm() {
@@ -609,20 +778,24 @@ html,body{
     document.getElementById("seoTitle").value = "";
     document.getElementById("seoDescription").value = "";
     document.getElementById("mode").value = "standard";
-    document.getElementById("content").value = "";
 
     Object.keys(defaults).forEach((key) => {
       const input = document.getElementById(key);
-      if (input) input.value = defaults[key];
+      if (input) {
+        if (key === "fullWidth") input.value = "false";
+        else input.value = defaults[key];
+      }
     });
+
+    sections = [];
+    addSection();
 
     document.getElementById("html").value = "";
     document.getElementById("css").value = "";
     document.getElementById("js").value = "";
 
-    syncCodeFromCurrentState(true);
+    syncCodeFromStandard(true);
     renderList();
-    renderPreview();
   }
 
   function renderList() {
@@ -640,62 +813,11 @@ html,body{
       item.innerHTML = `
         <strong>${page.title || "-"}</strong>
         <div class="muted">/${page.slug || ""}</div>
-        <div class="muted">mod: ${page.mode === "code" ? "pro kod" : "standart"}</div>
+        <div class="muted">mod: ${page.mode === "code" ? "pro kod" : "standart"} | blok: ${(page.sections || []).length}</div>
       `;
       item.addEventListener("click", () => fillForm(page));
       list.appendChild(item);
     });
-  }
-
-  function escapeHtml(value) {
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
-
-  function buildPreviewDocument(payload) {
-    const title = escapeHtml(payload.seoTitle || payload.title || "Ön İzleme");
-    const description = escapeHtml(payload.seoDescription || payload.excerpt || "");
-
-    const html = payload.mode === "code"
-      ? (payload.html || "")
-      : buildStandardCode(payload).html;
-
-    const css = payload.mode === "code"
-      ? (payload.css || "")
-      : buildStandardCode(payload).css;
-
-    const js = payload.mode === "code"
-      ? (payload.js || "")
-      : buildStandardCode(payload).js;
-
-    return `<!doctype html>
-<html lang="tr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${title}</title>
-<meta name="description" content="${description}">
-<style>
-html,body{margin:0;padding:0;font-family:Arial,sans-serif}
-${css}
-</style>
-</head>
-<body>
-${html}
-<script>
-${(js || "").replace(/<\/script>/gi, "<\\/script>")}
-<\/script>
-</body>
-</html>`;
-  }
-
-  function renderPreview() {
-    const payload = buildPayload();
-    const frame = document.getElementById("previewFrame");
-    frame.srcdoc = buildPreviewDocument(payload);
   }
 
   async function loadPages() {
@@ -736,7 +858,6 @@ ${(js || "").replace(/<\/script>/gi, "<\\/script>")}
       pages = data.pages || [];
       currentSlug = payload.slug;
       renderList();
-      renderPreview();
       showStatus("Sayfa kaydedildi.", "ok");
     } catch (err) {
       showStatus("Kayıt sırasında hata oluştu.", "error");
@@ -782,44 +903,20 @@ ${(js || "").replace(/<\/script>/gi, "<\\/script>")}
     if (!currentSlug && !slugInput.value.trim()) {
       slugInput.value = slugify(document.getElementById("title").value);
     }
-    renderPreview();
   });
 
-  [
-    "slug","excerpt","seoTitle","seoDescription","mode","content",
-    "maxWidth","contentWidth","textAlign","pageBg","contentBg","textColor","mutedColor",
-    "accentColor","buttonColor","buttonTextColor","borderRadius","containerPadding",
-    "sectionGap","titleSize","bodySize"
-  ].forEach((id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.addEventListener("input", renderPreview);
-    el.addEventListener("change", () => {
-      if (id === "mode" && document.getElementById("mode").value === "code") {
-        syncCodeFromCurrentState(false);
-      }
-      renderPreview();
-    });
-  });
-
-  ["html", "css", "js"].forEach((id) => {
-    const el = document.getElementById(id);
-    el.addEventListener("input", renderPreview);
-  });
-
+  document.getElementById("addSectionBtn").addEventListener("click", addSection);
   document.getElementById("syncFromStandardBtn").addEventListener("click", () => {
-    syncCodeFromCurrentState(true);
-    renderPreview();
-    showStatus("Standart görünümden pro kod yeniden üretildi.", "ok");
+    syncCodeFromStandard(true);
+    showStatus("Standart yapıya göre kod yeniden üretildi.", "ok");
   });
-
+  document.getElementById("applyCodeBtn").addEventListener("click", applyCode);
   document.getElementById("saveBtn").addEventListener("click", savePage);
   document.getElementById("newBtn").addEventListener("click", () => {
     clearStatus();
     clearForm();
   });
   document.getElementById("deleteBtn").addEventListener("click", deletePage);
-  document.getElementById("refreshPreviewBtn").addEventListener("click", renderPreview);
 
   document.getElementById("logoutBtn").addEventListener("click", async () => {
     try {
