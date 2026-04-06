@@ -14,10 +14,7 @@
     border-right: 1px solid #e5e7eb;
     padding: 20px;
   }
-  .sidebar h2 {
-    margin: 0 0 20px;
-    font-size: 22px;
-  }
+  .sidebar h2 { margin: 0 0 20px; font-size: 22px; }
   .sidebar a, .sidebar button.link-btn {
     display: block;
     width: 100%;
@@ -36,10 +33,7 @@
     background: #e0f2fe;
     color: #111827;
   }
-  .content {
-    flex: 1;
-    padding: 24px;
-  }
+  .content { flex: 1; padding: 24px; }
   .card {
     background: #ffffff;
     border: 1px solid #e5e7eb;
@@ -53,9 +47,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 14px;
   }
-  .full {
-    grid-column: 1 / -1;
-  }
+  .full { grid-column: 1 / -1; }
   label {
     display: block;
     font-size: 14px;
@@ -70,10 +62,7 @@
     background: #f9fafb;
     color: #111827;
   }
-  textarea {
-    min-height: 220px;
-    resize: vertical;
-  }
+  textarea { min-height: 220px; resize: vertical; }
   .actions {
     display: flex;
     gap: 10px;
@@ -87,34 +76,21 @@
     cursor: pointer;
     font-weight: 700;
   }
-  .primary {
-    background: #2563eb;
-    color: #fff;
-  }
-  .danger {
-    background: #dc2626;
-    color: #fff;
-  }
-  .secondary {
-    background: #e5e7eb;
-    color: #111827;
-  }
+  .primary { background: #2563eb; color: #fff; }
+  .danger { background: #dc2626; color: #fff; }
+  .secondary { background: #e5e7eb; color: #111827; }
   .list-item {
     border: 1px solid #e5e7eb;
     border-radius: 10px;
     padding: 12px;
     margin-bottom: 10px;
     cursor: pointer;
-    transition: .2s;
   }
   .list-item:hover, .list-item.active {
     background: #eff6ff;
     border-color: #93c5fd;
   }
-  .muted {
-    color: #6b7280;
-    font-size: 13px;
-  }
+  .muted { color: #6b7280; font-size: 13px; }
   .status {
     display: none;
     margin-top: 12px;
@@ -122,16 +98,8 @@
     border-radius: 10px;
     font-size: 14px;
   }
-  .status.ok {
-    display: block;
-    background: #dcfce7;
-    color: #166534;
-  }
-  .status.error {
-    display: block;
-    background: #fee2e2;
-    color: #991b1b;
-  }
+  .status.ok { display: block; background: #dcfce7; color: #166534; }
+  .status.error { display: block; background: #fee2e2; color: #991b1b; }
 </style>
 </head>
 <body>
@@ -147,7 +115,7 @@
   <main class="content">
     <div class="card">
       <h1>Sayfa Yönetimi</h1>
-      <p class="muted">Yeni sayfa oluşturabilir, mevcut sayfaları düzenleyebilir veya silebilirsin.</p>
+      <p class="muted">İçerik burada tutulur. Menüleri bu sayfalara bağlayacaksın.</p>
       <div id="status" class="status"></div>
     </div>
 
@@ -160,17 +128,17 @@
 
         <div>
           <label for="slug">Slug</label>
-          <input id="slug" type="text" placeholder="ornek-sayfa" />
+          <input id="slug" type="text" placeholder="hakkimizda" />
         </div>
 
         <div class="full">
           <label for="seoTitle">SEO Başlık</label>
-          <input id="seoTitle" type="text" placeholder="Google sonuçlarında görünecek başlık" />
+          <input id="seoTitle" type="text" placeholder="Google başlığı" />
         </div>
 
         <div class="full">
           <label for="seoDescription">SEO Açıklama</label>
-          <textarea id="seoDescription" style="min-height:90px;" placeholder="Google sonuç açıklaması"></textarea>
+          <textarea id="seoDescription" style="min-height:90px;" placeholder="Google açıklaması"></textarea>
         </div>
 
         <div class="full">
@@ -220,8 +188,8 @@
       .replace(/ı/g, "i")
       .replace(/ö/g, "o")
       .replace(/ç/g, "c")
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9\\s-]/g, "")
+      .replace(/\\s+/g, "-")
       .replace(/-+/g, "-");
   }
 
@@ -336,7 +304,7 @@
     const slug = document.getElementById("slug").value.trim();
 
     if (!slug) {
-      showStatus("Silmek için önce bir sayfa seç veya slug gir.", "error");
+      showStatus("Silmek için önce bir sayfa seç.", "error");
       return;
     }
 
