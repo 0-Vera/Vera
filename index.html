@@ -5,16 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Site</title>
   <style>
+    :root {
+      --site-bg: #f8fafc;
+      --site-text: #0f172a;
+      --site-card: #ffffff;
+      --site-border: #e2e8f0;
+      --site-accent: #2563eb;
+    }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f9fafb;
-      color: #1f2937;
+      background: var(--site-bg);
+      color: var(--site-text);
       min-height: 100vh;
     }
     .container {
       width: 100%;
-      max-width: 1100px;
+      max-width: 1180px;
       margin: auto;
       padding: 24px;
     }
@@ -22,12 +30,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 16px;
       margin-bottom: 24px;
     }
     header h1 {
       font-size: 26px;
       margin: 0;
-      color: #2563eb;
+      color: var(--site-accent);
     }
     nav ul {
       list-style: none;
@@ -39,10 +48,10 @@
     }
     nav li {
       cursor: pointer;
-      padding: 8px 14px;
-      border-radius: 8px;
-      transition: background 0.2s, color 0.2s;
-      color: #374151;
+      padding: 9px 14px;
+      border-radius: 999px;
+      transition: background .2s, color .2s, border-color .2s;
+      color: #334155;
       border: 1px solid #dbeafe;
       background: #ffffff;
     }
@@ -50,25 +59,54 @@
       background: #eff6ff;
     }
     nav li.active {
-      background: #2563eb;
+      background: var(--site-accent);
       color: #ffffff;
-      border-color: #2563eb;
+      border-color: var(--site-accent);
     }
     main {
-      background: #ffffff;
+      background: var(--site-card);
       padding: 24px;
-      border-radius: 14px;
-      min-height: 320px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      border-radius: 18px;
+      min-height: 360px;
+      border: 1px solid var(--site-border);
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
     }
     .admin-link {
-      color: #2563eb;
+      color: var(--site-accent);
       text-decoration: none;
       font-weight: bold;
+      white-space: nowrap;
     }
     .muted {
-      color: #6b7280;
+      color: #64748b;
+    }
+    .page-shell {
+      margin: 0 auto;
+    }
+    .page-prose a {
+      color: var(--accent-color, var(--site-accent));
+    }
+    .page-prose button,
+    .page-prose .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 999px;
+      padding: 12px 18px;
+      background: var(--button-color, var(--site-accent));
+      color: var(--button-text-color, #ffffff);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .page-frame {
+      width: 100%;
+      min-height: 720px;
+      border: 0;
+      border-radius: 14px;
+      background: #fff;
     }
   </style>
 </head>
@@ -101,34 +139,134 @@
       window.history.replaceState({}, "", url.toString());
     }
 
-    function renderContent(page) {
-      const content = document.getElementById("content");
-
-      if (!page) {
-        content.innerHTML = "<h2>Sayfa bulunamadı</h2><p class='muted'>İçerik mevcut değil.</p>";
-        document.title = "Sayfa bulunamadı";
-        return;
-      }
-
-      if (page.seoTitle) {
-        document.title = page.seoTitle;
-      } else {
-        document.title = page.title || "Site";
-      }
-
-      const safeDescription = page.seoDescription || "";
+    function ensureMetaDescription(content) {
       let meta = document.querySelector('meta[name="description"]');
       if (!meta) {
         meta = document.createElement("meta");
         meta.name = "description";
         document.head.appendChild(meta);
       }
-      meta.content = safeDescription;
+      meta.content = content || "";
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderStandardPage(page) {
+      const content = document.getElementById("content");
+      const settings = page.settings || {};
+      const accent = settings.accentColor || "#2563eb";
+      const buttonColor = settings.buttonColor || accent;
+      const buttonTextColor = settings.buttonTextColor || "#ffffff";
+      const bg = settings.pageBg || "#f8fafc";
+      const surface = settings.contentBg || "#ffffff";
+      const text = settings.textColor || "#0f172a";
+      const muted = settings.mutedColor || "#475569";
+      const titleSize = Number(settings.titleSize || 40);
+      const bodySize = Number(settings.bodySize || 17);
+      const radius = Number(settings.borderRadius || 18);
+      const shellMax = Number(settings.maxWidth || 1120);
+      const shellWidth = Number(settings.contentWidth || 100);
+      const containerPadding = Number(settings.containerPadding || 24);
+      const sectionGap = Number(settings.sectionGap || 18);
+      const textAlign = settings.textAlign || "left";
+
+      document.body.style.background = bg;
+      document.documentElement.style.setProperty("--site-bg", bg);
+      document.documentElement.style.setProperty("--site-accent", accent);
 
       content.innerHTML = `
-        <h2>${page.title || ""}</h2>
-        <div>${page.content || ""}</div>
+        <section class="page-shell" style="max-width:${shellMax}px;">
+          <article
+            class="page-prose"
+            style="
+              width:${shellWidth}%;
+              margin:0 auto;
+              background:${surface};
+              color:${text};
+              border-radius:${radius}px;
+              padding:${containerPadding}px;
+              text-align:${textAlign};
+              font-size:${bodySize}px;
+              line-height:1.75;
+              --accent-color:${accent};
+              --button-color:${buttonColor};
+              --button-text-color:${buttonTextColor};
+            "
+          >
+            <header style="margin-bottom:${sectionGap}px;">
+              <h2 style="margin:0 0 12px;font-size:${titleSize}px;line-height:1.1;">${page.title || ""}</h2>
+              ${page.excerpt ? `<p style="margin:0;color:${muted};">${page.excerpt}</p>` : ""}
+            </header>
+            <div>${page.content || ""}</div>
+          </article>
+        </section>
       `;
+    }
+
+    function buildIframeDocument(page) {
+      const title = escapeHtml(page.seoTitle || page.title || "Özel Sayfa");
+      const description = escapeHtml(page.seoDescription || page.excerpt || "");
+      const html = page.html || "";
+      const css = page.css || "";
+      const js = page.js || "";
+
+      return `<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<meta name="description" content="${description}">
+<style>
+html,body{margin:0;padding:0;font-family:Arial,sans-serif}
+${css}
+</style>
+</head>
+<body>
+${html}
+<script>
+${js.replace(/<\/script>/gi, "<\\/script>")}
+<\/script>
+</body>
+</html>`;
+    }
+
+    function renderCodePage(page) {
+      const content = document.getElementById("content");
+      document.body.style.background = "#f8fafc";
+      document.documentElement.style.setProperty("--site-bg", "#f8fafc");
+      document.documentElement.style.setProperty("--site-accent", page.settings?.accentColor || "#2563eb");
+
+      const iframe = document.createElement("iframe");
+      iframe.className = "page-frame";
+      iframe.setAttribute("sandbox", "allow-scripts allow-forms allow-modals");
+      iframe.srcdoc = buildIframeDocument(page);
+      content.innerHTML = "";
+      content.appendChild(iframe);
+    }
+
+    function renderContent(page) {
+      if (!page) {
+        document.getElementById("content").innerHTML = "<h2>Sayfa bulunamadı</h2><p class='muted'>İçerik mevcut değil.</p>";
+        document.title = "Sayfa bulunamadı";
+        ensureMetaDescription("");
+        return;
+      }
+
+      document.title = page.seoTitle || page.title || "Site";
+      ensureMetaDescription(page.seoDescription || page.excerpt || "");
+
+      if (page.mode === "code") {
+        renderCodePage(page);
+      } else {
+        renderStandardPage(page);
+      }
     }
 
     function activateMenu(menuSlug) {
@@ -159,9 +297,7 @@
           const page = pages.find((p) => p.slug === menu.pageSlug) || null;
           renderContent(page);
           activateMenu(menu.slug);
-          if (page?.slug) {
-            setQueryPage(page.slug);
-          }
+          if (page?.slug) setQueryPage(page.slug);
         });
 
         list.appendChild(li);
@@ -183,9 +319,7 @@
       const firstPage = pages.find((p) => p.slug === firstMenu.pageSlug) || null;
       renderContent(firstPage);
       activateMenu(firstMenu.slug);
-      if (firstPage?.slug) {
-        setQueryPage(firstPage.slug);
-      }
+      if (firstPage?.slug) setQueryPage(firstPage.slug);
     }
 
     async function loadSite() {
@@ -200,7 +334,6 @@
 
         menus = (menuData.menus || []).sort((a, b) => (a.order || 0) - (b.order || 0));
         pages = pagesData.pages || [];
-
         renderMenus();
       } catch (err) {
         document.getElementById("content").textContent = "Veriler yüklenemedi: " + err.message;
