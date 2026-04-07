@@ -63,8 +63,8 @@
       background:#eff6ff;
     }
 
-    .edit-shell{display:grid;grid-template-columns:minmax(320px, 430px) minmax(0, 1fr);gap:14px;align-items:start}
-    .edit-panel,.design-panel{min-width:0}
+    .edit-shell{display:grid;grid-template-columns:minmax(320px, 440px) minmax(0, 1fr);gap:14px;align-items:start}
+    .edit-panel,.info-panel{min-width:0}
 
     .toggle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     .mode-wrap{display:none}
@@ -73,220 +73,35 @@
     .minimal-section{margin-top:10px;padding-top:10px;border-top:1px solid #eef2f7}
     .minimal-section-title{font-size:12px;font-weight:700;margin:0 0 8px;color:#334155}
 
-    .design-shell{
-      display:grid;
-      grid-template-columns:220px minmax(0, 1fr);
-      gap:10px;
-      min-height:720px;
-    }
-
-    .design-sidebar{
-      background:#fff;
-      border:1px solid #e2e8f0;
-      border-radius:14px;
-      overflow:hidden;
-      display:grid;
-      grid-template-rows:auto auto 1fr;
-      min-height:0;
-    }
-
-    .design-toolbar{
-      padding:8px;
-      border-bottom:1px solid #eef2f7;
-    }
-
-    .mini-toolbar-row{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:6px;
-    }
-
-    .tiny-btn{
-      border:0;
-      border-radius:8px;
-      padding:7px 0;
-      font-size:10px;
-      font-weight:700;
-      background:#e2e8f0;
-      color:#0f172a;
-      cursor:pointer;
-      min-width:0;
-    }
-
-    .mini-inspector{
-      padding:8px;
-      border-bottom:1px solid #eef2f7;
-    }
-
-    .mini-inspector-card{
-      border:1px solid #e2e8f0;
-      border-radius:10px;
-      padding:8px;
-      background:#fff;
-    }
-
-    .mini-inspector-title{
-      font-size:11px;
-      font-weight:700;
-      margin-bottom:8px;
-      color:#334155;
-    }
-
-    .mini-inspector-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:6px;
-    }
-
-    .mini-inspector-grid label{
-      font-size:10px;
-      margin-bottom:3px;
-    }
-
-    .mini-inspector-grid input{
-      padding:7px 8px;
-      font-size:11px;
-      margin-bottom:0;
-      border-radius:8px;
-    }
-
-    .blocks-mini-list{
-      min-height:0;
-      overflow:auto;
-      padding:8px;
-    }
-
-    .compact-block-card{
-      border:1px solid #e2e8f0;
-      border-radius:10px;
-      margin-bottom:8px;
-      overflow:hidden;
-      background:#fff;
-    }
-
-    .compact-block-selected{
-      border-color:#2563eb;
-      box-shadow:0 0 0 1px rgba(37,99,235,.10);
-    }
-
-    .compact-block-head{
-      display:grid;
-      grid-template-columns:18px 1fr auto;
-      gap:6px;
-      align-items:center;
-      padding:6px;
-    }
-
-    .compact-arrow,.compact-title,.compact-mini{
-      border:0;
-      background:transparent;
-      cursor:pointer;
-      padding:0;
-    }
-
-    .compact-arrow{
-      font-size:11px;
-      color:#475569;
-      width:18px;
-      height:18px;
-    }
-
-    .compact-title{
-      text-align:left;
-      font-size:11px;
-      font-weight:700;
-      color:#0f172a;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .compact-actions{
+    .designer-entry{
       display:flex;
-      gap:4px;
+      flex-direction:column;
+      gap:12px;
     }
 
-    .compact-mini{
-      width:18px;
-      height:18px;
-      border-radius:6px;
-      background:#e2e8f0;
-      font-size:10px;
-      font-weight:700;
-      color:#0f172a;
-    }
-
-    .compact-mini.danger{
-      background:#fee2e2;
-      color:#991b1b;
-    }
-
-    .compact-block-body{
-      padding:6px;
-      border-top:1px solid #eef2f7;
-      background:#fafcff;
-    }
-
-    .compact-block-body label{font-size:10px;margin-bottom:3px}
-    .compact-block-body input,
-    .compact-block-body select,
-    .compact-block-body textarea{
-      padding:7px 8px;
-      font-size:11px;
-      margin-bottom:7px;
-      border-radius:8px;
-    }
-
-    .compact-block-body textarea{min-height:64px}
-
-    .design-main{
-      background:#fff;
+    .designer-box{
       border:1px solid #e2e8f0;
       border-radius:14px;
-      overflow:auto;
-      min-width:0;
-      min-height:0;
-      padding:10px;
-    }
-
-    .design-canvas{
-      min-height:680px;
-      border:1px solid #d7e0ec;
-      border-radius:12px;
-      align-content:start;
-    }
-
-    .design-item{min-width:0;padding:4px;cursor:pointer}
-    .design-item-selected .design-card{outline:2px solid #2563eb;outline-offset:0}
-
-    .design-card{
-      width:100%;
-      min-width:0;
-      border:1px dashed #cbd5e1;
+      padding:14px;
       background:#fff;
-      box-shadow:0 1px 2px rgba(15,23,42,.04)
     }
 
-    .design-card h4{margin:0 0 8px;font-size:20px}
-    .design-card p{margin:0 0 10px;color:inherit;line-height:1.6;font-size:13px}
-    .builder-preview-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .builder-preview-actions span{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:8px 10px;
-      border-radius:8px;
-      font-size:11px;
-      font-weight:700;
-      border:1px solid #cbd5e1;
-      background:#fff
+    .designer-box strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:14px;
     }
 
-    @media(max-width:1200px){
+    .designer-box p{
+      margin:0 0 10px;
+      font-size:12px;
+      color:#64748b;
+    }
+
+    @media(max-width:1100px){
       .layout{grid-template-columns:1fr}
       .sidebar{border-right:0;border-bottom:1px solid rgba(255,255,255,.06)}
       .edit-shell{grid-template-columns:1fr}
-      .design-shell{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -308,7 +123,7 @@
       <header class="topbar">
         <div class="topbar-left">
           <h2>Sayfalar</h2>
-          <p>Daha sade sayfa düzenleme ve kompakt tasarım modu</p>
+          <p>Sayfa ayarları ve ayrı tasarım ekranı</p>
         </div>
         <button id="logoutBtnTop" class="btn btn-danger" type="button">Çıkış Yap</button>
       </header>
@@ -345,7 +160,7 @@
               </div>
               <div>
                 <label for="editorMode">Editör</label>
-                <select id="editorMode"><option value="blocks">Tasarım</option><option value="code">Kod</option></select>
+                <select id="editorMode"><option value="blocks">Blok</option><option value="code">Kod</option></select>
               </div>
               <div>
                 <label for="showHeader">Header</label>
@@ -393,14 +208,6 @@
               <input id="customBodyClass" type="text">
             </div>
 
-            <div class="toolbar" style="margin-top:12px">
-              <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
-              <button id="deleteBtn" class="btn btn-danger" type="button">Sil</button>
-              <button id="openBtn" class="btn btn-secondary" type="button">Aç</button>
-            </div>
-
-            <div id="statusBox" class="status"></div>
-
             <div id="codeModeWrap" class="mode-wrap">
               <div class="minimal-section">
                 <div class="minimal-section-title">Kod Editörü</div>
@@ -412,29 +219,28 @@
                 <textarea id="codeJs" class="code-area"></textarea>
               </div>
             </div>
+
+            <div class="toolbar" style="margin-top:12px">
+              <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
+              <button id="deleteBtn" class="btn btn-danger" type="button">Sil</button>
+              <button id="openBtn" class="btn btn-secondary" type="button">Aç</button>
+            </div>
+
+            <div id="statusBox" class="status"></div>
           </div>
 
-          <div class="design-panel card">
-            <h3>Tasarım Modu</h3>
-            <p>Sol sütun minimal kontrol alanıdır. Sağ alan grid üstündeki gerçek yerleşimdir.</p>
-
-            <div id="blocksModeWrap" class="mode-wrap">
-              <div class="toolbar" style="margin-bottom:10px">
-                <button id="addHeroBtn" class="btn btn-secondary" type="button">Hero</button>
-                <button id="addTextBtn" class="btn btn-secondary" type="button">Metin</button>
-                <button id="addButtonBtn" class="btn btn-secondary" type="button">Buton</button>
-                <button id="addImageBtn" class="btn btn-secondary" type="button">Görsel</button>
-                <button id="addHtmlBtn" class="btn btn-secondary" type="button">HTML</button>
-                <button id="addSpacerBtn" class="btn btn-secondary" type="button">Boşluk</button>
+          <div class="info-panel card">
+            <h3>Tasarım Düzenleyici</h3>
+            <div class="designer-entry">
+              <div class="designer-box">
+                <strong>Ayrı tasarım ekranı</strong>
+                <p>Gerçek header, footer ve sayfa yerleşimi ile çalışır. Yayındaki görünümü olabildiğince birebir gösterir.</p>
+                <button id="openDesignerBtn" class="btn btn-primary" type="button">Tasarım Ekranını Aç</button>
               </div>
 
-              <div class="design-shell">
-                <aside class="design-sidebar">
-                  <div id="designToolbar" class="design-toolbar"></div>
-                  <div id="designInspector" class="mini-inspector"></div>
-                  <div id="builderBlocksWrap" class="blocks-mini-list"></div>
-                </aside>
-                <main id="builderPreviewWrap" class="design-main"></main>
+              <div class="designer-box">
+                <strong>Not</strong>
+                <p>Tasarım ekranı ayrı bir sayfada açılır. Böylece alan daralmaz ve sayfa gerçek görünümüyle düzenlenebilir.</p>
               </div>
             </div>
           </div>
@@ -443,32 +249,9 @@
     </main>
   </div>
 
-  <script src="/admin/shared-page-builder.js"></script>
   <script>
     let pages = [];
     let currentId = "";
-    let currentTheme = {
-      bodyBg: "#f8fafc",
-      bodyText: "#0f172a",
-      borderColor: "#e2e8f0",
-      primaryColor: "#2563eb",
-      containerWidth: 1200
-    };
-
-    const builder = VeraPageBuilder.createBuilder({
-      blocksWrap: document.getElementById("builderBlocksWrap"),
-      previewWrap: document.getElementById("builderPreviewWrap"),
-      inspectorWrap: document.getElementById("designInspector"),
-      toolbarWrap: document.getElementById("designToolbar"),
-      theme: currentTheme,
-      pageLayout: {
-        contentWidth: 1200,
-        pagePaddingX: 24,
-        sectionGap: 18,
-        gridColumns: 12
-      },
-      onChange: () => {}
-    });
 
     function uid() {
       return "p-" + Math.random().toString(36).slice(2) + Date.now();
@@ -523,9 +306,8 @@
     }
 
     function toggleMode() {
-      const isBlocks = editorMode.value === "blocks";
-      blocksModeWrap.classList.toggle("show", isBlocks);
-      codeModeWrap.classList.toggle("show", !isBlocks);
+      const isCode = editorMode.value === "code";
+      codeModeWrap.classList.toggle("show", isCode);
     }
 
     function collectForm() {
@@ -547,7 +329,7 @@
           sectionGap: Number(sectionGap.value || 18),
           gridColumns: Number(gridColumns.value || 12)
         },
-        blocks: builder.getBlocks(),
+        blocks: [],
         overrides: { html: "", css: "", js: "" },
         code: {
           html: codeHtml.value,
@@ -571,25 +353,13 @@
       showHeader.value = String(safe.pageOptions?.showHeader !== false);
       showFooter.value = String(safe.pageOptions?.showFooter !== false);
       customBodyClass.value = safe.pageOptions?.customBodyClass || "";
-
       contentWidth.value = safe.pageOptions?.contentWidth ?? 1200;
       pagePaddingX.value = safe.pageOptions?.pagePaddingX ?? 24;
       sectionGap.value = safe.pageOptions?.sectionGap ?? 18;
       gridColumns.value = safe.pageOptions?.gridColumns ?? 12;
-
-      builder.setBlocks(Array.isArray(safe.blocks) ? safe.blocks : []);
-      builder.setTheme(currentTheme);
-      builder.setPageLayout({
-        contentWidth: safe.pageOptions?.contentWidth ?? 1200,
-        pagePaddingX: safe.pageOptions?.pagePaddingX ?? 24,
-        sectionGap: safe.pageOptions?.sectionGap ?? 18,
-        gridColumns: safe.pageOptions?.gridColumns ?? 12
-      });
-
       codeHtml.value = safe.code?.html || "";
       codeCss.value = safe.code?.css || "";
       codeJs.value = safe.code?.js || "";
-
       toggleMode();
       renderTabs();
     }
@@ -628,17 +398,6 @@
       }
     }
 
-    async function loadThemeFromSiteContent() {
-      try {
-        const res = await fetch("/api/site-content", {
-          headers: { "Accept": "application/json" }
-        });
-        const data = await res.json();
-        currentTheme = data.content?.theme || currentTheme;
-        builder.setTheme(currentTheme);
-      } catch {}
-    }
-
     async function loadPages() {
       try {
         const res = await fetch("/api/pages", {
@@ -660,7 +419,8 @@
     }
 
     async function savePage() {
-      const payload = { action: "save", page: collectForm() };
+      const existing = pages.find((item) => item.id === currentId);
+      const payload = { action: "save", page: { ...(existing || emptyPage()), ...collectForm() } };
 
       try {
         const res = await fetch("/api/pages", {
@@ -742,42 +502,19 @@
 
     editorMode.addEventListener("change", toggleMode);
 
-    [contentWidth, pagePaddingX, sectionGap, gridColumns].forEach((field) => {
-      field.addEventListener("input", () => {
-        builder.setPageLayout({
-          contentWidth: Number(contentWidth.value || 1200),
-          pagePaddingX: Number(pagePaddingX.value || 24),
-          sectionGap: Number(sectionGap.value || 18),
-          gridColumns: Number(gridColumns.value || 12)
-        });
-      });
-
-      field.addEventListener("change", () => {
-        builder.setPageLayout({
-          contentWidth: Number(contentWidth.value || 1200),
-          pagePaddingX: Number(pagePaddingX.value || 24),
-          sectionGap: Number(sectionGap.value || 18),
-          gridColumns: Number(gridColumns.value || 12)
-        });
-      });
-    });
-
     openBtn.addEventListener("click", () => {
       const slug = slugify(pageSlug.value || pageTitle.value);
       const path = slug ? `/${slug}` : "/";
       window.open(path, "_blank");
     });
 
-    addHeroBtn.addEventListener("click", () => builder.addBlock("hero"));
-    addTextBtn.addEventListener("click", () => builder.addBlock("text"));
-    addButtonBtn.addEventListener("click", () => builder.addBlock("button"));
-    addImageBtn.addEventListener("click", () => builder.addBlock("image"));
-    addHtmlBtn.addEventListener("click", () => builder.addBlock("html"));
-    addSpacerBtn.addEventListener("click", () => builder.addBlock("spacer"));
+    openDesignerBtn.addEventListener("click", () => {
+      if (!currentId) return;
+      window.open(`/admin/designer.html?id=${encodeURIComponent(currentId)}`, "_blank");
+    });
 
     (async function init() {
       await checkSession();
-      await loadThemeFromSiteContent();
       await loadPages();
       toggleMode();
     })();
