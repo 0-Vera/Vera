@@ -15,6 +15,7 @@
     input,textarea,select{width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:14px;color:#0f172a;background:#fff}textarea{min-height:100px;resize:vertical}
     .btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:14px}.btn-primary{background:#2563eb;color:#fff}.btn-secondary{background:#e2e8f0;color:#0f172a}.btn-danger{background:#dc2626;color:#fff}
     .menu-item{border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:12px;background:#fff}.menu-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.status{display:none;margin-top:8px;padding:12px;border-radius:12px;font-size:14px}.status.show{display:block}.status.ok{background:#dcfce7;color:#166534}.status.error{background:#fee2e2;color:#991b1b}
+    .menu-help{margin:-4px 0 12px;color:#64748b;font-size:12px}
     @media(max-width:1100px){.layout{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
   </style>
 </head>
@@ -71,21 +72,302 @@
       </section>
     </main>
   </div>
+
   <script>
-    let siteSettings={siteName:'Vera',logoText:'Vera',logoLink:'/',contactEmail:'',contactPhone:'',footerText:'© Vera',showHeader:true,showFooter:true,showTopCta:true,topCtaText:'İletişim',topCtaLink:'/iletisim',menuItems:[]};
-    function uid(){return 'm-'+Math.random().toString(36).slice(2)+Date.now();}
-    function escapeHtml(v){return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-    function showStatus(message,type){statusBox.className='status show '+type;statusBox.textContent=message;}
-    function readForm(){siteSettings={siteName:siteName.value.trim()||'Vera',logoText:logoText.value.trim()||'Vera',logoLink:logoLink.value.trim()||'/',contactEmail:contactEmail.value.trim(),contactPhone:contactPhone.value.trim(),footerText:footerText.value.trim()||'© Vera',showHeader:showHeader.value==='true',showFooter:showFooter.value==='true',showTopCta:showTopCta.value==='true',topCtaText:topCtaText.value.trim(),topCtaLink:topCtaLink.value.trim(),menuItems:siteSettings.menuItems||[]};}
-    function fillForm(){siteName.value=siteSettings.siteName||'';logoText.value=siteSettings.logoText||'';logoLink.value=siteSettings.logoLink||'/';contactEmail.value=siteSettings.contactEmail||'';contactPhone.value=siteSettings.contactPhone||'';footerText.value=siteSettings.footerText||'';showHeader.value=String(siteSettings.showHeader!==false);showFooter.value=String(siteSettings.showFooter!==false);showTopCta.value=String(siteSettings.showTopCta!==false);topCtaText.value=siteSettings.topCtaText||'';topCtaLink.value=siteSettings.topCtaLink||'';renderMenuItems();}
-    function renderMenuItems(){menuWrap.innerHTML='';if(!siteSettings.menuItems.length){menuWrap.innerHTML='<p style="color:#64748b">Henüz menü öğesi yok.</p>';return;}siteSettings.menuItems.forEach(function(item,index){const el=document.createElement('div');el.className='menu-item';el.innerHTML='<div class="menu-head"><strong>Menü Öğesi '+(index+1)+'</strong><button class="btn btn-danger remove-menu" type="button">Sil</button></div><label>Metin</label><input data-key="text" value="'+escapeHtml(item.text)+'"><label>Link</label><input data-key="link" value="'+escapeHtml(item.link)+'">';el.querySelector('.remove-menu').addEventListener('click',function(){siteSettings.menuItems.splice(index,1);renderMenuItems();});el.querySelectorAll('[data-key]').forEach(function(field){function applyValue(){const key=field.getAttribute('data-key');siteSettings.menuItems[index][key]=field.value;}field.addEventListener('input',applyValue);field.addEventListener('change',applyValue);});menuWrap.appendChild(el);});}
-    async function checkSession(){try{const res=await fetch('/api/verify',{method:'GET',credentials:'same-origin',headers:{Accept:'application/json'}});const data=await res.json();if(!data.ok||!data.authenticated){location.replace('/login');return;}loading.classList.add('hidden');app.classList.remove('hidden');}catch{location.replace('/login');}}
-    async function loadSettings(){try{const res=await fetch('/api/site-settings',{headers:{Accept:'application/json'}});const data=await res.json();siteSettings=data.settings||siteSettings;if(!Array.isArray(siteSettings.menuItems))siteSettings.menuItems=[];fillForm();}catch{showStatus('Ayarlar yüklenemedi.','error');}}
-    async function saveSettings(){readForm();try{const res=await fetch('/api/site-settings',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(siteSettings)});const data=await res.json();if(!data.ok)return showStatus(data.error||'Kayıt başarısız.','error');showStatus('Ayarlar kaydedildi.','ok');}catch{showStatus('İstek sırasında hata oluştu.','error');}}
-    async function logout(){try{await fetch('/api/logout',{method:'POST',credentials:'same-origin',headers:{Accept:'application/json'}});}catch{}location.replace('/login');}
-    addMenuBtn.addEventListener('click',function(){siteSettings.menuItems.push({id:uid(),text:'Menü',link:'#'});renderMenuItems();});
-    saveBtn.addEventListener('click',saveSettings);logoutBtnTop.addEventListener('click',logout);logoutBtnSide.addEventListener('click',logout);
-    (async function init(){await checkSession();await loadSettings();})();
+    let siteSettings = {
+      siteName: 'Vera',
+      logoText: 'Vera',
+      logoLink: '/',
+      contactEmail: '',
+      contactPhone: '',
+      footerText: '© Vera',
+      showHeader: true,
+      showFooter: true,
+      showTopCta: true,
+      topCtaText: 'İletişim',
+      topCtaLink: '/iletisim',
+      menuItems: []
+    };
+
+    let availablePages = [];
+
+    function uid() {
+      return 'm-' + Math.random().toString(36).slice(2) + Date.now();
+    }
+
+    function escapeHtml(v) {
+      return String(v || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function showStatus(message, type) {
+      statusBox.className = 'status show ' + type;
+      statusBox.textContent = message;
+    }
+
+    function normalizeMenuItem(item = {}) {
+      return {
+        id: String(item.id || uid()),
+        text: String(item.text || '').trim(),
+        targetType: item.targetType === 'page' ? 'page' : 'link',
+        link: String(item.link || '').trim(),
+        pageId: String(item.pageId || '').trim()
+      };
+    }
+
+    function readForm() {
+      siteSettings = {
+        siteName: siteName.value.trim() || 'Vera',
+        logoText: logoText.value.trim() || 'Vera',
+        logoLink: logoLink.value.trim() || '/',
+        contactEmail: contactEmail.value.trim(),
+        contactPhone: contactPhone.value.trim(),
+        footerText: footerText.value.trim() || '© Vera',
+        showHeader: showHeader.value === 'true',
+        showFooter: showFooter.value === 'true',
+        showTopCta: showTopCta.value === 'true',
+        topCtaText: topCtaText.value.trim(),
+        topCtaLink: topCtaLink.value.trim(),
+        menuItems: Array.isArray(siteSettings.menuItems)
+          ? siteSettings.menuItems.map(normalizeMenuItem)
+          : []
+      };
+    }
+
+    function fillForm() {
+      siteName.value = siteSettings.siteName || '';
+      logoText.value = siteSettings.logoText || '';
+      logoLink.value = siteSettings.logoLink || '/';
+      contactEmail.value = siteSettings.contactEmail || '';
+      contactPhone.value = siteSettings.contactPhone || '';
+      footerText.value = siteSettings.footerText || '';
+      showHeader.value = String(siteSettings.showHeader !== false);
+      showFooter.value = String(siteSettings.showFooter !== false);
+      showTopCta.value = String(siteSettings.showTopCta !== false);
+      topCtaText.value = siteSettings.topCtaText || '';
+      topCtaLink.value = siteSettings.topCtaLink || '';
+      if (!Array.isArray(siteSettings.menuItems)) siteSettings.menuItems = [];
+      siteSettings.menuItems = siteSettings.menuItems.map(normalizeMenuItem);
+      renderMenuItems();
+    }
+
+    function pageOptionsHtml(selectedPageId) {
+      let html = '<option value="">Sayfa seç</option>';
+
+      availablePages.forEach(function(page) {
+        const selected = String(page.id) === String(selectedPageId) ? ' selected' : '';
+        const title = escapeHtml(page.title || 'İsimsiz Sayfa');
+        const slug = page.isHome ? '/' : '/' + String(page.slug || '').replace(/^\/+/, '');
+        const status = page.status === 'published' ? 'Yayında' : 'Taslak';
+        html += '<option value="' + escapeHtml(page.id) + '"' + selected + '>' + title + ' (' + escapeHtml(slug) + ' - ' + escapeHtml(status) + ')</option>';
+      });
+
+      return html;
+    }
+
+    function createMenuItemHtml(item, index) {
+      const isPage = item.targetType === 'page';
+
+      return ''
+        + '<div class="menu-head">'
+        + '  <strong>Menü Öğesi ' + (index + 1) + '</strong>'
+        + '  <button class="btn btn-danger remove-menu" type="button">Sil</button>'
+        + '</div>'
+
+        + '<label>Metin</label>'
+        + '<input data-key="text" value="' + escapeHtml(item.text) + '">'
+
+        + '<label>Yönlendirme Türü</label>'
+        + '<select data-key="targetType">'
+        + '  <option value="link"' + (item.targetType === 'link' ? ' selected' : '') + '>Manuel Link</option>'
+        + '  <option value="page"' + (item.targetType === 'page' ? ' selected' : '') + '>Sayfa Seç</option>'
+        + '</select>'
+
+        + '<div class="menu-help">Manuel link seçersen aşağıdaki link alanı kullanılır. Sayfa seçersen sayfa bağlantısı otomatik alınır.</div>'
+
+        + '<label>Link</label>'
+        + '<input data-key="link" placeholder="/iletisim veya https://ornek.com" value="' + escapeHtml(item.link) + '"' + (isPage ? ' disabled' : '') + '>'
+
+        + '<label>Sayfa</label>'
+        + '<select data-key="pageId"' + (isPage ? '' : ' disabled') + '>'
+        + pageOptionsHtml(item.pageId)
+        + '</select>';
+    }
+
+    function renderMenuItems() {
+      menuWrap.innerHTML = '';
+
+      if (!siteSettings.menuItems.length) {
+        menuWrap.innerHTML = '<p style="color:#64748b">Henüz menü öğesi yok.</p>';
+        return;
+      }
+
+      siteSettings.menuItems.forEach(function(item, index) {
+        const safeItem = normalizeMenuItem(item);
+        siteSettings.menuItems[index] = safeItem;
+
+        const el = document.createElement('div');
+        el.className = 'menu-item';
+        el.innerHTML = createMenuItemHtml(safeItem, index);
+
+        el.querySelector('.remove-menu').addEventListener('click', function() {
+          siteSettings.menuItems.splice(index, 1);
+          renderMenuItems();
+        });
+
+        el.querySelectorAll('[data-key]').forEach(function(field) {
+          function applyValue() {
+            const key = field.getAttribute('data-key');
+            const value = field.value;
+
+            if (!siteSettings.menuItems[index]) return;
+
+            siteSettings.menuItems[index][key] = value;
+
+            if (key === 'targetType') {
+              if (value === 'page') {
+                siteSettings.menuItems[index].link = '';
+              } else {
+                siteSettings.menuItems[index].pageId = '';
+              }
+              renderMenuItems();
+              return;
+            }
+
+            if (key === 'pageId') {
+              siteSettings.menuItems[index].pageId = value;
+              if (siteSettings.menuItems[index].targetType === 'page') {
+                siteSettings.menuItems[index].link = '';
+              }
+            }
+
+            if (key === 'link') {
+              siteSettings.menuItems[index].link = value;
+            }
+
+            if (key === 'text') {
+              siteSettings.menuItems[index].text = value;
+            }
+          }
+
+          field.addEventListener('input', applyValue);
+          field.addEventListener('change', applyValue);
+        });
+
+        menuWrap.appendChild(el);
+      });
+    }
+
+    async function checkSession() {
+      try {
+        const res = await fetch('/api/verify', {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json' }
+        });
+        const data = await res.json();
+        if (!data.ok || !data.authenticated) {
+          location.replace('/login');
+          return;
+        }
+        loading.classList.add('hidden');
+        app.classList.remove('hidden');
+      } catch {
+        location.replace('/login');
+      }
+    }
+
+    async function loadPages() {
+      try {
+        const res = await fetch('/api/pages', {
+          method: 'GET',
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json' }
+        });
+        const data = await res.json();
+        availablePages = Array.isArray(data.pages) ? data.pages : [];
+      } catch {
+        availablePages = [];
+      }
+    }
+
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/site-settings', {
+          headers: { Accept: 'application/json' }
+        });
+        const data = await res.json();
+        siteSettings = data.settings || siteSettings;
+        if (!Array.isArray(siteSettings.menuItems)) siteSettings.menuItems = [];
+        fillForm();
+      } catch {
+        showStatus('Ayarlar yüklenemedi.', 'error');
+      }
+    }
+
+    async function saveSettings() {
+      readForm();
+
+      try {
+        const res = await fetch('/api/site-settings', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(siteSettings)
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) {
+          return showStatus(data.error || 'Kayıt başarısız.', 'error');
+        }
+
+        siteSettings = data.settings || siteSettings;
+        if (!Array.isArray(siteSettings.menuItems)) siteSettings.menuItems = [];
+        fillForm();
+        showStatus('Ayarlar kaydedildi.', 'ok');
+      } catch {
+        showStatus('İstek sırasında hata oluştu.', 'error');
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch('/api/logout', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { Accept: 'application/json' }
+        });
+      } catch {}
+      location.replace('/login');
+    }
+
+    addMenuBtn.addEventListener('click', function() {
+      siteSettings.menuItems.push({
+        id: uid(),
+        text: 'Menü',
+        targetType: 'link',
+        link: '#',
+        pageId: ''
+      });
+      renderMenuItems();
+    });
+
+    saveBtn.addEventListener('click', saveSettings);
+    logoutBtnTop.addEventListener('click', logout);
+    logoutBtnSide.addEventListener('click', logout);
+
+    (async function init() {
+      await checkSession();
+      await loadPages();
+      await loadSettings();
+    })();
   </script>
 </body>
 </html>
