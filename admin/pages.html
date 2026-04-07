@@ -66,4 +66,343 @@
               <label for="pageIsHome">Ana Sayfa</label>
               <select id="pageIsHome"><option value="false">Hayır</option><option value="true">Evet</option></select>
             </div>
+            <div>
+              <label for="editorMode">Editör Modu</label>
+              <select id="editorMode"><option value="blocks">Blok</option><option value="code">Kod</option></select>
+            </div>
+            <div>
+              <label for="showHeader">Header</label>
+              <select id="showHeader"><option value="true">Göster</option><option value="false">Gizle</option></select>
+            </div>
+            <div>
+              <label for="showFooter">Footer</label>
+              <select id="showFooter"><option value="true">Göster</option><option value="false">Gizle</option></select>
+            </div>
+          </div>
+
+          <label for="metaTitle">Meta Title</label>
+          <input id="metaTitle" type="text">
+          <label for="metaDescription">Meta Description</label>
+          <textarea id="metaDescription"></textarea>
+          <label for="customBodyClass">Body Class</label>
+          <input id="customBodyClass" type="text">
+
+          <div id="blocksModeWrap" class="mode-wrap">
+            <div class="toolbar" style="margin-bottom:14px;">
+              <button id="addHeroBtn" class="btn btn-secondary" type="button">Hero Ekle</button>
+              <button id="addTextBtn" class="btn btn-secondary" type="button">Metin Ekle</button>
+              <button id="addButtonBtn" class="btn btn-secondary" type="button">Buton Ekle</button>
+              <button id="addImageBtn" class="btn btn-secondary" type="button">Görsel Ekle</button>
+              <button id="addHtmlBtn" class="btn btn-secondary" type="button">HTML Ekle</button>
+              <button id="addSpacerBtn" class="btn btn-secondary" type="button">Boşluk Ekle</button>
+            </div>
+            <div class="toggle-grid">
+              <div>
+                <h3 style="font-size:18px">Bloklar</h3>
+                <div id="builderBlocksWrap"></div>
+              </div>
+              <div>
+                <h3 style="font-size:18px">Önizleme</h3>
+                <div id="builderPreviewWrap" class="builder-preview-shell"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="codeModeWrap" class="mode-wrap">
+            <label for="codeHtml">HTML</label>
+            <textarea id="codeHtml" class="code-area"></textarea>
+            <label for="codeCss">CSS</label>
+            <textarea id="codeCss" class="code-area"></textarea>
+            <label for="codeJs">JS</label>
+            <textarea id="codeJs" class="code-area"></textarea>
+          </div>
+
+          <div class="toolbar">
+            <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
+            <button id="deleteBtn" class="btn btn-danger" type="button">Sil</button>
+            <button id="openBtn" class="btn btn-secondary" type="button">Sayfayı Aç</button>
+          </div>
+          <div id="statusBox" class="status"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/admin/shared-page-builder.js"></script>
+  <script>
+    let pages = [];
+    let currentId = "";
+    let currentTheme = {
+      bodyBg: "#f8fafc",
+      bodyText: "#0f172a",
+      borderColor: "#e2e8f0",
+      primaryColor: "#2563eb",
+      containerWidth: 1200
+    };
+
+    const builder = VeraPageBuilder.createBuilder({
+      blocksWrap: document.getElementById("builderBlocksWrap"),
+      previewWrap: document.getElementById("builderPreviewWrap"),
+      theme: currentTheme,
+      onChange: () => {}
+    });
+
+    function uid() {
+      return "p-" + Math.random().toString(36).slice(2) + Date.now();
+    }
+
+    function slugify(value) {
+      const map = { ç: "c", ğ: "g", ı: "i", ö: "o", ş: "s", ü: "u" };
+      return String(value || "")
+        .toLowerCase()
+        .trim()
+        .replace(/[çğıöşü]/g, (m) => map[m] || m)
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+    }
+
+    function showStatus(message, type) {
+      statusBox.className = "status show " + type;
+      statusBox.textContent = message;
+    }
+
+    function emptyPage() {
+      return {
+        id: uid(),
+        title: "Yeni Sayfa",
+        slug: "yeni-sayfa",
+        status: "draft",
+        isHome: false,
+        metaTitle: "Yeni Sayfa",
+        metaDescription: "",
+        editorMode: "blocks",
+        pageOptions: {
+          showHeader: true,
+          showFooter: true,
+          customBodyClass: ""
+        },
+        blocks: [],
+        overrides: { html: "", css: "", js: "" },
+        code: { html: "", css: "", js: "" }
+      };
+    }
+
+    function toggleMode() {
+      const isBlocks = editorMode.value === "blocks";
+      blocksModeWrap.classList.toggle("show", isBlocks);
+      codeModeWrap.classList.toggle("show", !isBlocks);
+      builder.render();
+    }
+
+    function fillForm(page) {
+      currentId = page.id;
+      pageTitle.value = page.title || "";
+      pageSlug.value = page.slug || "";
+      pageStatus.value = page.status || "draft";
+      pageIsHome.value = String(!!page.isHome);
+      editorMode.value = page.editorMode || "blocks";
+      showHeader.value = String(page.pageOptions?.showHeader !== false);
+      showFooter.value = String(page.pageOptions?.showFooter !== false);
+      metaTitle.value = page.metaTitle || "";
+      metaDescription.value = page.metaDescription || "";
+      customBodyClass.value = page.pageOptions?.customBodyClass || "";
+      codeHtml.value = page.code?.html || "";
+      codeCss.value = page.code?.css || "";
+      codeJs.value = page.code?.js || "";
+      builder.setBlocks(Array.isArray(page.blocks) ? page.blocks : []);
+      toggleMode();
+      renderList();
+    }
+
+    function collectForm() {
+      return {
+        id: currentId || uid(),
+        title: pageTitle.value.trim() || "Yeni Sayfa",
+        slug: slugify(pageSlug.value || pageTitle.value),
+        status: pageStatus.value,
+        isHome: pageIsHome.value === "true",
+        metaTitle: metaTitle.value.trim() || pageTitle.value.trim() || "Yeni Sayfa",
+        metaDescription: metaDescription.value.trim(),
+        editorMode: editorMode.value,
+        pageOptions: {
+          showHeader: showHeader.value === "true",
+          showFooter: showFooter.value === "true",
+          customBodyClass: customBodyClass.value.trim()
+        },
+        blocks: builder.getBlocks(),
+        overrides: {
+          html: "",
+          css: "",
+          js: ""
+        },
+        code: {
+          html: codeHtml.value,
+          css: codeCss.value,
+          js: codeJs.value
+        }
+      };
+    }
+
+    function renderList() {
+      pageList.innerHTML = "";
+      if (!pages.length) {
+        pageList.innerHTML = "<p style='color:#64748b'>Henüz sayfa yok.</p>";
+        return;
+      }
+      pages.forEach((page) => {
+        const el = document.createElement("div");
+        el.className = "page-item" + (page.id === currentId ? " active" : "");
+        el.innerHTML = `
+          <strong>${page.title || "-"}</strong>
+          <div style="margin-top:6px;color:#64748b">${page.slug ? "/" + page.slug : "/"}</div>
+          <div class="meta-row">
+            <span class="chip">${page.status || "draft"}</span>
+            ${page.isHome ? `<span class="chip">home</span>` : ""}
+            <span class="chip">${page.editorMode || "blocks"}</span>
+          </div>
+        `;
+        el.addEventListener("click", () => fillForm(page));
+        pageList.appendChild(el);
+      });
+    }
+
+    async function checkSession() {
+      try {
+        const res = await fetch("/api/verify", {
+          method: "GET",
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" }
+        });
+        const data = await res.json();
+        if (!data.ok || !data.authenticated) return location.replace("/login");
+        loading.classList.add("hidden");
+        app.classList.remove("hidden");
+      } catch {
+        location.replace("/login");
+      }
+    }
+
+    async function loadThemeFromSiteContent() {
+      try {
+        const res = await fetch("/api/site-content", { headers: { "Accept": "application/json" } });
+        const data = await res.json();
+        currentTheme = data.content?.theme || currentTheme;
+        builder.setTheme(currentTheme);
+      } catch {}
+    }
+
+    async function loadPages() {
+      try {
+        const res = await fetch("/api/pages", { headers: { "Accept": "application/json" } });
+        const data = await res.json();
+        pages = Array.isArray(data.pages) ? data.pages : [];
+        renderList();
+        if (pages.length) {
+          const page = pages.find((item) => item.id === currentId) || pages[0];
+          fillForm(page);
+        } else {
+          fillForm(emptyPage());
+        }
+      } catch {
+        showStatus("Sayfalar yüklenemedi.", "error");
+      }
+    }
+
+    async function savePage() {
+      const payload = { action: "save", page: collectForm() };
+      try {
+        const res = await fetch("/api/pages", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!data.ok) return showStatus(data.error || "Kayıt başarısız.", "error");
+        pages = Array.isArray(data.pages) ? data.pages : [];
+        const current = pages.find((item) => item.id === payload.page.id) || pages[0];
+        if (current) fillForm(current);
+        renderList();
+        showStatus("Sayfa kaydedildi.", "ok");
+      } catch {
+        showStatus("İstek sırasında hata oluştu.", "error");
+      }
+    }
+
+    async function deletePage() {
+      if (!currentId) return;
+      try {
+        const res = await fetch("/api/pages", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ action: "delete", id: currentId })
+        });
+        const data = await res.json();
+        if (!data.ok) return showStatus(data.error || "Silme başarısız.", "error");
+        pages = Array.isArray(data.pages) ? data.pages : [];
+        renderList();
+        if (pages.length) fillForm(pages[0]);
+        else fillForm(emptyPage());
+        showStatus("Sayfa silindi.", "ok");
+      } catch {
+        showStatus("İstek sırasında hata oluştu.", "error");
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch("/api/logout", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Accept": "application/json" }
+        });
+      } catch {}
+      location.replace("/login");
+    }
+
+    newPageBtn.addEventListener("click", () => fillForm(emptyPage()));
+    refreshBtn.addEventListener("click", loadPages);
+    saveBtn.addEventListener("click", savePage);
+    deleteBtn.addEventListener("click", deletePage);
+    logoutBtnTop.addEventListener("click", logout);
+    logoutBtnSide.addEventListener("click", logout);
+
+    pageTitle.addEventListener("input", () => {
+      if (!pageSlug.dataset.touched) pageSlug.value = slugify(pageTitle.value);
+    });
+
+    pageSlug.addEventListener("input", () => {
+      pageSlug.dataset.touched = "1";
+      pageSlug.value = slugify(pageSlug.value);
+    });
+
+    editorMode.addEventListener("change", toggleMode);
+
+    openBtn.addEventListener("click", () => {
+      const slug = slugify(pageSlug.value || pageTitle.value);
+      const path = slug ? `/${slug}` : "/";
+      window.open(path, "_blank");
+    });
+
+    addHeroBtn.addEventListener("click", () => builder.addBlock("hero"));
+    addTextBtn.addEventListener("click", () => builder.addBlock("text"));
+    addButtonBtn.addEventListener("click", () => builder.addBlock("button"));
+    addImageBtn.addEventListener("click", () => builder.addBlock("image"));
+    addHtmlBtn.addEventListener("click", () => builder.addBlock("html"));
+    addSpacerBtn.addEventListener("click", () => builder.addBlock("spacer"));
+
+    (async function init() {
+      await checkSession();
+      await loadThemeFromSiteContent();
+      await loadPages();
+    })();
+  </script>
+</body>
 </html>
