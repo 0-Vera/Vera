@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vera Admin - Tasarım Düzenleyici</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#0f172a}
+
+    .loading{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#64748b
+    }
+
+    .app{
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:250px 1fr;
+    }
+
+    .side{
+      background:#ffffff;
+      border-right:1px solid #e2e8f0;
+      display:grid;
+      grid-template-rows:auto auto 1fr auto;
+      min-height:100vh;
+      position:sticky;
+      top:0;
+    }
+
+    .side-top{
+      padding:12px;
+      border-bottom:1px solid #eef2f7;
+    }
+
+    .side-top h1{
+      margin:0 0 4px;
+      font-size:16px;
+    }
+
+    .side-top p{
+      margin:0;
+      font-size:12px;
+      color:#64748b;
+    }
+
+    .mini-toolbar{
+      padding:10px;
+      border-bottom:1px solid #eef2f7;
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:6px;
+    }
+
+    .tiny-btn{
+      border:0;
+      border-radius:8px;
+      padding:8px 0;
+      font-size:10px;
+      font-weight:700;
+      background:#e2e8f0;
+      color:#0f172a;
+      cursor:pointer;
+      min-width:0;
+    }
+
+    .inspector{
+      padding:10px;
+      border-bottom:1px solid #eef2f7;
+    }
+
+    .mini-card{
+      border:1px solid #e2e8f0;
+      border-radius:10px;
+      padding:8px;
+      background:#fff;
+    }
+
+    .mini-card-title{
+      font-size:11px;
+      font-weight:700;
+      margin-bottom:8px;
+      color:#334155;
+    }
+
+    .mini-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:6px;
+    }
+
+    .mini-grid label{
+      display:block;
+      margin-bottom:3px;
+      font-size:10px;
+      color:#475569;
+    }
+
+    .mini-grid input{
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:8px;
+      padding:7px 8px;
+      font-size:11px;
+      background:#fff;
+    }
+
+    .block-list{
+      min-height:0;
+      overflow:auto;
+      padding:8px;
+    }
+
+    .block-item{
+      border:1px solid #e2e8f0;
+      border-radius:10px;
+      margin-bottom:8px;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .block-item.selected{
+      border-color:#2563eb;
+      box-shadow:0 0 0 1px rgba(37,99,235,.10);
+    }
+
+    .block-head{
+      display:grid;
+      grid-template-columns:18px 1fr auto;
+      gap:6px;
+      align-items:center;
+      padding:6px;
+    }
+
+    .block-arrow,.block-name,.block-mini{
+      border:0;
+      background:transparent;
+      cursor:pointer;
+      padding:0;
+    }
+
+    .block-arrow{
+      font-size:11px;
+      color:#475569;
+      width:18px;
+      height:18px;
+    }
+
+    .block-name{
+      text-align:left;
+      font-size:11px;
+      font-weight:700;
+      color:#0f172a;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .block-actions{
+      display:flex;
+      gap:4px;
+    }
+
+    .block-mini{
+      width:18px;
+      height:18px;
+      border-radius:6px;
+      background:#e2e8f0;
+      font-size:10px;
+      font-weight:700;
+      color:#0f172a;
+    }
+
+    .block-mini.danger{
+      background:#fee2e2;
+      color:#991b1b;
+    }
+
+    .block-body{
+      padding:6px;
+      border-top:1px solid #eef2f7;
+      background:#fafcff;
+    }
+
+    .block-body label{
+      display:block;
+      margin-bottom:3px;
+      font-size:10px;
+      color:#475569;
+    }
+
+    .block-body input,
+    .block-body select,
+    .block-body textarea{
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:8px;
+      padding:7px 8px;
+      font-size:11px;
+      background:#fff;
+      margin-bottom:7px;
+    }
+
+    .block-body textarea{
+      min-height:64px;
+      resize:vertical;
+    }
+
+    .side-bottom{
+      padding:10px;
+      border-top:1px solid #eef2f7;
+      display:grid;
+      gap:8px;
+    }
+
+    .btn{
+      border:0;
+      border-radius:10px;
+      padding:10px 12px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .btn-primary{background:#2563eb;color:#fff}
+    .btn-secondary{background:#e2e8f0;color:#0f172a}
+    .btn-danger{background:#dc2626;color:#fff}
+
+    .stage-wrap{
+      min-width:0;
+      overflow:auto;
+      padding:18px;
+    }
+
+    .stage-toolbar{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 10px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid #dbe3ee;
+      font-size:12px;
+      font-weight:700;
+      color:#334155;
+    }
+
+    .page-frame{
+      width:min(100%, 1800px);
+      margin:0 auto;
+      background:#fff;
+      border:1px solid #d7e0ec;
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 16px 40px rgba(15,23,42,.07);
+    }
+
+    .site-header{
+      border-bottom:1px solid #e2e8f0;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(10px);
+    }
+
+    .site-header-inner,
+    .site-footer-inner{
+      max-width:var(--container-width);
+      margin:0 auto;
+      padding-left:24px;
+      padding-right:24px;
+    }
+
+    .site-header-inner{
+      min-height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+    }
+
+    .site-brand{
+      text-decoration:none;
+      font-size:24px;
+      font-weight:800;
+      color:inherit;
+    }
+
+    .site-nav{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .site-nav a{
+      text-decoration:none;
+      color:#334155;
+      font-weight:700;
+      font-size:14px;
+      padding:8px 10px;
+      border-radius:10px;
+      transition:background .18s ease,color .18s ease;
+    }
+
+    .site-nav a:hover,.site-nav a.active{
+      background:#eff6ff;
+      color:#1d4ed8;
+    }
+
+    .top-cta{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      border-radius:12px;
+      padding:11px 16px;
+      font-weight:700;
+      background:var(--primary-color);
+      color:#ffffff;
+      border:1px solid var(--primary-color);
+    }
+
+    .page-content{
+      max-width:var(--page-content-width);
+      margin:0 auto;
+      padding-top:24px;
+      padding-bottom:24px;
+      padding-left:var(--page-padding-x);
+      padding-right:var(--page-padding-x);
+    }
+
+    .grid-canvas{
+      display:grid;
+      grid-template-columns:repeat(var(--grid-columns), minmax(0,1fr));
+      gap:var(--section-gap);
+      min-height:60vh;
+      background:
+        linear-gradient(to right, rgba(37,99,235,.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(37,99,235,.05) 1px, transparent 1px),
+        var(--body-bg);
+      background-size:calc(100% / var(--grid-columns)) 100%, 100% 48px, auto;
+      border-radius:12px;
+    }
+
+    .design-item{
+      min-width:0;
+      padding:4px;
+      cursor:pointer;
+    }
+
+    .design-item.selected .design-card{
+      outline:2px solid #2563eb;
+      outline-offset:0;
+    }
+
+    .design-card{
+      width:100%;
+      min-width:0;
+      border:1px dashed var(--border-color);
+      background:#fff;
+      box-shadow:0 1px 2px rgba(15,23,42,.04);
+    }
+
+    .design-card h2,.design-card h4{margin:0 0 10px}
+    .design-card p{margin:0 0 10px;line-height:1.7}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .actions span,.actions a{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 10px;
+      border-radius:8px;
+      font-size:11px;
+      font-weight:700;
+      border:1px solid #cbd5e1;
+      background:#fff;
+      text-decoration:none;
+      color:inherit;
+    }
+
+    .site-footer{
+      margin-top:28px;
+      border-top:1px solid #e2e8f0;
+      background:#ffffff;
+    }
+
+    .site-footer-inner{
+      padding-top:18px;
+      padding-bottom:18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      flex-wrap:wrap;
+    }
+
+    .footer-muted{
+      color:#64748b;
+      font-size:14px;
+    }
+
+    @media(max-width:1200px){
+      .app{grid-template-columns:1fr}
+      .side{position:relative;min-height:auto}
+    }
+  </style>
+</head>
+<body>
+  <div id="loading" class="loading">Tasarım düzenleyici yükleniyor...</div>
+  <div id="app" class="app" style="display:none">
+    <aside class="side">
+      <div class="side-top">
+        <h1 id="designerTitle">Tasarım Düzenleyici</h1>
+        <p id="designerSub">Sayfa yükleniyor...</p>
+      </div>
+
+      <div id="miniToolbar" class="mini-toolbar"></div>
+      <div id="inspector" class="inspector"></div>
+      <div id="blockList" class="block-list"></div>
+
+      <div class="side-bottom">
+        <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
+        <button id="openLiveBtn" class="btn btn-secondary" type="button">Canlı Sayfayı Aç</button>
+        <button id="backBtn" class="btn btn-danger" type="button">Sayfalara Dön</button>
+      </div>
+    </aside>
+
+    <main class="stage-wrap">
+      <div class="stage-toolbar">
+        <span class="chip" id="pagePathChip">/</span>
+        <span class="chip" id="pageModeChip">blocks</span>
+      </div>
+
+      <div id="pageFrame" class="page-frame"></div>
+    </main>
+  </div>
+
+  <script>
+    const url = new URL(location.href);
+    const pageId = url.searchParams.get("id") || "";
+
+    let pageData = null;
+    let siteSettings = null;
+    let selectedId = null;
+    let expandedIds = new Set();
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function clamp(value, min, max, fallback) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return fallback;
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function normalizeStartSpan(start, span, maxCols) {
+      let safeSpan = clamp(span, 1, maxCols, maxCols);
+      let safeStart = clamp(start, 1, maxCols, 1);
+      if (safeStart + safeSpan - 1 > maxCols) {
+        safeStart = Math.max(1, maxCols - safeSpan + 1);
+      }
+      return { start: safeStart, span: safeSpan };
+    }
+
+    function normalizeLink(value, fallback = "#") {
+      const raw = String(value || "").trim();
+      if (!raw) return fallback;
+      if (raw.startsWith("#")) return raw;
+      if (raw.startsWith("/")) return raw;
+      if (raw.startsWith("./") || raw.startsWith("../")) return raw;
+      if (/^(https?:\/\/|mailto:|tel:)/i.test(raw)) return raw;
+      return fallback;
+    }
+
+    function normalizeImageSrc(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "";
+      if (raw.startsWith("/")) return raw;
+      if (raw.startsWith("./") || raw.startsWith("../")) return raw;
+      if (/^https?:\/\//i.test(raw)) return raw;
+      if (/^data:image\//i.test(raw)) return raw;
+      return "";
+    }
+
+    function normalizeBlock(block = {}, index = 0) {
+      const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, 12);
+      const tablet = normalizeStartSpan(block.colStartTablet, block.colSpanTablet, 12);
+      const mobile = normalizeStartSpan(block.colStartMobile, block.colSpanMobile, 12);
+
+      const normalized = {
+        ...block,
+        order: Number.isFinite(Number(block.order)) ? Number(block.order) : index,
+        visible: block.visible !== false,
+        background: String(block.background || "#ffffff"),
+        color: String(block.color || "#0f172a"),
+        padding: clamp(block.padding, 0, 240, 24),
+        radius: clamp(block.radius, 0, 80, 18),
+        align: ["left", "center", "right"].includes(block.align) ? block.align : "left",
+        maxWidth: clamp(block.maxWidth, 30, 100, 100),
+        cssClass: String(block.cssClass || ""),
+        htmlId: String(block.htmlId || ""),
+        fullWidth: !!block.fullWidth,
+        colStartDesktop: desktop.start,
+        colSpanDesktop: desktop.span,
+        colStartTablet: tablet.start,
+        colSpanTablet: tablet.span,
+        colStartMobile: mobile.start,
+        colSpanMobile: mobile.span,
+        rowSpan: clamp(block.rowSpan, 1, 12, 1),
+        minHeight: clamp(block.minHeight, 0, 2000, 0),
+        contentWidthMode: block.contentWidthMode === "boxed" ? "boxed" : "full",
+        innerMaxWidth: clamp(block.innerMaxWidth, 20, 100, 100)
+      };
+
+      if (normalized.fullWidth) {
+        normalized.colStartDesktop = 1;
+        normalized.colSpanDesktop = 12;
+        normalized.colStartTablet = 1;
+        normalized.colSpanTablet = 12;
+        normalized.colStartMobile = 1;
+        normalized.colSpanMobile = 12;
+      }
+
+      return normalized;
+    }
+
+    function getSelectedIndex() {
+      return (pageData?.blocks || []).findIndex((block) => block.id === selectedId);
+    }
+
+    function setSelected(id) {
+      selectedId = id || null;
+      renderDesigner();
+    }
+
+    function updateSelected(patch = {}) {
+      const index = getSelectedIndex();
+      if (index < 0) return;
+      pageData.blocks[index] = normalizeBlock({ ...pageData.blocks[index], ...patch }, index);
+      renderDesigner();
+    }
+
+    function toggleExpanded(id) {
+      if (expandedIds.has(id)) expandedIds.delete(id);
+      else expandedIds.add(id);
+      renderBlockList();
+    }
+
+    function moveSelected(delta) {
+      const index = getSelectedIndex();
+      if (index < 0) return;
+      const block = pageData.blocks[index];
+      if (block.fullWidth) return;
+      updateSelected({ colStartDesktop: Number(block.colStartDesktop || 1) + delta });
+    }
+
+    function resizeSelected(delta) {
+      const index = getSelectedIndex();
+      if (index < 0) return;
+      const block = pageData.blocks[index];
+      if (block.fullWidth) return;
+      updateSelected({ colSpanDesktop: Number(block.colSpanDesktop || 12) + delta });
+    }
+
+    function changeSelectedRow(delta) {
+      const index = getSelectedIndex();
+      if (index < 0) return;
+      const block = pageData.blocks[index];
+      updateSelected({ rowSpan: Number(block.rowSpan || 1) + delta });
+    }
+
+    function toggleSelectedFullWidth() {
+      const index = getSelectedIndex();
+      if (index < 0) return;
+      const block = pageData.blocks[index];
+      updateSelected({ fullWidth: !block.fullWidth });
+    }
+
+    function renderToolbar() {
+      miniToolbar.innerHTML = `
+        <button class="tiny-btn" data-action="left" type="button">←</button>
+        <button class="tiny-btn" data-action="right" type="button">→</button>
+        <button class="tiny-btn" data-action="shrink" type="button">－</button>
+        <button class="tiny-btn" data-action="grow" type="button">＋</button>
+        <button class="tiny-btn" data-action="rowless" type="button">▭－</button>
+        <button class="tiny-btn" data-action="rowmore" type="button">▭＋</button>
+        <button class="tiny-btn" data-action="full" type="button">□</button>
+      `;
+
+      miniToolbar.querySelectorAll("[data-action]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const action = btn.getAttribute("data-action");
+          if (action === "left") moveSelected(-1);
+          if (action === "right") moveSelected(1);
+          if (action === "shrink") resizeSelected(-1);
+          if (action === "grow") resizeSelected(1);
+          if (action === "rowless") changeSelectedRow(-1);
+          if (action === "rowmore") changeSelectedRow(1);
+          if (action === "full") toggleSelectedFullWidth();
+        });
+      });
+    }
+
+    function renderInspector() {
+      const index = getSelectedIndex();
+      if (index < 0) {
+        inspector.innerHTML = `<div class="mini-card"><div class="mini-card-title">Blok seç</div></div>`;
+        return;
+      }
+
+      const block = pageData.blocks[index];
+
+      inspector.innerHTML = `
+        <div class="mini-card">
+          <div class="mini-card-title">${escapeHtml(block.type.toUpperCase())}</div>
+          <div class="mini-grid">
+            <div>
+              <label>D Baş.</label>
+              <input id="iColStart" type="number" min="1" max="12" value="${Number(block.colStartDesktop || 1)}" ${block.fullWidth ? "disabled" : ""}>
+            </div>
+            <div>
+              <label>D Kol.</label>
+              <input id="iColSpan" type="number" min="1" max="12" value="${Number(block.colSpanDesktop || 12)}" ${block.fullWidth ? "disabled" : ""}>
+            </div>
+            <div>
+              <label>Satır</label>
+              <input id="iRowSpan" type="number" min="1" max="12" value="${Number(block.rowSpan || 1)}">
+            </div>
+            <div>
+              <label>Min Y.</label>
+              <input id="iMinHeight" type="number" min="0" max="2000" value="${Number(block.minHeight || 0)}">
+            </div>
+          </div>
+        </div>
+      `;
+
+      const bind = (id, key) => {
+        const input = document.getElementById(id);
+        if (!input) return;
+        const apply = () => updateSelected({ [key]: Number(input.value || 0) });
+        input.addEventListener("input", apply);
+        input.addEventListener("change", apply);
+      };
+
+      bind("iColStart", "colStartDesktop");
+      bind("iColSpan", "colSpanDesktop");
+      bind("iRowSpan", "rowSpan");
+      bind("iMinHeight", "minHeight");
+    }
+
+    function renderBlockFields(block, index) {
+      if (block.type === "hero") {
+        return `
+          <label>Başlık</label>
+          <input data-index="${index}" data-key="title" value="${escapeHtml(block.title)}">
+          <label>Açıklama</label>
+          <textarea data-index="${index}" data-key="text">${escapeHtml(block.text)}</textarea>
+        `;
+      }
+
+      if (block.type === "text") {
+        return `
+          <label>Başlık</label>
+          <input data-index="${index}" data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Metin</label>
+          <textarea data-index="${index}" data-key="text">${escapeHtml(block.text || "")}</textarea>
+        `;
+      }
+
+      if (block.type === "button") {
+        return `
+          <label>Buton</label>
+          <input data-index="${index}" data-key="text" value="${escapeHtml(block.text || "")}">
+          <label>Link</label>
+          <input data-index="${index}" data-key="link" value="${escapeHtml(block.link || "")}">
+        `;
+      }
+
+      if (block.type === "image") {
+        return `
+          <label>Görsel URL</label>
+          <input data-index="${index}" data-key="src" value="${escapeHtml(block.src || "")}">
+          <label>Alt</label>
+          <input data-index="${index}" data-key="alt" value="${escapeHtml(block.alt || "")}">
+        `;
+      }
+
+      if (block.type === "html") {
+        return `
+          <label>HTML</label>
+          <textarea data-index="${index}" data-key="html">${escapeHtml(block.html || "")}</textarea>
+        `;
+      }
+
+      if (block.type === "spacer") {
+        return `
+          <label>Yükseklik</label>
+          <input data-index="${index}" data-key="height" type="number" value="${Number(block.height || 32)}">
+        `;
+      }
+
+      return "";
+    }
+
+    function renderBlockList() {
+      if (!pageData?.blocks?.length) {
+        blockList.innerHTML = `<p style="color:#64748b;margin:0">Henüz blok yok.</p>`;
+        return;
+      }
+
+      blockList.innerHTML = pageData.blocks.map((block, index) => {
+        const selected = block.id === selectedId ? " selected" : "";
+        const expanded = expandedIds.has(block.id);
+
+        return `
+          <div class="block-item${selected}">
+            <div class="block-head">
+              <button class="block-arrow" type="button" data-expand="${escapeHtml(block.id)}">${expanded ? "▾" : "▸"}</button>
+              <button class="block-name" type="button" data-select="${escapeHtml(block.id)}">${escapeHtml(block.type.toUpperCase())}</button>
+              <div class="block-actions">
+                <button class="block-mini" type="button" data-up="${index}">↑</button>
+                <button class="block-mini" type="button" data-down="${index}">↓</button>
+              </div>
+            </div>
+            ${expanded ? `<div class="block-body">${renderBlockFields(block, index)}</div>` : ""}
+          </div>
+        `;
+      }).join("");
+
+      blockList.querySelectorAll("[data-select]").forEach((btn) => {
+        btn.addEventListener("click", () => setSelected(btn.getAttribute("data-select")));
+      });
+
+      blockList.querySelectorAll("[data-expand]").forEach((btn) => {
+        btn.addEventListener("click", () => toggleExpanded(btn.getAttribute("data-expand")));
+      });
+
+      blockList.querySelectorAll("[data-up]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const index = Number(btn.getAttribute("data-up"));
+          const target = index - 1;
+          if (target < 0) return;
+          const tmp = pageData.blocks[index];
+          pageData.blocks[index] = pageData.blocks[target];
+          pageData.blocks[target] = tmp;
+          renderDesigner();
+        });
+      });
+
+      blockList.querySelectorAll("[data-down]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const index = Number(btn.getAttribute("data-down"));
+          const target = index + 1;
+          if (target >= pageData.blocks.length) return;
+          const tmp = pageData.blocks[index];
+          pageData.blocks[index] = pageData.blocks[target];
+          pageData.blocks[target] = tmp;
+          renderDesigner();
+        });
+      });
+
+      blockList.querySelectorAll("[data-index][data-key]").forEach((field) => {
+        const apply = () => {
+          const index = Number(field.getAttribute("data-index"));
+          const key = field.getAttribute("data-key");
+          let value = field.value;
+          if (["height"].includes(key)) value = Number(value || 0);
+          pageData.blocks[index] = normalizeBlock({ ...pageData.blocks[index], [key]: value }, index);
+          renderDesigner();
+        };
+        field.addEventListener("input", apply);
+        field.addEventListener("change", apply);
+      });
+    }
+
+    function renderHeader() {
+      const settings = siteSettings || {};
+      const pageOptions = pageData.pageOptions || {};
+      if (settings.showHeader === false || pageOptions.showHeader === false) return "";
+
+      const navHtml = Array.isArray(settings.menuItems)
+        ? settings.menuItems.map((item) => {
+            const href = normalizeLink(item.link, "#");
+            return `<a href="${escapeHtml(href)}">${escapeHtml(item.text || "")}</a>`;
+          }).join("")
+        : "";
+
+      const ctaHtml = settings.showTopCta && settings.topCtaText
+        ? `<a class="top-cta" href="${escapeHtml(normalizeLink(settings.topCtaLink, "#"))}">${escapeHtml(settings.topCtaText)}</a>`
+        : "";
+
+      return `
+        <header class="site-header">
+          <div class="site-header-inner">
+            <a class="site-brand" href="${escapeHtml(normalizeLink(settings.logoLink || "/", "/"))}">${escapeHtml(settings.logoText || settings.siteName || "Vera")}</a>
+            <nav class="site-nav">${navHtml}</nav>
+            ${ctaHtml}
+          </div>
+        </header>
+      `;
+    }
+
+    function renderFooter() {
+      const settings = siteSettings || {};
+      const pageOptions = pageData.pageOptions || {};
+      if (settings.showFooter === false || pageOptions.showFooter === false) return "";
+
+      return `
+        <footer class="site-footer">
+          <div class="site-footer-inner">
+            <div class="footer-muted">${escapeHtml(settings.footerText || "")}</div>
+            <div class="footer-muted">${escapeHtml([settings.contactEmail, settings.contactPhone].filter(Boolean).join(" • "))}</div>
+          </div>
+        </footer>
+      `;
+    }
+
+    function renderBlock(block) {
+      if (!block || block.visible === false) return "";
+
+      const align = ["left", "center", "right"].includes(block.align) ? block.align : "left";
+      const start = block.fullWidth ? 1 : Number(block.colStartDesktop || 1);
+      const span = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
+
+      let inner = "";
+
+      if (block.type === "hero") {
+        inner = `
+          <h2>${escapeHtml(block.title || "")}</h2>
+          <p>${escapeHtml(block.text || "")}</p>
+          <div class="actions">
+            ${block.primaryText ? `<span style="background:var(--primary-color);border-color:var(--primary-color);color:#fff">${escapeHtml(block.primaryText)}</span>` : ""}
+            ${block.secondaryText ? `<span>${escapeHtml(block.secondaryText)}</span>` : ""}
+          </div>
+        `;
+      } else if (block.type === "text") {
+        inner = `
+          ${block.title ? `<h4>${escapeHtml(block.title)}</h4>` : ""}
+          <p>${escapeHtml(block.text || "")}</p>
+        `;
+      } else if (block.type === "button") {
+        inner = `
+          <div class="actions" style="justify-content:${align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start"}">
+            <span style="${block.style === "primary" ? "background:var(--primary-color);border-color:var(--primary-color);color:#fff" : ""}">${escapeHtml(block.text || "")}</span>
+          </div>
+        `;
+      } else if (block.type === "image") {
+        const src = normalizeImageSrc(block.src);
+        inner = src
+          ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(block.alt || "")}" style="max-width:${escapeHtml(block.width || "100%")};width:100%;height:auto;border-radius:10px;">`
+          : `<p>Görsel URL girilmedi.</p>`;
+      } else if (block.type === "html") {
+        inner = block.html || "";
+      } else if (block.type === "spacer") {
+        inner = `<div style="height:${Number(block.height || 32)}px"></div>`;
+      }
+
+      const selectedClass = block.id === selectedId ? " selected" : "";
+      const innerBoxStyle = block.contentWidthMode === "boxed"
+        ? `max-width:${Number(block.innerMaxWidth || 100)}%;margin:${align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0"};`
+        : "";
+
+      return `
+        <div class="design-item${selectedClass}" data-id="${escapeHtml(block.id)}" style="grid-column:${start} / span ${span};grid-row:span ${Number(block.rowSpan || 1)};">
+          <div
+            class="design-card"
+            style="
+              background:${block.background || "#ffffff"};
+              color:${block.color || "#0f172a"};
+              padding:${Number(block.padding || 24)}px;
+              border-radius:${Number(block.radius || 18)}px;
+              min-height:${Number(block.minHeight || 0)}px;
+              max-width:${Number(block.maxWidth || 100)}%;
+              margin:${align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0"};
+              text-align:${align};
+            "
+          >
+            <div style="${innerBoxStyle}">
+              ${inner}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPageFrame() {
+      const pageOptions = pageData.pageOptions || {};
+      const path = pageData.isHome ? "/" : "/" + (pageData.slug || "");
+      pagePathChip.textContent = path || "/";
+      pageModeChip.textContent = pageData.editorMode || "blocks";
+
+      const styleVars = `
+        --container-width:${Number(siteSettings?.containerWidth || 1200)}px;
+        --page-content-width:${Number(pageOptions.contentWidth || 1200)}px;
+        --page-padding-x:${Number(pageOptions.pagePaddingX || 24)}px;
+        --section-gap:${Number(pageOptions.sectionGap || 18)}px;
+        --grid-columns:${Number(pageOptions.gridColumns || 12)};
+        --body-bg:${escapeHtml(siteSettings?.theme?.bodyBg || "#f8fafc")};
+        --border-color:${escapeHtml(siteSettings?.theme?.borderColor || "#e2e8f0")};
+        --primary-color:${escapeHtml(siteSettings?.theme?.primaryColor || "#2563eb")};
+      `;
+
+      if (pageData.editorMode === "code") {
+        pageFrame.innerHTML = `
+          <div style="${styleVars}">
+            ${renderHeader()}
+            <main class="page-content">
+              <div style="border:1px dashed #cbd5e1;border-radius:12px;padding:16px;background:#fff">
+                ${pageData.code?.html || "<p>Kod görünümü aktif.</p>"}
+              </div>
+            </main>
+            ${renderFooter()}
+          </div>
+        `;
+        return;
+      }
+
+      pageFrame.innerHTML = `
+        <div style="${styleVars}">
+          ${renderHeader()}
+          <main class="page-content">
+            <div class="grid-canvas">
+              ${(pageData.blocks || []).map(renderBlock).join("")}
+            </div>
+          </main>
+          ${renderFooter()}
+        </div>
+      `;
+
+      pageFrame.querySelectorAll(".design-item").forEach((node) => {
+        node.addEventListener("click", () => {
+          setSelected(node.getAttribute("data-id"));
+        });
+      });
+    }
+
+    function renderDesigner() {
+      if (!pageData) return;
+      renderToolbar();
+      renderInspector();
+      renderBlockList();
+      renderPageFrame();
+      designerTitle.textContent = pageData.title || "Tasarım Düzenleyici";
+      designerSub.textContent = (pageData.isHome ? "/" : "/" + (pageData.slug || "")) || "/";
+    }
+
+    async function loadAll() {
+      if (!pageId) {
+        loading.textContent = "Sayfa id bulunamadı.";
+        return;
+      }
+
+      try {
+        const [pageRes, settingsRes, contentRes] = await Promise.all([
+          fetch(`/api/pages?id=${encodeURIComponent(pageId)}`, { headers: { Accept: "application/json" } }),
+          fetch(`/api/site-settings`, { headers: { Accept: "application/json" } }),
+          fetch(`/api/site-content`, { headers: { Accept: "application/json" } })
+        ]);
+
+        const pageJson = await pageRes.json();
+        const settingsJson = await settingsRes.json();
+        const contentJson = await contentRes.json();
+
+        if (!pageJson.ok || !pageJson.page) {
+          loading.textContent = "Sayfa bulunamadı.";
+          return;
+        }
+
+        pageData = {
+          ...pageJson.page,
+          blocks: Array.isArray(pageJson.page.blocks) ? pageJson.page.blocks.map((block, index) => normalizeBlock(block, index)) : []
+        };
+
+        siteSettings = settingsJson.settings || {};
+        siteSettings.theme = contentJson.content?.theme || {};
+
+        selectedId = pageData.blocks?.[0]?.id || null;
+        if (selectedId) expandedIds.add(selectedId);
+
+        loading.style.display = "none";
+        app.style.display = "grid";
+        renderDesigner();
+      } catch {
+        loading.textContent = "Tasarım düzenleyici yüklenemedi.";
+      }
+    }
+
+    async function saveDesigner() {
+      try {
+        const res = await fetch("/api/pages", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ action: "save", page: pageData })
+        });
+
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || "Kaydetme başarısız.");
+          return;
+        }
+
+        if (data.page) {
+          pageData = {
+            ...data.page,
+            blocks: Array.isArray(data.page.blocks) ? data.page.blocks.map((block, index) => normalizeBlock(block, index)) : []
+          };
+        }
+
+        renderDesigner();
+        alert("Kaydedildi.");
+      } catch {
+        alert("İstek sırasında hata oluştu.");
+      }
+    }
+
+    saveBtn.addEventListener("click", saveDesigner);
+
+    openLiveBtn.addEventListener("click", () => {
+      if (!pageData) return;
+      const path = pageData.isHome ? "/" : "/" + (pageData.slug || "");
+      window.open(path || "/", "_blank");
+    });
+
+    backBtn.addEventListener("click", () => {
+      location.href = "/admin/pages.html";
+    });
+
+    loadAll();
+  </script>
+</body>
+</html>
