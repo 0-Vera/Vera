@@ -381,9 +381,20 @@
       <button id="closeDesignOverlayBtn" class="btn btn-danger" type="button">Kapat</button>
     </div>
     <div class="design-overlay-body">
-      <div id="designStage" class="design-stage">
-        <div id="designOverlayPreview"></div>
-      </div>
+<div id="designStage" class="design-stage">
+  <div class="design-sidebar-panel">
+    <div class="design-sidebar-inner">
+      <div class="design-section-title">Bloklar</div>
+      <div id="designBlocksMirror"></div>
+    </div>
+  </div>
+
+  <div class="design-main-panel">
+    <div class="design-main-inner">
+      <div id="designOverlayPreview"></div>
+    </div>
+  </div>
+</div>
     </div>
   </div>
 </div>
@@ -402,6 +413,7 @@
 const builder = VeraPageBuilder.createBuilder({
   blocksWrap: document.getElementById("builderBlocksWrap"),
   previewWrap: document.getElementById("designOverlayPreview"),
+  mirrorBlocksWrap: document.getElementById("designBlocksMirror"),
   theme: currentTheme,
   pageLayout: {
     contentWidth: 1200,
