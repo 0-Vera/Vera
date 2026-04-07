@@ -48,6 +48,16 @@ function slugify(value, fallback = "sayfa") {
   return normalized || fallback;
 }
 
+function normalizeLink(value, fallback = "#") {
+  const raw = String(value || "").trim();
+  if (!raw) return fallback;
+  if (raw.startsWith("#")) return raw;
+  if (raw.startsWith("/")) return raw;
+  if (raw.startsWith("./") || raw.startsWith("../")) return raw;
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(raw)) return raw;
+  return fallback;
+}
+
 function defaultSettings() {
   return {
     siteName: "Vera",
@@ -138,7 +148,7 @@ function normalizeMenuItems(items, pages = []) {
         text,
         targetType: "link",
         pageId: "",
-        link: normalizeText(item?.link, "#")
+        link: normalizeLink(item?.link, "#")
       };
     })
     .filter(Boolean);
@@ -152,7 +162,7 @@ function normalizePayload(body = {}, pages = []) {
   return {
     siteName: normalizeText(body.siteName, base.siteName),
     logoText: normalizeText(body.logoText, base.logoText),
-    logoLink: normalizeText(body.logoLink, base.logoLink),
+    logoLink: normalizeLink(body.logoLink, base.logoLink),
     contactEmail: normalizeText(body.contactEmail),
     contactPhone: normalizeText(body.contactPhone),
     footerText: normalizeText(body.footerText, base.footerText),
@@ -160,7 +170,7 @@ function normalizePayload(body = {}, pages = []) {
     showFooter: normalizeBool(body.showFooter, base.showFooter),
     showTopCta: normalizeBool(body.showTopCta, base.showTopCta),
     topCtaText: normalizeText(body.topCtaText, base.topCtaText),
-    topCtaLink: normalizeText(body.topCtaLink, base.topCtaLink),
+    topCtaLink: normalizeLink(body.topCtaLink, base.topCtaLink),
     menuItems: normalizeMenuItems(body.menuItems, pages)
   };
 }
