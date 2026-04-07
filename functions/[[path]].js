@@ -84,7 +84,15 @@ function blockWrapper(block, innerHtml, pageOptions = {}) {
   const className = ["block-inner", block.cssClass || ""].filter(Boolean).join(" ");
   const htmlId = block.htmlId ? `id="${escapeHtml(block.htmlId)}"` : "";
 
-  const colSpanDesktop = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
+  const desktopStart = block.fullWidth ? 1 : Number(block.colStartDesktop || 1);
+  const desktopSpan = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
+
+  const tabletStart = block.fullWidth ? 1 : Number(block.colStartTablet || 1);
+  const tabletSpan = block.fullWidth ? 12 : Number(block.colSpanTablet || 12);
+
+  const mobileStart = block.fullWidth ? 1 : Number(block.colStartMobile || 1);
+  const mobileSpan = block.fullWidth ? 12 : Number(block.colSpanMobile || 12);
+
   const rowSpan = Number(block.rowSpan || 1);
   const minHeight = Number(block.minHeight || 0);
   const innerMaxWidth = Number(block.innerMaxWidth || 100);
@@ -98,8 +106,15 @@ function blockWrapper(block, innerHtml, pageOptions = {}) {
     <section
       class="block-shell"
       style="
-        grid-column: span ${colSpanDesktop};
-        grid-row: span ${rowSpan};
+        --col-start-desktop:${desktopStart};
+        --col-span-desktop:${desktopSpan};
+        --col-start-tablet:${tabletStart};
+        --col-span-tablet:${tabletSpan};
+        --col-start-mobile:${mobileStart};
+        --col-span-mobile:${mobileSpan};
+        --row-span:${rowSpan};
+        grid-column: var(--col-start-desktop) / span var(--col-span-desktop);
+        grid-row: span var(--row-span);
         justify-content:${justify};
       "
     >
@@ -178,7 +193,7 @@ function renderBlock(block, pageOptions = {}) {
 
   if (block.type === "spacer") {
     return `
-      <div style="grid-column:span 12;height:${Number(block.height || 32)}px"></div>
+      <div style="grid-column:1 / span 12;height:${Number(block.height || 32)}px"></div>
     `;
   }
 
@@ -339,15 +354,24 @@ function renderPage({ siteSettings, page, currentPath }) {
     .site-footer{margin-top:28px;border-top:1px solid var(--border-color);background:#ffffff}
     .site-footer-inner{padding-top:18px;padding-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
     .footer-muted{color:#64748b;font-size:14px}
+
     @media(max-width:1024px){
-      .stack{grid-template-columns:repeat(12,minmax(0,1fr))}
-      .block-shell{grid-column:span 12 !important}
+      .block-shell{
+        grid-column: var(--col-start-tablet) / span var(--col-span-tablet) !important;
+      }
     }
+
     @media(max-width:640px){
-      .stack{grid-template-columns:repeat(12,minmax(0,1fr))}
-      .block-shell{grid-column:span 12 !important}
+      .block-shell{
+        grid-column: var(--col-start-mobile) / span var(--col-span-mobile) !important;
+      }
     }
-    @media(max-width:900px){.site-header-inner,.site-footer-inner{flex-direction:column;align-items:flex-start}.hero h1{font-size:30px}}
+
+    @media(max-width:900px){
+      .site-header-inner,.site-footer-inner{flex-direction:column;align-items:flex-start}
+      .hero h1{font-size:30px}
+    }
+
     ${overrides.css || ""}
     ${isCodeMode ? code.css || "" : ""}
   </style>
