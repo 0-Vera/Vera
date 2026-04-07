@@ -28,9 +28,9 @@
     <aside class="sidebar">
       <div class="brand"><h1>Vera Admin</h1><p>Sayfa yönetimi</p></div>
       <div class="nav-title">Editör</div>
-<a class="nav-link" href="/admin/index.html">Dashboard</a>
-<a class="nav-link" href="/admin/pages.html">Sayfalar</a>
-<a class="nav-link" href="/admin/settings.html">Site Ayarları</a>
+      <a class="nav-link" href="/admin/index.html">Dashboard</a>
+      <a class="nav-link active" href="/admin/pages.html">Sayfalar</a>
+      <a class="nav-link" href="/admin/settings.html">Site Ayarları</a>
       <div class="nav-title">Oturum</div>
       <button id="logoutBtnSide" class="nav-btn" type="button">Çıkış Yap</button>
     </aside>
@@ -51,10 +51,12 @@
           </div>
           <div id="pageList" class="page-list" style="margin-top:16px"></div>
         </div>
+
         <div class="card">
           <h3>Sayfa Düzenle</h3>
           <label for="pageTitle">Başlık</label>
           <input id="pageTitle" type="text">
+
           <label for="pageSlug">Slug</label>
           <input id="pageSlug" type="text" placeholder="ornek-sayfa">
 
@@ -83,30 +85,32 @@
 
           <label for="metaTitle">Meta Title</label>
           <input id="metaTitle" type="text">
+
           <label for="metaDescription">Meta Description</label>
           <textarea id="metaDescription"></textarea>
-          <label for="customBodyClass">Body Class</label>
-          <h3 style="font-size:18px;margin-top:10px">Yerleşim</h3>
 
-<div class="toggle-grid">
-  <div>
-    <label for="contentWidth">İçerik Genişliği (px)</label>
-    <input id="contentWidth" type="number" min="480" max="2400">
-  </div>
-  <div>
-    <label for="pagePaddingX">Yatay Boşluk (px)</label>
-    <input id="pagePaddingX" type="number" min="0" max="120">
-  </div>
-  <div>
-    <label for="sectionGap">Blok Aralığı (px)</label>
-    <input id="sectionGap" type="number" min="0" max="120">
-  </div>
-  <div>
-    <label for="gridColumns">Grid Kolon</label>
-    <input id="gridColumns" type="number" min="1" max="12">
-  </div>
-</div>
+          <label for="customBodyClass">Body Class</label>
           <input id="customBodyClass" type="text">
+
+          <h3 style="font-size:18px;margin-top:10px">Yerleşim</h3>
+          <div class="toggle-grid">
+            <div>
+              <label for="contentWidth">İçerik Genişliği (px)</label>
+              <input id="contentWidth" type="number" min="480" max="2400">
+            </div>
+            <div>
+              <label for="pagePaddingX">Yatay Boşluk (px)</label>
+              <input id="pagePaddingX" type="number" min="0" max="120">
+            </div>
+            <div>
+              <label for="sectionGap">Blok Aralığı (px)</label>
+              <input id="sectionGap" type="number" min="0" max="120">
+            </div>
+            <div>
+              <label for="gridColumns">Grid Kolon</label>
+              <input id="gridColumns" type="number" min="1" max="12">
+            </div>
+          </div>
 
           <div id="blocksModeWrap" class="mode-wrap">
             <div class="toolbar" style="margin-bottom:14px;">
@@ -161,18 +165,18 @@
       containerWidth: 1200
     };
 
-const builder = VeraPageBuilder.createBuilder({
-  blocksWrap: document.getElementById("builderBlocksWrap"),
-  previewWrap: document.getElementById("builderPreviewWrap"),
-  theme: currentTheme,
-  pageLayout: {
-    contentWidth: 1200,
-    pagePaddingX: 24,
-    sectionGap: 18,
-    gridColumns: 12
-  },
-  onChange: () => {}
-});
+    const builder = VeraPageBuilder.createBuilder({
+      blocksWrap: document.getElementById("builderBlocksWrap"),
+      previewWrap: document.getElementById("builderPreviewWrap"),
+      theme: currentTheme,
+      pageLayout: {
+        contentWidth: 1200,
+        pagePaddingX: 24,
+        sectionGap: 18,
+        gridColumns: 12
+      },
+      onChange: () => {}
+    });
 
     function uid() {
       return "p-" + Math.random().toString(36).slice(2) + Date.now();
@@ -188,99 +192,71 @@ const builder = VeraPageBuilder.createBuilder({
         .replace(/^-+|-+$/g, "");
     }
 
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
     function showStatus(message, type) {
       statusBox.className = "status show " + type;
       statusBox.textContent = message;
     }
 
-function emptyPage() {
-  return {
-    id: uid(),
-    title: "Yeni Sayfa",
-    slug: "yeni-sayfa",
-    status: "draft",
-    isHome: false,
-    metaTitle: "Yeni Sayfa",
-    metaDescription: "",
-    editorMode: "blocks",
-    pageOptions: {
-      showHeader: true,
-      showFooter: true,
-      customBodyClass: "",
-      contentWidth: 1200,
-      pagePaddingX: 24,
-      sectionGap: 18,
-      gridColumns: 12
-    },
-    blocks: [],
-    overrides: { html: "", css: "", js: "" },
-    code: { html: "", css: "", js: "" }
-  };
-}
+    function emptyPage() {
+      return {
+        id: uid(),
+        title: "Yeni Sayfa",
+        slug: "yeni-sayfa",
+        status: "draft",
+        isHome: false,
+        metaTitle: "Yeni Sayfa",
+        metaDescription: "",
+        editorMode: "blocks",
+        pageOptions: {
+          showHeader: true,
+          showFooter: true,
+          customBodyClass: "",
+          contentWidth: 1200,
+          pagePaddingX: 24,
+          sectionGap: 18,
+          gridColumns: 12
+        },
+        blocks: [],
+        overrides: { html: "", css: "", js: "" },
+        code: { html: "", css: "", js: "" }
+      };
+    }
 
     function toggleMode() {
       const isBlocks = editorMode.value === "blocks";
       blocksModeWrap.classList.toggle("show", isBlocks);
       codeModeWrap.classList.toggle("show", !isBlocks);
-      builder.render();
-    }
-
-    function fillForm(page) {
-      currentId = page.id;
-      pageTitle.value = page.title || "";
-      pageSlug.value = page.slug || "";
-      pageStatus.value = page.status || "draft";
-      pageIsHome.value = String(!!page.isHome);
-      editorMode.value = page.editorMode || "blocks";
-      showHeader.value = String(page.pageOptions?.showHeader !== false);
-      showFooter.value = String(page.pageOptions?.showFooter !== false);
-      metaTitle.value = page.metaTitle || "";
-      metaDescription.value = page.metaDescription || "";
-      customBodyClass.value = page.pageOptions?.customBodyClass || "";
-      contentWidth.value = page.pageOptions?.contentWidth ?? 1200;
-pagePaddingX.value = page.pageOptions?.pagePaddingX ?? 24;
-sectionGap.value = page.pageOptions?.sectionGap ?? 18;
-gridColumns.value = page.pageOptions?.gridColumns ?? 12;
-
-builder.setPageLayout({
-  contentWidth: page.pageOptions?.contentWidth ?? 1200,
-  pagePaddingX: page.pageOptions?.pagePaddingX ?? 24,
-  sectionGap: page.pageOptions?.sectionGap ?? 18,
-  gridColumns: page.pageOptions?.gridColumns ?? 12
-});
-      codeHtml.value = page.code?.html || "";
-      codeCss.value = page.code?.css || "";
-      codeJs.value = page.code?.js || "";
-      builder.setBlocks(Array.isArray(page.blocks) ? page.blocks : []);
-      toggleMode();
-      renderList();
     }
 
     function collectForm() {
       return {
         id: currentId || uid(),
         title: pageTitle.value.trim() || "Yeni Sayfa",
-        slug: slugify(pageSlug.value || pageTitle.value),
-        status: pageStatus.value,
+        slug: slugify(pageSlug.value || pageTitle.value) || "",
+        status: pageStatus.value === "published" ? "published" : "draft",
         isHome: pageIsHome.value === "true",
         metaTitle: metaTitle.value.trim() || pageTitle.value.trim() || "Yeni Sayfa",
         metaDescription: metaDescription.value.trim(),
-        editorMode: editorMode.value,
-pageOptions: {
-  showHeader: showHeader.value === "true",
-  showFooter: showFooter.value === "true",
-  customBodyClass: customBodyClass.value.trim(),
-  contentWidth: Number(contentWidth.value || 1200),
-  pagePaddingX: Number(pagePaddingX.value || 24),
-  sectionGap: Number(sectionGap.value || 18),
-  gridColumns: Number(gridColumns.value || 12)
-},
-        blocks: builder.getBlocks(),
-        overrides: {
-          html: "",
-          css: "",
-          js: ""
+        editorMode: editorMode.value === "code" ? "code" : "blocks",
+        pageOptions: {
+          showHeader: showHeader.value === "true",
+          showFooter: showFooter.value === "true",
+          customBodyClass: customBodyClass.value.trim(),
+          contentWidth: Number(contentWidth.value || 1200),
+          pagePaddingX: Number(pagePaddingX.value || 24),
+          sectionGap: Number(sectionGap.value || 18),
+          gridColumns: Number(gridColumns.value || 12)
         },
+        blocks: builder.getBlocks(),
+        overrides: { html: "", css: "", js: "" },
         code: {
           html: codeHtml.value,
           css: codeCss.value,
@@ -289,20 +265,60 @@ pageOptions: {
       };
     }
 
+    function fillForm(page) {
+      const safe = page || emptyPage();
+      currentId = safe.id || "";
+      pageTitle.value = safe.title || "";
+      pageSlug.value = safe.slug || "";
+      pageSlug.dataset.touched = safe.slug ? "1" : "";
+      pageStatus.value = safe.status === "published" ? "published" : "draft";
+      pageIsHome.value = String(safe.isHome === true);
+      metaTitle.value = safe.metaTitle || "";
+      metaDescription.value = safe.metaDescription || "";
+      editorMode.value = safe.editorMode === "code" ? "code" : "blocks";
+      showHeader.value = String(safe.pageOptions?.showHeader !== false);
+      showFooter.value = String(safe.pageOptions?.showFooter !== false);
+      customBodyClass.value = safe.pageOptions?.customBodyClass || "";
+
+      contentWidth.value = safe.pageOptions?.contentWidth ?? 1200;
+      pagePaddingX.value = safe.pageOptions?.pagePaddingX ?? 24;
+      sectionGap.value = safe.pageOptions?.sectionGap ?? 18;
+      gridColumns.value = safe.pageOptions?.gridColumns ?? 12;
+
+      builder.setBlocks(Array.isArray(safe.blocks) ? safe.blocks : []);
+      builder.setTheme(currentTheme);
+      builder.setPageLayout({
+        contentWidth: safe.pageOptions?.contentWidth ?? 1200,
+        pagePaddingX: safe.pageOptions?.pagePaddingX ?? 24,
+        sectionGap: safe.pageOptions?.sectionGap ?? 18,
+        gridColumns: safe.pageOptions?.gridColumns ?? 12
+      });
+
+      codeHtml.value = safe.code?.html || "";
+      codeCss.value = safe.code?.css || "";
+      codeJs.value = safe.code?.js || "";
+
+      toggleMode();
+      renderList();
+    }
+
     function renderList() {
       pageList.innerHTML = "";
+
       if (!pages.length) {
         pageList.innerHTML = "<p style='color:#64748b'>Henüz sayfa yok.</p>";
         return;
       }
+
       pages.forEach((page) => {
         const el = document.createElement("div");
         el.className = "page-item" + (page.id === currentId ? " active" : "");
+        const path = page.isHome ? "/" : "/" + (page.slug || "");
         el.innerHTML = `
-          <strong>${page.title || "-"}</strong>
-          <div style="margin-top:6px;color:#64748b">${page.slug ? "/" + page.slug : "/"}</div>
+          <strong>${escapeHtml(page.title || "İsimsiz Sayfa")}</strong>
+          <div style="margin-top:8px;color:#64748b;font-size:13px">${escapeHtml(path)}</div>
           <div class="meta-row">
-            <span class="chip">${page.status || "draft"}</span>
+            <span class="chip">${page.status === "published" ? "published" : "draft"}</span>
             ${page.isHome ? `<span class="chip">home</span>` : ""}
             <span class="chip">${page.editorMode || "blocks"}</span>
           </div>
@@ -330,7 +346,9 @@ pageOptions: {
 
     async function loadThemeFromSiteContent() {
       try {
-        const res = await fetch("/api/site-content", { headers: { "Accept": "application/json" } });
+        const res = await fetch("/api/site-content", {
+          headers: { "Accept": "application/json" }
+        });
         const data = await res.json();
         currentTheme = data.content?.theme || currentTheme;
         builder.setTheme(currentTheme);
@@ -339,10 +357,13 @@ pageOptions: {
 
     async function loadPages() {
       try {
-        const res = await fetch("/api/pages", { headers: { "Accept": "application/json" } });
+        const res = await fetch("/api/pages", {
+          headers: { "Accept": "application/json" }
+        });
         const data = await res.json();
         pages = Array.isArray(data.pages) ? data.pages : [];
         renderList();
+
         if (pages.length) {
           const page = pages.find((item) => item.id === currentId) || pages[0];
           fillForm(page);
@@ -356,6 +377,7 @@ pageOptions: {
 
     async function savePage() {
       const payload = { action: "save", page: collectForm() };
+
       try {
         const res = await fetch("/api/pages", {
           method: "POST",
@@ -366,8 +388,10 @@ pageOptions: {
           },
           body: JSON.stringify(payload)
         });
+
         const data = await res.json();
         if (!data.ok) return showStatus(data.error || "Kayıt başarısız.", "error");
+
         pages = Array.isArray(data.pages) ? data.pages : [];
         const current = pages.find((item) => item.id === payload.page.id) || pages[0];
         if (current) fillForm(current);
@@ -380,6 +404,7 @@ pageOptions: {
 
     async function deletePage() {
       if (!currentId) return;
+
       try {
         const res = await fetch("/api/pages", {
           method: "POST",
@@ -390,8 +415,10 @@ pageOptions: {
           },
           body: JSON.stringify({ action: "delete", id: currentId })
         });
+
         const data = await res.json();
         if (!data.ok) return showStatus(data.error || "Silme başarısız.", "error");
+
         pages = Array.isArray(data.pages) ? data.pages : [];
         renderList();
         if (pages.length) fillForm(pages[0]);
@@ -430,25 +457,27 @@ pageOptions: {
     });
 
     editorMode.addEventListener("change", toggleMode);
-[contentWidth, pagePaddingX, sectionGap, gridColumns].forEach((field) => {
-  field.addEventListener("input", () => {
-    builder.setPageLayout({
-      contentWidth: Number(contentWidth.value || 1200),
-      pagePaddingX: Number(pagePaddingX.value || 24),
-      sectionGap: Number(sectionGap.value || 18),
-      gridColumns: Number(gridColumns.value || 12)
-    });
-  });
 
-  field.addEventListener("change", () => {
-    builder.setPageLayout({
-      contentWidth: Number(contentWidth.value || 1200),
-      pagePaddingX: Number(pagePaddingX.value || 24),
-      sectionGap: Number(sectionGap.value || 18),
-      gridColumns: Number(gridColumns.value || 12)
+    [contentWidth, pagePaddingX, sectionGap, gridColumns].forEach((field) => {
+      field.addEventListener("input", () => {
+        builder.setPageLayout({
+          contentWidth: Number(contentWidth.value || 1200),
+          pagePaddingX: Number(pagePaddingX.value || 24),
+          sectionGap: Number(sectionGap.value || 18),
+          gridColumns: Number(gridColumns.value || 12)
+        });
+      });
+
+      field.addEventListener("change", () => {
+        builder.setPageLayout({
+          contentWidth: Number(contentWidth.value || 1200),
+          pagePaddingX: Number(pagePaddingX.value || 24),
+          sectionGap: Number(sectionGap.value || 18),
+          gridColumns: Number(gridColumns.value || 12)
+        });
+      });
     });
-  });
-});
+
     openBtn.addEventListener("click", () => {
       const slug = slugify(pageSlug.value || pageTitle.value);
       const path = slug ? `/${slug}` : "/";
