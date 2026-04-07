@@ -5,42 +5,260 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vera Admin - Sayfalar</title>
   <style>
-    *{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a}
-    .loading{min-height:100vh;display:flex;align-items:center;justify-content:center;color:#64748b}.hidden{display:none!important}
-    .layout{min-height:100vh;display:grid;grid-template-columns:260px 1fr}.sidebar{background:#0f172a;color:#e2e8f0;padding:22px 18px;border-right:1px solid rgba(255,255,255,.06)}
-    .brand h1{margin:0 0 6px;font-size:24px}.brand p{margin:0;color:#94a3b8;font-size:13px}.nav-title{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin:22px 0 10px}
-    .nav-link,.nav-btn{display:block;width:100%;text-align:left;text-decoration:none;border:0;background:transparent;color:#e2e8f0;padding:12px 14px;border-radius:12px;cursor:pointer;font-size:14px;margin-bottom:8px}.nav-link:hover,.nav-btn:hover,.nav-link.active{background:rgba(255,255,255,.08)}
-    .main{display:flex;flex-direction:column}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .topbar-left h2{margin:0 0 4px;font-size:20px}.topbar-left p{margin:0;color:#64748b;font-size:13px}.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:14px}.btn-primary{background:#2563eb;color:#fff}.btn-secondary{background:#e2e8f0;color:#0f172a}.btn-danger{background:#dc2626;color:#fff}
-    .content{padding:22px;display:grid;grid-template-columns:360px 1fr;gap:18px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:22px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
-    .card h3{margin:0 0 12px}.card p{margin:0 0 18px;color:#64748b;line-height:1.7}label{display:block;margin-bottom:6px;font-size:14px;color:#475569}
-    input,textarea,select{width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:14px;color:#0f172a;background:#fff}textarea{min-height:100px;resize:vertical}.code-area{font-family:Consolas,monospace;min-height:180px}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap}.page-list{display:grid;gap:12px}.page-item{border:1px solid #e2e8f0;border-radius:14px;padding:14px;background:#fff;cursor:pointer}.page-item.active{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
-    .meta-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.chip{display:inline-flex;padding:6px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:700}.status{display:none;margin-top:8px;padding:12px;border-radius:12px;font-size:14px}.status.show{display:block}.status.ok{background:#dcfce7;color:#166534}.status.error{background:#fee2e2;color:#991b1b}
-    .toggle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.mode-wrap{display:none}.mode-wrap.show{display:block}
-    .builder-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .builder-item{border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:12px;background:#fff}
-    .builder-item-selected{border-color:#2563eb;box-shadow:0 0 0 2px rgba(37,99,235,.08)}
-    .builder-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
-    .builder-title{font-size:14px;font-weight:700}.builder-actions{display:flex;gap:8px;flex-wrap:wrap}
-    .mini-btn{border:0;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer;background:#e2e8f0;color:#0f172a}.mini-btn.danger{background:#fee2e2;color:#991b1b}
-    .workspace-shell{display:grid;grid-template-columns:420px 1fr;gap:16px}
-    .workspace-shell.design-only{grid-template-columns:1fr}
-    .workspace-shell.form-only{grid-template-columns:1fr}
-    .workspace-shell.form-only #builderPreviewWrap{display:none}
-    .workspace-shell.design-only #builderBlocksWrap{display:none}
-    .design-mode-shell{display:flex;flex-direction:column;gap:14px}
-    .design-toolbar-note{font-size:13px;color:#64748b}
-    .design-canvas{
-      display:grid;
-      grid-template-columns:repeat(12,minmax(0,1fr));
-      min-height:420px;
-      border:1px solid #cbd5e1;
-      border-radius:16px;
-      overflow:hidden;
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a}
+    .loading{min-height:100vh;display:flex;align-items:center;justify-content:center;color:#64748b}
+    .hidden{display:none!important}
+
+    .layout{min-height:100vh;display:grid;grid-template-columns:240px 1fr}
+    .sidebar{background:#0f172a;color:#e2e8f0;padding:18px 14px;border-right:1px solid rgba(255,255,255,.06)}
+    .brand h1{margin:0 0 6px;font-size:22px}
+    .brand p{margin:0;color:#94a3b8;font-size:12px}
+    .nav-title{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin:20px 0 10px}
+    .nav-link,.nav-btn{display:block;width:100%;text-align:left;text-decoration:none;border:0;background:transparent;color:#e2e8f0;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:13px;margin-bottom:6px}
+    .nav-link:hover,.nav-btn:hover,.nav-link.active{background:rgba(255,255,255,.08)}
+
+    .main{display:flex;flex-direction:column;min-width:0}
+    .topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .topbar-left h2{margin:0 0 4px;font-size:18px}
+    .topbar-left p{margin:0;color:#64748b;font-size:12px}
+
+    .btn{border:0;border-radius:10px;padding:9px 12px;font-weight:700;cursor:pointer;font-size:12px}
+    .btn-primary{background:#2563eb;color:#fff}
+    .btn-secondary{background:#e2e8f0;color:#0f172a}
+    .btn-danger{background:#dc2626;color:#fff}
+
+    .content{padding:16px;display:grid;gap:14px}
+    .card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+    .card h3{margin:0 0 10px;font-size:16px}
+    .card p{margin:0 0 12px;color:#64748b;line-height:1.6;font-size:13px}
+
+    label{display:block;margin-bottom:5px;font-size:12px;color:#475569}
+    input,textarea,select{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:10px 12px;margin-bottom:10px;font-size:13px;color:#0f172a;background:#fff}
+    textarea{min-height:90px;resize:vertical}
+    .code-area{font-family:Consolas,monospace;min-height:160px}
+
+    .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+    .status{display:none;margin-top:8px;padding:10px;border-radius:10px;font-size:13px}
+    .status.show{display:block}
+    .status.ok{background:#dcfce7;color:#166534}
+    .status.error{background:#fee2e2;color:#991b1b}
+
+    .page-tabs-card{padding:12px 12px 10px}
+    .page-tabs-toolbar{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .page-tabs-list{display:flex;gap:8px;flex-wrap:wrap}
+    .page-chip{
+      border:1px solid #dbe3ee;
+      background:#fff;
+      color:#334155;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
     }
-    .design-item{min-width:0;padding:6px;cursor:pointer}
+    .page-chip.active{
+      border-color:#2563eb;
+      color:#1d4ed8;
+      background:#eff6ff;
+    }
+
+    .edit-shell{display:grid;grid-template-columns:minmax(320px, 430px) minmax(0, 1fr);gap:14px;align-items:start}
+    .edit-panel,.design-panel{min-width:0}
+
+    .toggle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .mode-wrap{display:none}
+    .mode-wrap.show{display:block}
+
+    .minimal-section{margin-top:10px;padding-top:10px;border-top:1px solid #eef2f7}
+    .minimal-section-title{font-size:12px;font-weight:700;margin:0 0 8px;color:#334155}
+
+    .design-shell{
+      display:grid;
+      grid-template-columns:220px minmax(0, 1fr);
+      gap:10px;
+      min-height:720px;
+    }
+
+    .design-sidebar{
+      background:#fff;
+      border:1px solid #e2e8f0;
+      border-radius:14px;
+      overflow:hidden;
+      display:grid;
+      grid-template-rows:auto auto 1fr;
+      min-height:0;
+    }
+
+    .design-toolbar{
+      padding:8px;
+      border-bottom:1px solid #eef2f7;
+    }
+
+    .mini-toolbar-row{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:6px;
+    }
+
+    .tiny-btn{
+      border:0;
+      border-radius:8px;
+      padding:7px 0;
+      font-size:10px;
+      font-weight:700;
+      background:#e2e8f0;
+      color:#0f172a;
+      cursor:pointer;
+      min-width:0;
+    }
+
+    .mini-inspector{
+      padding:8px;
+      border-bottom:1px solid #eef2f7;
+    }
+
+    .mini-inspector-card{
+      border:1px solid #e2e8f0;
+      border-radius:10px;
+      padding:8px;
+      background:#fff;
+    }
+
+    .mini-inspector-title{
+      font-size:11px;
+      font-weight:700;
+      margin-bottom:8px;
+      color:#334155;
+    }
+
+    .mini-inspector-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:6px;
+    }
+
+    .mini-inspector-grid label{
+      font-size:10px;
+      margin-bottom:3px;
+    }
+
+    .mini-inspector-grid input{
+      padding:7px 8px;
+      font-size:11px;
+      margin-bottom:0;
+      border-radius:8px;
+    }
+
+    .blocks-mini-list{
+      min-height:0;
+      overflow:auto;
+      padding:8px;
+    }
+
+    .compact-block-card{
+      border:1px solid #e2e8f0;
+      border-radius:10px;
+      margin-bottom:8px;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .compact-block-selected{
+      border-color:#2563eb;
+      box-shadow:0 0 0 1px rgba(37,99,235,.10);
+    }
+
+    .compact-block-head{
+      display:grid;
+      grid-template-columns:18px 1fr auto;
+      gap:6px;
+      align-items:center;
+      padding:6px;
+    }
+
+    .compact-arrow,.compact-title,.compact-mini{
+      border:0;
+      background:transparent;
+      cursor:pointer;
+      padding:0;
+    }
+
+    .compact-arrow{
+      font-size:11px;
+      color:#475569;
+      width:18px;
+      height:18px;
+    }
+
+    .compact-title{
+      text-align:left;
+      font-size:11px;
+      font-weight:700;
+      color:#0f172a;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .compact-actions{
+      display:flex;
+      gap:4px;
+    }
+
+    .compact-mini{
+      width:18px;
+      height:18px;
+      border-radius:6px;
+      background:#e2e8f0;
+      font-size:10px;
+      font-weight:700;
+      color:#0f172a;
+    }
+
+    .compact-mini.danger{
+      background:#fee2e2;
+      color:#991b1b;
+    }
+
+    .compact-block-body{
+      padding:6px;
+      border-top:1px solid #eef2f7;
+      background:#fafcff;
+    }
+
+    .compact-block-body label{font-size:10px;margin-bottom:3px}
+    .compact-block-body input,
+    .compact-block-body select,
+    .compact-block-body textarea{
+      padding:7px 8px;
+      font-size:11px;
+      margin-bottom:7px;
+      border-radius:8px;
+    }
+
+    .compact-block-body textarea{min-height:64px}
+
+    .design-main{
+      background:#fff;
+      border:1px solid #e2e8f0;
+      border-radius:14px;
+      overflow:auto;
+      min-width:0;
+      min-height:0;
+      padding:10px;
+    }
+
+    .design-canvas{
+      min-height:680px;
+      border:1px solid #d7e0ec;
+      border-radius:12px;
+      align-content:start;
+    }
+
+    .design-item{min-width:0;padding:4px;cursor:pointer}
     .design-item-selected .design-card{outline:2px solid #2563eb;outline-offset:0}
+
     .design-card{
       width:100%;
       min-width:0;
@@ -48,190 +266,33 @@
       background:#fff;
       box-shadow:0 1px 2px rgba(15,23,42,.04)
     }
-    .design-card h4{margin:0 0 10px;font-size:24px}
-    .design-card p{margin:0 0 14px;color:inherit;line-height:1.7}
-    .builder-preview-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .builder-preview-actions span{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;border:1px solid #cbd5e1;background:#fff}
-    .design-inspector-card{border:1px solid #e2e8f0;border-radius:14px;padding:14px;background:#fff}
-    .design-inspector-title{font-size:14px;font-weight:700;margin-bottom:12px}
-    .design-control-row{display:flex;gap:8px;flex-wrap:wrap}
+
+    .design-card h4{margin:0 0 8px;font-size:20px}
+    .design-card p{margin:0 0 10px;color:inherit;line-height:1.6;font-size:13px}
+    .builder-preview-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .builder-preview-actions span{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 10px;
+      border-radius:8px;
+      font-size:11px;
+      font-weight:700;
+      border:1px solid #cbd5e1;
+      background:#fff
+    }
+
     @media(max-width:1200px){
       .layout{grid-template-columns:1fr}
       .sidebar{border-right:0;border-bottom:1px solid rgba(255,255,255,.06)}
-      .content{grid-template-columns:1fr}
-      .toggle-grid,.builder-grid,.workspace-shell{grid-template-columns:1fr}
+      .edit-shell{grid-template-columns:1fr}
+      .design-shell{grid-template-columns:1fr}
     }
-
-<style>
-  .design-launch-row{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-    margin-bottom:12px
-  }
-
-  .design-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(15,23,42,.66);
-    z-index:9999;
-    display:none;
-    padding:12px;
-  }
-  .design-overlay.show{display:block}
-
-  .design-overlay-panel{
-    width:100%;
-    height:100%;
-    background:#fff;
-    border-radius:16px;
-    overflow:hidden;
-    display:grid;
-    grid-template-rows:auto 1fr;
-    box-shadow:0 24px 60px rgba(0,0,0,.22);
-  }
-
-  .design-overlay-topbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    padding:10px 14px;
-    border-bottom:1px solid #e2e8f0;
-    background:#fff;
-  }
-  .design-overlay-topbar h3{margin:0;font-size:16px}
-
-  .design-overlay-body{
-    overflow:hidden;
-    padding:10px;
-    background:#f8fafc;
-    min-height:0;
-  }
-
-  .design-stage{
-    width:100%;
-    height:100%;
-    display:grid;
-    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
-    gap:10px;
-    min-height:0;
-  }
-
-  .design-sidebar-panel,
-  .design-main-panel{
-    min-height:0;
-    background:#fff;
-    border:1px solid #e2e8f0;
-    border-radius:14px;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-  }
-
-  .design-sidebar-inner,
-  .design-main-inner{
-    min-height:0;
-    overflow:auto;
-    padding:10px;
-  }
-
-  .compact-toolbar{
-    display:flex;
-    gap:6px;
-    flex-wrap:wrap;
-    margin-bottom:10px;
-  }
-
-  .compact-toolbar .btn,
-  .compact-toolbar .mini-btn,
-  .design-launch-row .btn{
-    padding:8px 10px;
-    font-size:12px;
-    border-radius:10px;
-  }
-
-  .design-section-title{
-    font-size:13px;
-    font-weight:700;
-    margin:0 0 8px;
-    color:#334155;
-  }
-
-  .design-sidebar-inner label,
-  .design-main-inner label{
-    font-size:12px;
-    margin-bottom:4px;
-  }
-
-  .design-sidebar-inner input,
-  .design-sidebar-inner select,
-  .design-sidebar-inner textarea,
-  .design-main-inner input,
-  .design-main-inner select,
-  .design-main-inner textarea{
-    padding:9px 10px;
-    font-size:13px;
-    margin-bottom:10px;
-    border-radius:10px;
-  }
-
-  .design-canvas{
-    min-height:calc(100vh - 170px);
-    align-content:start;
-  }
-
-  .design-inspector-card{
-    border:1px solid #e2e8f0;
-    border-radius:12px;
-    padding:10px;
-    background:#fff;
-  }
-
-  .design-inspector-title{
-    font-size:13px;
-    font-weight:700;
-    margin-bottom:10px;
-  }
-
-  .design-control-row{
-    display:flex;
-    gap:6px;
-    flex-wrap:wrap;
-  }
-
-  .design-control-row .mini-btn{
-    padding:7px 9px;
-    font-size:11px;
-    border-radius:9px;
-  }
-
-  .builder-grid.compact-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:8px;
-  }
-
-  .design-toolbar-note{
-    font-size:12px;
-    color:#64748b;
-    margin-bottom:8px;
-  }
-
-  @media(max-width:1100px){
-    .design-stage{
-      grid-template-columns:1fr;
-    }
-
-    .design-canvas{
-      min-height:520px;
-    }
-  }
-</style>
   </style>
 </head>
 <body>
   <div id="loading" class="loading">Oturum kontrol ediliyor...</div>
+
   <div id="app" class="layout hidden">
     <aside class="sidebar">
       <div class="brand"><h1>Vera Admin</h1><p>Sayfa yönetimi</p></div>
@@ -246,158 +307,142 @@
     <main class="main">
       <header class="topbar">
         <div class="topbar-left">
-          <h2>Sayfa Yönetimi</h2>
-          <p>Blok, kod ve tasarım modu ile sayfa düzenleme</p>
+          <h2>Sayfalar</h2>
+          <p>Daha sade sayfa düzenleme ve kompakt tasarım modu</p>
         </div>
         <button id="logoutBtnTop" class="btn btn-danger" type="button">Çıkış Yap</button>
       </header>
 
       <section class="content">
-        <div class="card">
-          <h3>Sayfa Listesi</h3>
-          <div class="toolbar">
-            <button id="newPageBtn" class="btn btn-primary" type="button">Yeni Sayfa</button>
-            <button id="refreshBtn" class="btn btn-secondary" type="button">Yenile</button>
+        <div class="card page-tabs-card">
+          <div class="page-tabs-toolbar">
+            <div class="toolbar">
+              <button id="newPageBtn" class="btn btn-primary" type="button">Yeni Sayfa</button>
+              <button id="refreshBtn" class="btn btn-secondary" type="button">Yenile</button>
+            </div>
+            <div id="pageTabs" class="page-tabs-list"></div>
           </div>
-          <div id="pageList" class="page-list" style="margin-top:16px"></div>
         </div>
 
-        <div class="card">
-          <h3>Sayfa Düzenle</h3>
+        <div class="edit-shell">
+          <div class="edit-panel card">
+            <h3>Sayfa Düzenle</h3>
 
-          <label for="pageTitle">Başlık</label>
-          <input id="pageTitle" type="text">
+            <label for="pageTitle">Başlık</label>
+            <input id="pageTitle" type="text">
 
-          <label for="pageSlug">Slug</label>
-          <input id="pageSlug" type="text" placeholder="ornek-sayfa">
+            <label for="pageSlug">Slug</label>
+            <input id="pageSlug" type="text" placeholder="ornek-sayfa">
 
-          <div class="toggle-grid">
-            <div>
-              <label for="pageStatus">Durum</label>
-              <select id="pageStatus"><option value="draft">Taslak</option><option value="published">Yayında</option></select>
+            <div class="toggle-grid">
+              <div>
+                <label for="pageStatus">Durum</label>
+                <select id="pageStatus"><option value="draft">Taslak</option><option value="published">Yayında</option></select>
+              </div>
+              <div>
+                <label for="pageIsHome">Ana Sayfa</label>
+                <select id="pageIsHome"><option value="false">Hayır</option><option value="true">Evet</option></select>
+              </div>
+              <div>
+                <label for="editorMode">Editör</label>
+                <select id="editorMode"><option value="blocks">Tasarım</option><option value="code">Kod</option></select>
+              </div>
+              <div>
+                <label for="showHeader">Header</label>
+                <select id="showHeader"><option value="true">Göster</option><option value="false">Gizle</option></select>
+              </div>
+              <div>
+                <label for="showFooter">Footer</label>
+                <select id="showFooter"><option value="true">Göster</option><option value="false">Gizle</option></select>
+              </div>
             </div>
-            <div>
-              <label for="pageIsHome">Ana Sayfa</label>
-              <select id="pageIsHome"><option value="false">Hayır</option><option value="true">Evet</option></select>
+
+            <div class="minimal-section">
+              <div class="minimal-section-title">SEO</div>
+              <label for="metaTitle">Meta Title</label>
+              <input id="metaTitle" type="text">
+              <label for="metaDescription">Meta Description</label>
+              <textarea id="metaDescription"></textarea>
             </div>
-            <div>
-              <label for="editorMode">Editör Modu</label>
-              <select id="editorMode"><option value="blocks">Blok</option><option value="code">Kod</option></select>
+
+            <div class="minimal-section">
+              <div class="minimal-section-title">Yerleşim</div>
+              <div class="toggle-grid">
+                <div>
+                  <label for="contentWidth">İçerik Genişliği</label>
+                  <input id="contentWidth" type="number" min="480" max="2400">
+                </div>
+                <div>
+                  <label for="pagePaddingX">Yan Boşluk</label>
+                  <input id="pagePaddingX" type="number" min="0" max="120">
+                </div>
+                <div>
+                  <label for="sectionGap">Blok Aralığı</label>
+                  <input id="sectionGap" type="number" min="0" max="120">
+                </div>
+                <div>
+                  <label for="gridColumns">Grid Kolon</label>
+                  <input id="gridColumns" type="number" min="1" max="12">
+                </div>
+              </div>
             </div>
-            <div>
-              <label for="showHeader">Header</label>
-              <select id="showHeader"><option value="true">Göster</option><option value="false">Gizle</option></select>
+
+            <div class="minimal-section">
+              <div class="minimal-section-title">Gelişmiş</div>
+              <label for="customBodyClass">Body Class</label>
+              <input id="customBodyClass" type="text">
             </div>
-            <div>
-              <label for="showFooter">Footer</label>
-              <select id="showFooter"><option value="true">Göster</option><option value="false">Gizle</option></select>
+
+            <div class="toolbar" style="margin-top:12px">
+              <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
+              <button id="deleteBtn" class="btn btn-danger" type="button">Sil</button>
+              <button id="openBtn" class="btn btn-secondary" type="button">Aç</button>
             </div>
-            <div>
-              <label for="workspaceMode">Çalışma Alanı</label>
-              <select id="workspaceMode">
-                <option value="split">Form + Tasarım</option>
-                <option value="form">Sadece Form</option>
-                <option value="design">Sadece Tasarım</option>
-              </select>
+
+            <div id="statusBox" class="status"></div>
+
+            <div id="codeModeWrap" class="mode-wrap">
+              <div class="minimal-section">
+                <div class="minimal-section-title">Kod Editörü</div>
+                <label for="codeHtml">HTML</label>
+                <textarea id="codeHtml" class="code-area"></textarea>
+                <label for="codeCss">CSS</label>
+                <textarea id="codeCss" class="code-area"></textarea>
+                <label for="codeJs">JS</label>
+                <textarea id="codeJs" class="code-area"></textarea>
+              </div>
             </div>
           </div>
 
-          <label for="metaTitle">Meta Title</label>
-          <input id="metaTitle" type="text">
+          <div class="design-panel card">
+            <h3>Tasarım Modu</h3>
+            <p>Sol sütun minimal kontrol alanıdır. Sağ alan grid üstündeki gerçek yerleşimdir.</p>
 
-          <label for="metaDescription">Meta Description</label>
-          <textarea id="metaDescription"></textarea>
+            <div id="blocksModeWrap" class="mode-wrap">
+              <div class="toolbar" style="margin-bottom:10px">
+                <button id="addHeroBtn" class="btn btn-secondary" type="button">Hero</button>
+                <button id="addTextBtn" class="btn btn-secondary" type="button">Metin</button>
+                <button id="addButtonBtn" class="btn btn-secondary" type="button">Buton</button>
+                <button id="addImageBtn" class="btn btn-secondary" type="button">Görsel</button>
+                <button id="addHtmlBtn" class="btn btn-secondary" type="button">HTML</button>
+                <button id="addSpacerBtn" class="btn btn-secondary" type="button">Boşluk</button>
+              </div>
 
-          <label for="customBodyClass">Body Class</label>
-          <input id="customBodyClass" type="text">
-
-          <h3 style="font-size:18px;margin-top:10px">Yerleşim</h3>
-          <div class="toggle-grid">
-            <div>
-              <label for="contentWidth">İçerik Genişliği (px)</label>
-              <input id="contentWidth" type="number" min="480" max="2400">
-            </div>
-            <div>
-              <label for="pagePaddingX">Yatay Boşluk (px)</label>
-              <input id="pagePaddingX" type="number" min="0" max="120">
-            </div>
-            <div>
-              <label for="sectionGap">Blok Aralığı (px)</label>
-              <input id="sectionGap" type="number" min="0" max="120">
-            </div>
-            <div>
-              <label for="gridColumns">Grid Kolon</label>
-              <input id="gridColumns" type="number" min="1" max="12">
+              <div class="design-shell">
+                <aside class="design-sidebar">
+                  <div id="designToolbar" class="design-toolbar"></div>
+                  <div id="designInspector" class="mini-inspector"></div>
+                  <div id="builderBlocksWrap" class="blocks-mini-list"></div>
+                </aside>
+                <main id="builderPreviewWrap" class="design-main"></main>
+              </div>
             </div>
           </div>
-
-          <div id="blocksModeWrap" class="mode-wrap">
-            <div class="toolbar" style="margin-bottom:14px;">
-              <button id="addHeroBtn" class="btn btn-secondary" type="button">Hero Ekle</button>
-              <button id="addTextBtn" class="btn btn-secondary" type="button">Metin Ekle</button>
-              <button id="addButtonBtn" class="btn btn-secondary" type="button">Buton Ekle</button>
-              <button id="addImageBtn" class="btn btn-secondary" type="button">Görsel Ekle</button>
-              <button id="addHtmlBtn" class="btn btn-secondary" type="button">HTML Ekle</button>
-              <button id="addSpacerBtn" class="btn btn-secondary" type="button">Boşluk Ekle</button>
-            </div>
-            <div class="design-launch-row">
-  <button id="openDesignOverlayBtn" class="btn btn-primary" type="button">Tasarım Alanını Aç</button>
-  <button id="closeDesignOverlayBtnInline" class="btn btn-secondary" type="button">Tasarım Alanını Kapat</button>
-</div>
-
-<div id="workspaceShell" class="workspace-shell form-only">
-  <div id="builderBlocksWrap"></div>
-</div>
-          </div>
-
-          <div id="codeModeWrap" class="mode-wrap">
-            <label for="codeHtml">HTML</label>
-            <textarea id="codeHtml" class="code-area"></textarea>
-            <label for="codeCss">CSS</label>
-            <textarea id="codeCss" class="code-area"></textarea>
-            <label for="codeJs">JS</label>
-            <textarea id="codeJs" class="code-area"></textarea>
-          </div>
-
-          <div class="toolbar" style="margin-top:16px">
-            <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
-            <button id="deleteBtn" class="btn btn-danger" type="button">Sil</button>
-            <button id="openBtn" class="btn btn-secondary" type="button">Sayfayı Aç</button>
-          </div>
-          <div id="statusBox" class="status"></div>
         </div>
       </section>
     </main>
   </div>
-<div id="designOverlay" class="design-overlay">
-  <div class="design-overlay-panel">
-    <div class="design-overlay-topbar">
-      <div>
-        <h3>Tasarım Alanı</h3>
-        <div style="font-size:13px;color:#64748b;margin-top:4px">
-          Bu alanda ön izleme daralmaz. Grid ve yatay yerleşim burada daha rahat düzenlenir.
-        </div>
-      </div>
-      <button id="closeDesignOverlayBtn" class="btn btn-danger" type="button">Kapat</button>
-    </div>
-    <div class="design-overlay-body">
-<div id="designStage" class="design-stage">
-  <div class="design-sidebar-panel">
-    <div class="design-sidebar-inner">
-      <div class="design-section-title">Bloklar</div>
-      <div id="designBlocksMirror"></div>
-    </div>
-  </div>
 
-  <div class="design-main-panel">
-    <div class="design-main-inner">
-      <div id="designOverlayPreview"></div>
-    </div>
-  </div>
-</div>
-    </div>
-  </div>
-</div>
   <script src="/admin/shared-page-builder.js"></script>
   <script>
     let pages = [];
@@ -410,19 +455,20 @@
       containerWidth: 1200
     };
 
-const builder = VeraPageBuilder.createBuilder({
-  blocksWrap: document.getElementById("builderBlocksWrap"),
-  previewWrap: document.getElementById("designOverlayPreview"),
-  mirrorBlocksWrap: document.getElementById("designBlocksMirror"),
-  theme: currentTheme,
-  pageLayout: {
-    contentWidth: 1200,
-    pagePaddingX: 24,
-    sectionGap: 18,
-    gridColumns: 12
-  },
-  onChange: () => {}
-});
+    const builder = VeraPageBuilder.createBuilder({
+      blocksWrap: document.getElementById("builderBlocksWrap"),
+      previewWrap: document.getElementById("builderPreviewWrap"),
+      inspectorWrap: document.getElementById("designInspector"),
+      toolbarWrap: document.getElementById("designToolbar"),
+      theme: currentTheme,
+      pageLayout: {
+        contentWidth: 1200,
+        pagePaddingX: 24,
+        sectionGap: 18,
+        gridColumns: 12
+      },
+      onChange: () => {}
+    });
 
     function uid() {
       return "p-" + Math.random().toString(36).slice(2) + Date.now();
@@ -476,18 +522,10 @@ const builder = VeraPageBuilder.createBuilder({
       };
     }
 
-    function updateWorkspaceMode() {
-      const mode = workspaceMode.value;
-      workspaceShell.className = "workspace-shell";
-      if (mode === "form") workspaceShell.classList.add("form-only");
-      if (mode === "design") workspaceShell.classList.add("design-only");
-    }
-
     function toggleMode() {
       const isBlocks = editorMode.value === "blocks";
       blocksModeWrap.classList.toggle("show", isBlocks);
       codeModeWrap.classList.toggle("show", !isBlocks);
-      updateWorkspaceMode();
     }
 
     function collectForm() {
@@ -553,32 +591,24 @@ const builder = VeraPageBuilder.createBuilder({
       codeJs.value = safe.code?.js || "";
 
       toggleMode();
-      renderList();
+      renderTabs();
     }
 
-    function renderList() {
-      pageList.innerHTML = "";
+    function renderTabs() {
+      pageTabs.innerHTML = "";
 
       if (!pages.length) {
-        pageList.innerHTML = "<p style='color:#64748b'>Henüz sayfa yok.</p>";
+        pageTabs.innerHTML = `<span style="font-size:12px;color:#64748b">Henüz sayfa yok.</span>`;
         return;
       }
 
       pages.forEach((page) => {
-        const el = document.createElement("div");
-        el.className = "page-item" + (page.id === currentId ? " active" : "");
-        const path = page.isHome ? "/" : "/" + (page.slug || "");
-        el.innerHTML = `
-          <strong>${escapeHtml(page.title || "İsimsiz Sayfa")}</strong>
-          <div style="margin-top:8px;color:#64748b;font-size:13px">${escapeHtml(path)}</div>
-          <div class="meta-row">
-            <span class="chip">${page.status === "published" ? "published" : "draft"}</span>
-            ${page.isHome ? `<span class="chip">home</span>` : ""}
-            <span class="chip">${page.editorMode || "blocks"}</span>
-          </div>
-        `;
-        el.addEventListener("click", () => fillForm(page));
-        pageList.appendChild(el);
+        const btn = document.createElement("button");
+        btn.className = "page-chip" + (page.id === currentId ? " active" : "");
+        btn.type = "button";
+        btn.textContent = page.title || "İsimsiz Sayfa";
+        btn.addEventListener("click", () => fillForm(page));
+        pageTabs.appendChild(btn);
       });
     }
 
@@ -616,7 +646,7 @@ const builder = VeraPageBuilder.createBuilder({
         });
         const data = await res.json();
         pages = Array.isArray(data.pages) ? data.pages : [];
-        renderList();
+        renderTabs();
 
         if (pages.length) {
           const page = pages.find((item) => item.id === currentId) || pages[0];
@@ -649,7 +679,7 @@ const builder = VeraPageBuilder.createBuilder({
         pages = Array.isArray(data.pages) ? data.pages : [];
         const current = pages.find((item) => item.id === payload.page.id) || pages[0];
         if (current) fillForm(current);
-        renderList();
+        renderTabs();
         showStatus("Sayfa kaydedildi.", "ok");
       } catch {
         showStatus("İstek sırasında hata oluştu.", "error");
@@ -674,7 +704,7 @@ const builder = VeraPageBuilder.createBuilder({
         if (!data.ok) return showStatus(data.error || "Silme başarısız.", "error");
 
         pages = Array.isArray(data.pages) ? data.pages : [];
-        renderList();
+        renderTabs();
         if (pages.length) fillForm(pages[0]);
         else fillForm(emptyPage());
         showStatus("Sayfa silindi.", "ok");
@@ -711,7 +741,6 @@ const builder = VeraPageBuilder.createBuilder({
     });
 
     editorMode.addEventListener("change", toggleMode);
-    workspaceMode.addEventListener("change", updateWorkspaceMode);
 
     [contentWidth, pagePaddingX, sectionGap, gridColumns].forEach((field) => {
       field.addEventListener("input", () => {
@@ -745,35 +774,13 @@ const builder = VeraPageBuilder.createBuilder({
     addImageBtn.addEventListener("click", () => builder.addBlock("image"));
     addHtmlBtn.addEventListener("click", () => builder.addBlock("html"));
     addSpacerBtn.addEventListener("click", () => builder.addBlock("spacer"));
-openDesignOverlayBtn.addEventListener("click", () => {
-  designOverlay.classList.add("show");
-  document.body.style.overflow = "hidden";
-  builder.render();
-});
 
-closeDesignOverlayBtn.addEventListener("click", () => {
-  designOverlay.classList.remove("show");
-  document.body.style.overflow = "";
-});
-
-closeDesignOverlayBtnInline.addEventListener("click", () => {
-  designOverlay.classList.remove("show");
-  document.body.style.overflow = "";
-});
-
-designOverlay.addEventListener("click", (event) => {
-  if (event.target === designOverlay) {
-    designOverlay.classList.remove("show");
-    document.body.style.overflow = "";
-  }
-});
     (async function init() {
       await checkSession();
       await loadThemeFromSiteContent();
       await loadPages();
-      updateWorkspaceMode();
+      toggleMode();
     })();
   </script>
-  
 </body>
 </html>
