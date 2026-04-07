@@ -36,9 +36,7 @@
       font-size: 16px;
     }
 
-    .hidden {
-      display: none !important;
-    }
+    .hidden { display: none !important; }
 
     .layout {
       min-height: 100vh;
@@ -53,20 +51,9 @@
       border-right: 1px solid rgba(255,255,255,.06);
     }
 
-    .brand {
-      margin-bottom: 24px;
-    }
-
-    .brand h1 {
-      margin: 0 0 6px;
-      font-size: 24px;
-    }
-
-    .brand p {
-      margin: 0;
-      color: var(--sidebar-muted);
-      font-size: 13px;
-    }
+    .brand { margin-bottom: 24px; }
+    .brand h1 { margin: 0 0 6px; font-size: 24px; }
+    .brand p { margin: 0; color: var(--sidebar-muted); font-size: 13px; }
 
     .nav-title {
       font-size: 12px;
@@ -146,20 +133,9 @@
       font-size: 14px;
     }
 
-    .btn-primary {
-      background: var(--primary);
-      color: #ffffff;
-    }
-
-    .btn-secondary {
-      background: #e2e8f0;
-      color: var(--text);
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      color: #ffffff;
-    }
+    .btn-primary { background: var(--primary); color: #ffffff; }
+    .btn-secondary { background: #e2e8f0; color: var(--text); }
+    .btn-danger { background: var(--danger); color: #ffffff; }
 
     .content {
       padding: 22px;
@@ -167,9 +143,9 @@
       gap: 18px;
     }
 
-    .panel-grid {
+    .editor-grid {
       display: grid;
-      grid-template-columns: 1.1fr .9fr;
+      grid-template-columns: 1.15fr .85fr;
       gap: 18px;
     }
 
@@ -199,7 +175,7 @@
       color: #475569;
     }
 
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       border: 1px solid #cbd5e1;
       border-radius: 12px;
@@ -211,8 +187,13 @@
     }
 
     textarea {
-      min-height: 120px;
+      min-height: 100px;
       resize: vertical;
+    }
+
+    .code-area {
+      font-family: Consolas, monospace;
+      min-height: 180px;
     }
 
     .status {
@@ -223,35 +204,73 @@
       font-size: 14px;
     }
 
-    .status.show {
-      display: block;
+    .status.show { display: block; }
+    .status.ok { background: #dcfce7; color: #166534; }
+    .status.error { background: #fee2e2; color: #991b1b; }
+
+    .block-item {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: #fff;
     }
 
-    .status.ok {
-      background: #dcfce7;
-      color: #166534;
+    .block-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
-    .status.error {
+    .block-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .block-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .mini-btn.danger {
       background: #fee2e2;
       color: #991b1b;
     }
 
-    .preview-box {
+    .preview-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .preview-card {
       border: 1px dashed #cbd5e1;
-      border-radius: 16px;
-      padding: 18px;
-      background: #f8fafc;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
     }
 
-    .preview-box h4 {
+    .preview-card h4 {
       margin: 0 0 10px;
-      font-size: 22px;
+      font-size: 24px;
     }
 
-    .preview-box p {
-      margin: 0 0 16px;
-      color: #64748b;
+    .preview-card p {
+      margin: 0 0 14px;
+      color: inherit;
       line-height: 1.7;
     }
 
@@ -273,25 +292,23 @@
       background: #fff;
     }
 
-    .preview-actions span.primary {
-      background: #2563eb;
-      border-color: #2563eb;
-      color: #fff;
+    .style-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
     }
 
     @media (max-width: 1100px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        border-right: 0;
-        border-bottom: 1px solid rgba(255,255,255,.06);
-      }
-
-      .panel-grid {
-        grid-template-columns: 1fr;
-      }
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+      .editor-grid { grid-template-columns: 1fr; }
+      .style-grid, .theme-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -302,7 +319,7 @@
     <aside class="sidebar">
       <div class="brand">
         <h1>Vera Admin</h1>
-        <p>Kontrol paneli</p>
+        <p>Blok tabanlı editör</p>
       </div>
 
       <div class="nav-title">Menü</div>
@@ -316,7 +333,7 @@
       <header class="topbar">
         <div class="topbar-left">
           <h2>Ana Site Editörü</h2>
-          <p>Public ana sayfanın temel içeriğini düzenle</p>
+          <p>Bloklar + site ayarları + kod override</p>
         </div>
 
         <div class="topbar-right">
@@ -326,71 +343,454 @@
       </header>
 
       <section class="content">
-        <div class="panel-grid">
+        <div class="card">
+          <h3>Site Ayarları</h3>
+          <div class="theme-grid">
+            <div>
+              <label for="themeBodyBg">Arka Plan</label>
+              <input id="themeBodyBg" value="#f8fafc">
+            </div>
+            <div>
+              <label for="themeBodyText">Yazı</label>
+              <input id="themeBodyText" value="#0f172a">
+            </div>
+            <div>
+              <label for="themeBorderColor">Kenarlık</label>
+              <input id="themeBorderColor" value="#e2e8f0">
+            </div>
+            <div>
+              <label for="themePrimaryColor">Ana Renk</label>
+              <input id="themePrimaryColor" value="#2563eb">
+            </div>
+            <div>
+              <label for="themeContainerWidth">Genişlik (px)</label>
+              <input id="themeContainerWidth" type="number" value="1200">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Sayfa Meta</h3>
+          <label for="pageTitle">Sayfa Başlığı</label>
+          <input id="pageTitle" type="text" />
+
+          <label for="metaDescription">Meta Açıklama</label>
+          <textarea id="metaDescription"></textarea>
+
+          <button id="addHeroBtn" class="btn btn-secondary" type="button">Hero Ekle</button>
+          <button id="addTextBtn" class="btn btn-secondary" type="button">Metin Ekle</button>
+          <button id="addButtonBtn" class="btn btn-secondary" type="button">Buton Ekle</button>
+          <button id="addImageBtn" class="btn btn-secondary" type="button">Görsel Ekle</button>
+          <button id="addHtmlBtn" class="btn btn-secondary" type="button">HTML Ekle</button>
+        </div>
+
+        <div class="editor-grid">
           <div class="card">
-            <h3>İçerik</h3>
-            <p>Ana sayfada görünen temel alanları buradan yönetebilirsin.</p>
-
-            <label for="siteTitle">Başlık</label>
-            <input id="siteTitle" type="text" />
-
-            <label for="siteDescription">Açıklama</label>
-            <textarea id="siteDescription"></textarea>
-
-            <label for="primaryButtonText">Birinci Buton Metni</label>
-            <input id="primaryButtonText" type="text" />
-
-            <label for="primaryButtonLink">Birinci Buton Linki</label>
-            <input id="primaryButtonLink" type="text" />
-
-            <label for="secondaryButtonText">İkinci Buton Metni</label>
-            <input id="secondaryButtonText" type="text" />
-
-            <label for="secondaryButtonLink">İkinci Buton Linki</label>
-            <input id="secondaryButtonLink" type="text" />
-
-            <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
-
-            <div id="statusBox" class="status"></div>
+            <h3>Bloklar</h3>
+            <div id="blocksWrap"></div>
           </div>
 
           <div class="card">
             <h3>Önizleme</h3>
-            <p>Kaydetmeden önce şu anki görünümü burada gör.</p>
-
-            <div class="preview-box">
-              <h4 id="previewTitle">Vera</h4>
-              <p id="previewDescription">Hoş geldiniz.</p>
-              <div class="preview-actions">
-                <span id="previewPrimary" class="primary">Admin</span>
-                <span id="previewSecondary">Giriş</span>
-              </div>
-            </div>
+            <div id="previewWrap" class="preview-shell"></div>
           </div>
+        </div>
+
+        <div class="card">
+          <h3>Kod Override</h3>
+          <p>Blok sistemine ek olarak ekstra HTML, CSS ve JS yazabilirsin.</p>
+
+          <label for="overrideHtml">Ek HTML</label>
+          <textarea id="overrideHtml" class="code-area"></textarea>
+
+          <label for="overrideCss">Ek CSS</label>
+          <textarea id="overrideCss" class="code-area"></textarea>
+
+          <label for="overrideJs">Ek JS</label>
+          <textarea id="overrideJs" class="code-area"></textarea>
+
+          <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
+          <div id="statusBox" class="status"></div>
         </div>
       </section>
     </main>
   </div>
 
   <script>
+    let pageData = {
+      pageTitle: "Vera",
+      metaDescription: "Hoş geldiniz.",
+      theme: {
+        bodyBg: "#f8fafc",
+        bodyText: "#0f172a",
+        borderColor: "#e2e8f0",
+        primaryColor: "#2563eb",
+        containerWidth: 1200
+      },
+      overrides: {
+        html: "",
+        css: "",
+        js: ""
+      },
+      blocks: []
+    };
+
+    function uid() {
+      return "b-" + Math.random().toString(36).slice(2) + Date.now();
+    }
+
     function showStatus(message, type) {
       const box = document.getElementById("statusBox");
       box.className = "status show " + type;
       box.textContent = message;
     }
 
-    function syncPreview() {
-      document.getElementById("previewTitle").textContent =
-        document.getElementById("siteTitle").value.trim() || "Vera";
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
 
-      document.getElementById("previewDescription").textContent =
-        document.getElementById("siteDescription").value.trim() || "Hoş geldiniz.";
+    function baseBlock(type) {
+      return {
+        id: uid(),
+        order: pageData.blocks.length,
+        type,
+        visible: true,
+        background: "#ffffff",
+        color: "#0f172a",
+        padding: 24,
+        radius: 18,
+        align: "left",
+        maxWidth: 100
+      };
+    }
 
-      document.getElementById("previewPrimary").textContent =
-        document.getElementById("primaryButtonText").value.trim() || "Admin";
+    function newHero() {
+      return {
+        ...baseBlock("hero"),
+        title: "Başlık",
+        text: "Açıklama",
+        primaryText: "Admin",
+        primaryLink: "/admin",
+        secondaryText: "Giriş",
+        secondaryLink: "/login",
+        align: "center",
+        padding: 32,
+        radius: 20
+      };
+    }
 
-      document.getElementById("previewSecondary").textContent =
-        document.getElementById("secondaryButtonText").value.trim() || "Giriş";
+    function newText() {
+      return {
+        ...baseBlock("text"),
+        title: "",
+        text: "Metin"
+      };
+    }
+
+    function newButton() {
+      return {
+        ...baseBlock("button"),
+        text: "Buton",
+        link: "#",
+        style: "primary"
+      };
+    }
+
+    function newImage() {
+      return {
+        ...baseBlock("image"),
+        src: "",
+        alt: "",
+        width: "100%",
+        align: "center"
+      };
+    }
+
+    function newHtml() {
+      return {
+        ...baseBlock("html"),
+        html: "<div>Özel HTML</div>"
+      };
+    }
+
+    function reindexBlocks() {
+      pageData.blocks.forEach((block, index) => {
+        block.order = index;
+      });
+    }
+
+    function moveBlock(index, direction) {
+      const target = index + direction;
+      if (target < 0 || target >= pageData.blocks.length) return;
+      const temp = pageData.blocks[index];
+      pageData.blocks[index] = pageData.blocks[target];
+      pageData.blocks[target] = temp;
+      reindexBlocks();
+      renderBlocks();
+      renderPreview();
+    }
+
+    function removeBlock(index) {
+      pageData.blocks.splice(index, 1);
+      reindexBlocks();
+      renderBlocks();
+      renderPreview();
+    }
+
+    function readThemeFromInputs() {
+      pageData.theme = {
+        bodyBg: document.getElementById("themeBodyBg").value.trim() || "#f8fafc",
+        bodyText: document.getElementById("themeBodyText").value.trim() || "#0f172a",
+        borderColor: document.getElementById("themeBorderColor").value.trim() || "#e2e8f0",
+        primaryColor: document.getElementById("themePrimaryColor").value.trim() || "#2563eb",
+        containerWidth: Number(document.getElementById("themeContainerWidth").value || 1200)
+      };
+    }
+
+    function readOverridesFromInputs() {
+      pageData.overrides = {
+        html: document.getElementById("overrideHtml").value,
+        css: document.getElementById("overrideCss").value,
+        js: document.getElementById("overrideJs").value
+      };
+    }
+
+    function styleFields(block) {
+      return `
+        <div class="style-grid">
+          <div>
+            <label>Arka Plan</label>
+            <input data-key="background" value="${escapeHtml(block.background)}">
+          </div>
+          <div>
+            <label>Yazı Rengi</label>
+            <input data-key="color" value="${escapeHtml(block.color)}">
+          </div>
+          <div>
+            <label>Padding</label>
+            <input data-key="padding" type="number" value="${Number(block.padding || 24)}">
+          </div>
+          <div>
+            <label>Radius</label>
+            <input data-key="radius" type="number" value="${Number(block.radius || 18)}">
+          </div>
+          <div>
+            <label>Hizalama</label>
+            <select data-key="align">
+              <option value="left" ${block.align === "left" ? "selected" : ""}>Sol</option>
+              <option value="center" ${block.align === "center" ? "selected" : ""}>Orta</option>
+              <option value="right" ${block.align === "right" ? "selected" : ""}>Sağ</option>
+            </select>
+          </div>
+          <div>
+            <label>Maks. Genişlik (%)</label>
+            <input data-key="maxWidth" type="number" min="30" max="100" value="${Number(block.maxWidth || 100)}">
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBlocks() {
+      const wrap = document.getElementById("blocksWrap");
+      wrap.innerHTML = "";
+
+      if (!pageData.blocks.length) {
+        wrap.innerHTML = "<p style='color:#64748b'>Henüz blok yok.</p>";
+        return;
+      }
+
+      pageData.blocks.forEach((block, index) => {
+        const el = document.createElement("div");
+        el.className = "block-item";
+
+        let fields = "";
+
+        if (block.type === "hero") {
+          fields = `
+            <label>Başlık</label>
+            <input data-key="title" value="${escapeHtml(block.title)}">
+
+            <label>Açıklama</label>
+            <textarea data-key="text">${escapeHtml(block.text)}</textarea>
+
+            <label>Birinci Buton Metni</label>
+            <input data-key="primaryText" value="${escapeHtml(block.primaryText)}">
+
+            <label>Birinci Buton Linki</label>
+            <input data-key="primaryLink" value="${escapeHtml(block.primaryLink)}">
+
+            <label>İkinci Buton Metni</label>
+            <input data-key="secondaryText" value="${escapeHtml(block.secondaryText)}">
+
+            <label>İkinci Buton Linki</label>
+            <input data-key="secondaryLink" value="${escapeHtml(block.secondaryLink)}">
+          `;
+        } else if (block.type === "text") {
+          fields = `
+            <label>Başlık</label>
+            <input data-key="title" value="${escapeHtml(block.title)}">
+
+            <label>Metin</label>
+            <textarea data-key="text">${escapeHtml(block.text)}</textarea>
+          `;
+        } else if (block.type === "button") {
+          fields = `
+            <label>Buton Metni</label>
+            <input data-key="text" value="${escapeHtml(block.text)}">
+
+            <label>Link</label>
+            <input data-key="link" value="${escapeHtml(block.link)}">
+
+            <label>Stil</label>
+            <select data-key="style">
+              <option value="primary" ${block.style === "primary" ? "selected" : ""}>Primary</option>
+              <option value="secondary" ${block.style === "secondary" ? "selected" : ""}>Secondary</option>
+            </select>
+          `;
+        } else if (block.type === "image") {
+          fields = `
+            <label>Görsel URL</label>
+            <input data-key="src" value="${escapeHtml(block.src)}">
+
+            <label>Alt Metin</label>
+            <input data-key="alt" value="${escapeHtml(block.alt)}">
+
+            <label>Genişlik</label>
+            <input data-key="width" value="${escapeHtml(block.width)}">
+          `;
+        } else if (block.type === "html") {
+          fields = `
+            <label>HTML</label>
+            <textarea data-key="html">${escapeHtml(block.html)}</textarea>
+          `;
+        }
+
+        el.innerHTML = `
+          <div class="block-head">
+            <div class="block-title">${block.type.toUpperCase()} BLOĞU</div>
+            <div class="block-actions">
+              <button class="mini-btn move-up" type="button">Yukarı</button>
+              <button class="mini-btn move-down" type="button">Aşağı</button>
+              <button class="mini-btn danger remove" type="button">Sil</button>
+            </div>
+          </div>
+
+          <label>Görünürlük</label>
+          <select data-key="visible">
+            <option value="true" ${block.visible !== false ? "selected" : ""}>Aktif</option>
+            <option value="false" ${block.visible === false ? "selected" : ""}>Pasif</option>
+          </select>
+
+          ${fields}
+          ${styleFields(block)}
+        `;
+
+        el.querySelector(".move-up").addEventListener("click", () => moveBlock(index, -1));
+        el.querySelector(".move-down").addEventListener("click", () => moveBlock(index, 1));
+        el.querySelector(".remove").addEventListener("click", () => removeBlock(index));
+
+        el.querySelectorAll("[data-key]").forEach((field) => {
+          const applyValue = () => {
+            const key = field.getAttribute("data-key");
+            let value = field.value;
+
+            if (key === "visible") value = value === "true";
+            if (["padding", "radius", "maxWidth"].includes(key)) value = Number(value || 0);
+
+            pageData.blocks[index][key] = value;
+            renderPreview();
+          };
+
+          field.addEventListener("input", applyValue);
+          field.addEventListener("change", applyValue);
+        });
+
+        wrap.appendChild(el);
+      });
+    }
+
+    function previewWrapper(block, innerHtml) {
+      return `
+        <div
+          class="preview-card"
+          style="
+            background:${block.background || "#ffffff"};
+            color:${block.color || "#0f172a"};
+            padding:${Number(block.padding || 24)}px;
+            border-radius:${Number(block.radius || 18)}px;
+            text-align:${block.align || "left"};
+            max-width:${Number(block.maxWidth || 100)}%;
+            margin:${block.align === "center" ? "0 auto" : block.align === "right" ? "0 0 0 auto" : "0"};
+            border-color:${pageData.theme.borderColor || "#cbd5e1"};
+          "
+        >
+          ${innerHtml}
+        </div>
+      `;
+    }
+
+    function renderPreview() {
+      const wrap = document.getElementById("previewWrap");
+      wrap.innerHTML = "";
+      document.title = pageData.pageTitle || "Vera";
+
+      wrap.style.background = pageData.theme.bodyBg || "#f8fafc";
+      wrap.style.color = pageData.theme.bodyText || "#0f172a";
+      wrap.style.padding = "8px";
+      wrap.style.borderRadius = "12px";
+
+      pageData.blocks.forEach((block) => {
+        if (block.visible === false) return;
+
+        let html = "";
+
+        if (block.type === "hero") {
+          html = previewWrapper(block, `
+            <h4>${escapeHtml(block.title)}</h4>
+            <p>${escapeHtml(block.text)}</p>
+            <div class="preview-actions" style="justify-content:${block.align === "center" ? "center" : block.align === "right" ? "flex-end" : "flex-start"}">
+              ${block.primaryText ? `<span style="background:${pageData.theme.primaryColor};border-color:${pageData.theme.primaryColor};color:#fff;">${escapeHtml(block.primaryText)}</span>` : ""}
+              ${block.secondaryText ? `<span>${escapeHtml(block.secondaryText)}</span>` : ""}
+            </div>
+          `);
+        } else if (block.type === "text") {
+          html = previewWrapper(block, `
+            ${block.title ? `<h4>${escapeHtml(block.title)}</h4>` : ""}
+            <p>${escapeHtml(block.text)}</p>
+          `);
+        } else if (block.type === "button") {
+          html = previewWrapper(block, `
+            <div class="preview-actions" style="justify-content:${block.align === "center" ? "center" : block.align === "right" ? "flex-end" : "flex-start"}">
+              <span style="${block.style === "primary" ? `background:${pageData.theme.primaryColor};border-color:${pageData.theme.primaryColor};color:#fff;` : ""}">${escapeHtml(block.text)}</span>
+            </div>
+          `);
+        } else if (block.type === "image") {
+          html = previewWrapper(block, `
+            ${block.src ? `<img src="${block.src}" alt="${escapeHtml(block.alt || "")}" style="max-width:${block.width || "100%"};border-radius:12px;">` : `<p>Görsel URL girilmedi.</p>`}
+          `);
+        } else if (block.type === "html") {
+          html = previewWrapper(block, `
+            <div>${block.html || ""}</div>
+          `);
+        }
+
+        wrap.insertAdjacentHTML("beforeend", html);
+      });
+
+      if (pageData.overrides.html) {
+        wrap.insertAdjacentHTML("beforeend", previewWrapper({
+          background: "#ffffff",
+          color: "#0f172a",
+          padding: 24,
+          radius: 18,
+          align: "left",
+          maxWidth: 100
+        }, pageData.overrides.html));
+      }
     }
 
     async function checkSession() {
@@ -398,9 +798,7 @@
         const res = await fetch("/api/verify", {
           method: "GET",
           credentials: "same-origin",
-          headers: {
-            "Accept": "application/json"
-          }
+          headers: { "Accept": "application/json" }
         });
 
         const data = await res.json();
@@ -421,36 +819,43 @@
       try {
         const res = await fetch("/api/site-content", {
           method: "GET",
-          headers: {
-            "Accept": "application/json"
-          }
+          headers: { "Accept": "application/json" }
         });
 
         const data = await res.json();
         const content = data.content || {};
 
-        document.getElementById("siteTitle").value = content.siteTitle || "Vera";
-        document.getElementById("siteDescription").value = content.siteDescription || "Hoş geldiniz.";
-        document.getElementById("primaryButtonText").value = content.primaryButtonText || "Admin";
-        document.getElementById("primaryButtonLink").value = content.primaryButtonLink || "/admin";
-        document.getElementById("secondaryButtonText").value = content.secondaryButtonText || "Giriş";
-        document.getElementById("secondaryButtonLink").value = content.secondaryButtonLink || "/login";
+        pageData.pageTitle = content.pageTitle || "Vera";
+        pageData.metaDescription = content.metaDescription || "Hoş geldiniz.";
+        pageData.theme = content.theme || pageData.theme;
+        pageData.overrides = content.overrides || pageData.overrides;
+        pageData.blocks = Array.isArray(content.blocks) ? content.blocks : [];
 
-        syncPreview();
+        document.getElementById("pageTitle").value = pageData.pageTitle;
+        document.getElementById("metaDescription").value = pageData.metaDescription;
+
+        document.getElementById("themeBodyBg").value = pageData.theme.bodyBg || "#f8fafc";
+        document.getElementById("themeBodyText").value = pageData.theme.bodyText || "#0f172a";
+        document.getElementById("themeBorderColor").value = pageData.theme.borderColor || "#e2e8f0";
+        document.getElementById("themePrimaryColor").value = pageData.theme.primaryColor || "#2563eb";
+        document.getElementById("themeContainerWidth").value = pageData.theme.containerWidth || 1200;
+
+        document.getElementById("overrideHtml").value = pageData.overrides.html || "";
+        document.getElementById("overrideCss").value = pageData.overrides.css || "";
+        document.getElementById("overrideJs").value = pageData.overrides.js || "";
+
+        renderBlocks();
+        renderPreview();
       } catch (err) {
         showStatus("İçerik yüklenemedi.", "error");
       }
     }
 
     async function saveContent() {
-      const payload = {
-        siteTitle: document.getElementById("siteTitle").value.trim(),
-        siteDescription: document.getElementById("siteDescription").value.trim(),
-        primaryButtonText: document.getElementById("primaryButtonText").value.trim(),
-        primaryButtonLink: document.getElementById("primaryButtonLink").value.trim(),
-        secondaryButtonText: document.getElementById("secondaryButtonText").value.trim(),
-        secondaryButtonLink: document.getElementById("secondaryButtonLink").value.trim()
-      };
+      pageData.pageTitle = document.getElementById("pageTitle").value.trim();
+      pageData.metaDescription = document.getElementById("metaDescription").value.trim();
+      readThemeFromInputs();
+      readOverridesFromInputs();
 
       try {
         const res = await fetch("/api/site-content", {
@@ -460,7 +865,7 @@
             "Content-Type": "application/json",
             "Accept": "application/json"
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(pageData)
         });
 
         const data = await res.json();
@@ -471,7 +876,6 @@
         }
 
         showStatus("Kaydedildi.", "ok");
-        syncPreview();
       } catch (err) {
         showStatus("İstek sırasında hata oluştu.", "error");
       }
@@ -482,24 +886,68 @@
         await fetch("/api/logout", {
           method: "POST",
           credentials: "same-origin",
-          headers: {
-            "Accept": "application/json"
-          }
+          headers: { "Accept": "application/json" }
         });
       } catch (err) {}
-
       window.location.replace("/login");
     }
 
-    [
-      "siteTitle",
-      "siteDescription",
-      "primaryButtonText",
-      "primaryButtonLink",
-      "secondaryButtonText",
-      "secondaryButtonLink"
-    ].forEach((id) => {
-      document.getElementById(id).addEventListener("input", syncPreview);
+    document.getElementById("pageTitle").addEventListener("input", () => {
+      pageData.pageTitle = document.getElementById("pageTitle").value.trim();
+      renderPreview();
+    });
+
+    document.getElementById("metaDescription").addEventListener("input", () => {
+      pageData.metaDescription = document.getElementById("metaDescription").value.trim();
+    });
+
+    ["themeBodyBg","themeBodyText","themeBorderColor","themePrimaryColor","themeContainerWidth"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", () => {
+        readThemeFromInputs();
+        renderPreview();
+      });
+    });
+
+    ["overrideHtml","overrideCss","overrideJs"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", () => {
+        readOverridesFromInputs();
+        renderPreview();
+      });
+    });
+
+    document.getElementById("addHeroBtn").addEventListener("click", () => {
+      pageData.blocks.push(newHero());
+      reindexBlocks();
+      renderBlocks();
+      renderPreview();
+    });
+
+    document.getElementById("addTextBtn").addEventListener("click", () => {
+      pageData.blocks.push(newText());
+      reindexBlocks();
+      renderBlocks();
+      renderPreview();
+    });
+
+    document.getElementById("addButtonBtn").addEventListener("click", () => {
+      pageData.blocks.push(newButton());
+      reindexBlocks();
+      renderBlocks();
+      renderPreview();
+    });
+
+    document.getElementById("addImageBtn").addEventListener("click", () => {
+      pageData.blocks.push(newImage());
+      reindexBlocks();
+      renderBlocks();
+      renderPreview();
+    });
+
+    document.getElementById("addHtmlBtn").addEventListener("click", () => {
+      pageData.blocks.push(newHtml());
+      reindexBlocks();
+      renderBlocks();
+      renderPreview();
     });
 
     document.getElementById("saveBtn").addEventListener("click", saveContent);
