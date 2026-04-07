@@ -65,11 +65,36 @@ function normalizePageOptions(options = {}) {
     showHeader: normalizeBool(options.showHeader, true),
     showFooter: normalizeBool(options.showFooter, true),
     customBodyClass: normalizeText(options.customBodyClass),
-
     contentWidth: Number.isFinite(Number(options.contentWidth)) ? Math.min(2400, Math.max(480, Number(options.contentWidth))) : 1200,
     pagePaddingX: Number.isFinite(Number(options.pagePaddingX)) ? Math.min(120, Math.max(0, Number(options.pagePaddingX))) : 24,
     sectionGap: Number.isFinite(Number(options.sectionGap)) ? Math.min(120, Math.max(0, Number(options.sectionGap))) : 18,
     gridColumns: Number.isFinite(Number(options.gridColumns)) ? Math.min(12, Math.max(1, Number(options.gridColumns))) : 12
+  };
+}
+
+function normalizeBlock(block = {}, blockIndex = 0) {
+  return {
+    ...block,
+    id: normalizeText(block?.id, uid()),
+    order: Number.isFinite(Number(block?.order)) ? Number(block.order) : blockIndex,
+    visible: normalizeBool(block?.visible, true),
+    background: normalizeText(block?.background, "#ffffff"),
+    color: normalizeText(block?.color, "#0f172a"),
+    padding: Number.isFinite(Number(block?.padding)) ? Math.min(240, Math.max(0, Number(block.padding))) : 24,
+    radius: Number.isFinite(Number(block?.radius)) ? Math.min(80, Math.max(0, Number(block.radius))) : 18,
+    align: ["left", "center", "right"].includes(block?.align) ? block.align : "left",
+    maxWidth: Number.isFinite(Number(block?.maxWidth)) ? Math.min(100, Math.max(30, Number(block.maxWidth))) : 100,
+    cssClass: normalizeText(block?.cssClass),
+    htmlId: normalizeText(block?.htmlId),
+    layoutMode: block?.layoutMode === "free" ? "free" : "grid",
+    colSpanDesktop: Number.isFinite(Number(block?.colSpanDesktop)) ? Math.min(12, Math.max(1, Number(block.colSpanDesktop))) : 12,
+    colSpanTablet: Number.isFinite(Number(block?.colSpanTablet)) ? Math.min(12, Math.max(1, Number(block.colSpanTablet))) : 12,
+    colSpanMobile: Number.isFinite(Number(block?.colSpanMobile)) ? Math.min(12, Math.max(1, Number(block.colSpanMobile))) : 12,
+    rowSpan: Number.isFinite(Number(block?.rowSpan)) ? Math.min(12, Math.max(1, Number(block.rowSpan))) : 1,
+    fullWidth: normalizeBool(block?.fullWidth, false),
+    minHeight: Number.isFinite(Number(block?.minHeight)) ? Math.min(2000, Math.max(0, Number(block.minHeight))) : 0,
+    contentWidthMode: block?.contentWidthMode === "boxed" ? "boxed" : "full",
+    innerMaxWidth: Number.isFinite(Number(block?.innerMaxWidth)) ? Math.min(100, Math.max(20, Number(block.innerMaxWidth))) : 100
   };
 }
 
@@ -85,33 +110,12 @@ function normalizePage(page = {}, index = 0) {
     metaDescription: normalizeText(page.metaDescription),
     editorMode: ["blocks", "code"].includes(page.editorMode) ? page.editorMode : "blocks",
     pageOptions: normalizePageOptions(page.pageOptions || {}),
-    blocks: Array.isArray(page.blocks) ? page.blocks : [],
-blocks: Array.isArray(page.blocks)
-  ? page.blocks.map((block, blockIndex) => ({
-      ...block,
-      id: normalizeText(block?.id, uid()),
-      order: Number.isFinite(Number(block?.order)) ? Number(block.order) : blockIndex,
-      visible: normalizeBool(block?.visible, true),
-      background: normalizeText(block?.background, "#ffffff"),
-      color: normalizeText(block?.color, "#0f172a"),
-      padding: Number.isFinite(Number(block?.padding)) ? Math.min(240, Math.max(0, Number(block.padding))) : 24,
-      radius: Number.isFinite(Number(block?.radius)) ? Math.min(80, Math.max(0, Number(block.radius))) : 18,
-      align: ["left", "center", "right"].includes(block?.align) ? block.align : "left",
-      maxWidth: Number.isFinite(Number(block?.maxWidth)) ? Math.min(100, Math.max(30, Number(block.maxWidth))) : 100,
-      cssClass: normalizeText(block?.cssClass),
-      htmlId: normalizeText(block?.htmlId),
-
-      layoutMode: block?.layoutMode === "free" ? "free" : "grid",
-      colSpanDesktop: Number.isFinite(Number(block?.colSpanDesktop)) ? Math.min(12, Math.max(1, Number(block.colSpanDesktop))) : 12,
-      colSpanTablet: Number.isFinite(Number(block?.colSpanTablet)) ? Math.min(12, Math.max(1, Number(block.colSpanTablet))) : 12,
-      colSpanMobile: Number.isFinite(Number(block?.colSpanMobile)) ? Math.min(12, Math.max(1, Number(block.colSpanMobile))) : 12,
-      rowSpan: Number.isFinite(Number(block?.rowSpan)) ? Math.min(12, Math.max(1, Number(block.rowSpan))) : 1,
-      fullWidth: normalizeBool(block?.fullWidth, false),
-      minHeight: Number.isFinite(Number(block?.minHeight)) ? Math.min(2000, Math.max(0, Number(block.minHeight))) : 0,
-      contentWidthMode: block?.contentWidthMode === "boxed" ? "boxed" : "full",
-      innerMaxWidth: Number.isFinite(Number(block?.innerMaxWidth)) ? Math.min(100, Math.max(20, Number(block.innerMaxWidth))) : 100
-    }))
-  : [],
+    blocks: Array.isArray(page.blocks) ? page.blocks.map((block, blockIndex) => normalizeBlock(block, blockIndex)) : [],
+    overrides: {
+      html: String(page.overrides?.html || ""),
+      css: String(page.overrides?.css || ""),
+      js: String(page.overrides?.js || "")
+    },
     code: normalizeCode(page.code || {}),
     createdAt: normalizeText(page.createdAt, new Date().toISOString()),
     updatedAt: new Date().toISOString()
@@ -145,15 +149,15 @@ function defaultPages() {
       editorMode: "blocks",
       metaTitle: "Vera",
       metaDescription: "Hoş geldiniz.",
-pageOptions: {
-  showHeader: true,
-  showFooter: true,
-  customBodyClass: "",
-  contentWidth: 1200,
-  pagePaddingX: 24,
-  sectionGap: 18,
-  gridColumns: 12
-},
+      pageOptions: {
+        showHeader: true,
+        showFooter: true,
+        customBodyClass: "",
+        contentWidth: 1200,
+        pagePaddingX: 24,
+        sectionGap: 18,
+        gridColumns: 12
+      },
       blocks: [
         {
           id: uid(),
@@ -173,7 +177,16 @@ pageOptions: {
           align: "center",
           maxWidth: 100,
           cssClass: "",
-          htmlId: ""
+          htmlId: "",
+          layoutMode: "grid",
+          colSpanDesktop: 12,
+          colSpanTablet: 12,
+          colSpanMobile: 12,
+          rowSpan: 1,
+          fullWidth: true,
+          minHeight: 0,
+          contentWidthMode: "full",
+          innerMaxWidth: 100
         }
       ]
     }, 0)
