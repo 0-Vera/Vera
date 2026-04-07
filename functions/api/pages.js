@@ -60,42 +60,79 @@ function normalizeCode(code = {}) {
   };
 }
 
+function clampNumber(value, min, max, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
+function normalizeGridStartSpan(start, span) {
+  let safeSpan = clampNumber(span, 1, 12, 12);
+  let safeStart = clampNumber(start, 1, 12, 1);
+
+  if (safeStart + safeSpan - 1 > 12) {
+    safeStart = Math.max(1, 12 - safeSpan + 1);
+  }
+
+  return { start: safeStart, span: safeSpan };
+}
+
 function normalizePageOptions(options = {}) {
   return {
     showHeader: normalizeBool(options.showHeader, true),
     showFooter: normalizeBool(options.showFooter, true),
     customBodyClass: normalizeText(options.customBodyClass),
-    contentWidth: Number.isFinite(Number(options.contentWidth)) ? Math.min(2400, Math.max(480, Number(options.contentWidth))) : 1200,
-    pagePaddingX: Number.isFinite(Number(options.pagePaddingX)) ? Math.min(120, Math.max(0, Number(options.pagePaddingX))) : 24,
-    sectionGap: Number.isFinite(Number(options.sectionGap)) ? Math.min(120, Math.max(0, Number(options.sectionGap))) : 18,
-    gridColumns: Number.isFinite(Number(options.gridColumns)) ? Math.min(12, Math.max(1, Number(options.gridColumns))) : 12
+    contentWidth: clampNumber(options.contentWidth, 480, 2400, 1200),
+    pagePaddingX: clampNumber(options.pagePaddingX, 0, 120, 24),
+    sectionGap: clampNumber(options.sectionGap, 0, 120, 18),
+    gridColumns: clampNumber(options.gridColumns, 1, 12, 12)
   };
 }
 
 function normalizeBlock(block = {}, blockIndex = 0) {
-  return {
+  const desktop = normalizeGridStartSpan(block?.colStartDesktop, block?.colSpanDesktop);
+  const tablet = normalizeGridStartSpan(block?.colStartTablet, block?.colSpanTablet);
+  const mobile = normalizeGridStartSpan(block?.colStartMobile, block?.colSpanMobile);
+
+  const normalized = {
     ...block,
     id: normalizeText(block?.id, uid()),
     order: Number.isFinite(Number(block?.order)) ? Number(block.order) : blockIndex,
     visible: normalizeBool(block?.visible, true),
     background: normalizeText(block?.background, "#ffffff"),
     color: normalizeText(block?.color, "#0f172a"),
-    padding: Number.isFinite(Number(block?.padding)) ? Math.min(240, Math.max(0, Number(block.padding))) : 24,
-    radius: Number.isFinite(Number(block?.radius)) ? Math.min(80, Math.max(0, Number(block.radius))) : 18,
+    padding: clampNumber(block?.padding, 0, 240, 24),
+    radius: clampNumber(block?.radius, 0, 80, 18),
     align: ["left", "center", "right"].includes(block?.align) ? block.align : "left",
-    maxWidth: Number.isFinite(Number(block?.maxWidth)) ? Math.min(100, Math.max(30, Number(block.maxWidth))) : 100,
+    maxWidth: clampNumber(block?.maxWidth, 30, 100, 100),
     cssClass: normalizeText(block?.cssClass),
     htmlId: normalizeText(block?.htmlId),
     layoutMode: block?.layoutMode === "free" ? "free" : "grid",
-    colSpanDesktop: Number.isFinite(Number(block?.colSpanDesktop)) ? Math.min(12, Math.max(1, Number(block.colSpanDesktop))) : 12,
-    colSpanTablet: Number.isFinite(Number(block?.colSpanTablet)) ? Math.min(12, Math.max(1, Number(block.colSpanTablet))) : 12,
-    colSpanMobile: Number.isFinite(Number(block?.colSpanMobile)) ? Math.min(12, Math.max(1, Number(block.colSpanMobile))) : 12,
-    rowSpan: Number.isFinite(Number(block?.rowSpan)) ? Math.min(12, Math.max(1, Number(block.rowSpan))) : 1,
     fullWidth: normalizeBool(block?.fullWidth, false),
-    minHeight: Number.isFinite(Number(block?.minHeight)) ? Math.min(2000, Math.max(0, Number(block.minHeight))) : 0,
+
+    colStartDesktop: desktop.start,
+    colSpanDesktop: desktop.span,
+    colStartTablet: tablet.start,
+    colSpanTablet: tablet.span,
+    colStartMobile: mobile.start,
+    colSpanMobile: mobile.span,
+
+    rowSpan: clampNumber(block?.rowSpan, 1, 12, 1),
+    minHeight: clampNumber(block?.minHeight, 0, 2000, 0),
     contentWidthMode: block?.contentWidthMode === "boxed" ? "boxed" : "full",
-    innerMaxWidth: Number.isFinite(Number(block?.innerMaxWidth)) ? Math.min(100, Math.max(20, Number(block.innerMaxWidth))) : 100
+    innerMaxWidth: clampNumber(block?.innerMaxWidth, 20, 100, 100)
   };
+
+  if (normalized.fullWidth) {
+    normalized.colStartDesktop = 1;
+    normalized.colSpanDesktop = 12;
+    normalized.colStartTablet = 1;
+    normalized.colSpanTablet = 12;
+    normalized.colStartMobile = 1;
+    normalized.colSpanMobile = 12;
+  }
+
+  return normalized;
 }
 
 function normalizePage(page = {}, index = 0) {
@@ -179,11 +216,14 @@ function defaultPages() {
           cssClass: "",
           htmlId: "",
           layoutMode: "grid",
+          fullWidth: true,
+          colStartDesktop: 1,
           colSpanDesktop: 12,
+          colStartTablet: 1,
           colSpanTablet: 12,
+          colStartMobile: 1,
           colSpanMobile: 12,
           rowSpan: 1,
-          fullWidth: true,
           minHeight: 0,
           contentWidthMode: "full",
           innerMaxWidth: 100
