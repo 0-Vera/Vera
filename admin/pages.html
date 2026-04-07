@@ -214,11 +214,14 @@
               <button id="addHtmlBtn" class="btn btn-secondary" type="button">HTML Ekle</button>
               <button id="addSpacerBtn" class="btn btn-secondary" type="button">Boşluk Ekle</button>
             </div>
+            <div class="design-launch-row">
+  <button id="openDesignOverlayBtn" class="btn btn-primary" type="button">Tasarım Alanını Aç</button>
+  <button id="closeDesignOverlayBtnInline" class="btn btn-secondary" type="button">Tasarım Alanını Kapat</button>
+</div>
 
-            <div id="workspaceShell" class="workspace-shell">
-              <div id="builderBlocksWrap"></div>
-              <div id="builderPreviewWrap"></div>
-            </div>
+<div id="workspaceShell" class="workspace-shell form-only">
+  <div id="builderBlocksWrap"></div>
+</div>
           </div>
 
           <div id="codeModeWrap" class="mode-wrap">
@@ -240,7 +243,24 @@
       </section>
     </main>
   </div>
-
+<div id="designOverlay" class="design-overlay">
+  <div class="design-overlay-panel">
+    <div class="design-overlay-topbar">
+      <div>
+        <h3>Tasarım Alanı</h3>
+        <div style="font-size:13px;color:#64748b;margin-top:4px">
+          Bu alanda ön izleme daralmaz. Grid ve yatay yerleşim burada daha rahat düzenlenir.
+        </div>
+      </div>
+      <button id="closeDesignOverlayBtn" class="btn btn-danger" type="button">Kapat</button>
+    </div>
+    <div class="design-overlay-body">
+      <div id="designStage" class="design-stage">
+        <div id="designOverlayPreview"></div>
+      </div>
+    </div>
+  </div>
+</div>
   <script src="/admin/shared-page-builder.js"></script>
   <script>
     let pages = [];
@@ -253,18 +273,18 @@
       containerWidth: 1200
     };
 
-    const builder = VeraPageBuilder.createBuilder({
-      blocksWrap: document.getElementById("builderBlocksWrap"),
-      previewWrap: document.getElementById("builderPreviewWrap"),
-      theme: currentTheme,
-      pageLayout: {
-        contentWidth: 1200,
-        pagePaddingX: 24,
-        sectionGap: 18,
-        gridColumns: 12
-      },
-      onChange: () => {}
-    });
+const builder = VeraPageBuilder.createBuilder({
+  blocksWrap: document.getElementById("builderBlocksWrap"),
+  previewWrap: document.getElementById("designOverlayPreview"),
+  theme: currentTheme,
+  pageLayout: {
+    contentWidth: 1200,
+    pagePaddingX: 24,
+    sectionGap: 18,
+    gridColumns: 12
+  },
+  onChange: () => {}
+});
 
     function uid() {
       return "p-" + Math.random().toString(36).slice(2) + Date.now();
@@ -587,7 +607,28 @@
     addImageBtn.addEventListener("click", () => builder.addBlock("image"));
     addHtmlBtn.addEventListener("click", () => builder.addBlock("html"));
     addSpacerBtn.addEventListener("click", () => builder.addBlock("spacer"));
+openDesignOverlayBtn.addEventListener("click", () => {
+  designOverlay.classList.add("show");
+  document.body.style.overflow = "hidden";
+  builder.render();
+});
 
+closeDesignOverlayBtn.addEventListener("click", () => {
+  designOverlay.classList.remove("show");
+  document.body.style.overflow = "";
+});
+
+closeDesignOverlayBtnInline.addEventListener("click", () => {
+  designOverlay.classList.remove("show");
+  document.body.style.overflow = "";
+});
+
+designOverlay.addEventListener("click", (event) => {
+  if (event.target === designOverlay) {
+    designOverlay.classList.remove("show");
+    document.body.style.overflow = "";
+  }
+});
     (async function init() {
       await checkSession();
       await loadThemeFromSiteContent();
@@ -595,5 +636,6 @@
       updateWorkspaceMode();
     })();
   </script>
+  
 </body>
 </html>
