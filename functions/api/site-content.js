@@ -46,6 +46,13 @@ function normalizeColor(value, fallback) {
   return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v : fallback;
 }
 
+function normalizeBool(value, fallback = false) {
+  if (typeof value === "boolean") return value;
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return fallback;
+}
+
 function normalizeTheme(theme = {}) {
   return {
     bodyBg: normalizeColor(theme.bodyBg, "#f8fafc"),
@@ -67,7 +74,9 @@ function baseStyle(block = {}, index = 0, type = "text") {
     padding: normalizeNumber(block.padding, 24, 0, 120),
     radius: normalizeNumber(block.radius, 18, 0, 60),
     align: ["left", "center", "right"].includes(block.align) ? block.align : "left",
-    maxWidth: normalizeNumber(block.maxWidth, 100, 30, 100)
+    maxWidth: normalizeNumber(block.maxWidth, 100, 30, 100),
+    cssClass: normalizeText(block.cssClass),
+    htmlId: normalizeText(block.htmlId)
   };
 }
 
@@ -91,7 +100,8 @@ function normalizeBlock(block = {}, index = 0) {
       ...baseStyle(block, index, "image"),
       src: normalizeText(block.src),
       alt: normalizeText(block.alt),
-      width: normalizeText(block.width, "100%")
+      width: normalizeText(block.width, "100%"),
+      link: normalizeText(block.link)
     };
   }
 
@@ -111,6 +121,14 @@ function normalizeBlock(block = {}, index = 0) {
     };
   }
 
+  if (type === "spacer") {
+    return {
+      ...baseStyle(block, index, "spacer"),
+      height: normalizeNumber(block.height, 32, 0, 400),
+      background: "transparent"
+    };
+  }
+
   return {
     ...baseStyle(block, index, "text"),
     title: normalizeText(block.title),
@@ -126,13 +144,23 @@ function normalizeOverrides(overrides = {}) {
   };
 }
 
+function normalizePageOptions(options = {}) {
+  return {
+    showHeader: normalizeBool(options.showHeader, true),
+    showFooter: normalizeBool(options.showFooter, true),
+    customBodyClass: normalizeText(options.customBodyClass)
+  };
+}
+
 function normalizePayload(body = {}) {
   const blocks = Array.isArray(body.blocks) ? body.blocks : [];
+
   return {
     pageTitle: normalizeText(body.pageTitle, "Vera"),
     metaDescription: normalizeText(body.metaDescription, "Hoş geldiniz."),
     theme: normalizeTheme(body.theme || {}),
     overrides: normalizeOverrides(body.overrides || {}),
+    pageOptions: normalizePageOptions(body.pageOptions || {}),
     blocks: blocks
       .map((block, index) => normalizeBlock(block, index))
       .sort((a, b) => a.order - b.order)
@@ -145,6 +173,7 @@ function defaultPayload() {
     metaDescription: "Hoş geldiniz.",
     theme: normalizeTheme({}),
     overrides: normalizeOverrides({}),
+    pageOptions: normalizePageOptions({}),
     blocks: [
       {
         id: uid(),
@@ -162,7 +191,9 @@ function defaultPayload() {
         padding: 32,
         radius: 20,
         align: "center",
-        maxWidth: 100
+        maxWidth: 100,
+        cssClass: "",
+        htmlId: ""
       }
     ]
   };
