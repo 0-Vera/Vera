@@ -86,6 +86,26 @@
           <label for="metaDescription">Meta Description</label>
           <textarea id="metaDescription"></textarea>
           <label for="customBodyClass">Body Class</label>
+          <h3 style="font-size:18px;margin-top:10px">Yerleşim</h3>
+
+<div class="toggle-grid">
+  <div>
+    <label for="contentWidth">İçerik Genişliği (px)</label>
+    <input id="contentWidth" type="number" min="480" max="2400">
+  </div>
+  <div>
+    <label for="pagePaddingX">Yatay Boşluk (px)</label>
+    <input id="pagePaddingX" type="number" min="0" max="120">
+  </div>
+  <div>
+    <label for="sectionGap">Blok Aralığı (px)</label>
+    <input id="sectionGap" type="number" min="0" max="120">
+  </div>
+  <div>
+    <label for="gridColumns">Grid Kolon</label>
+    <input id="gridColumns" type="number" min="1" max="12">
+  </div>
+</div>
           <input id="customBodyClass" type="text">
 
           <div id="blocksModeWrap" class="mode-wrap">
@@ -141,12 +161,18 @@
       containerWidth: 1200
     };
 
-    const builder = VeraPageBuilder.createBuilder({
-      blocksWrap: document.getElementById("builderBlocksWrap"),
-      previewWrap: document.getElementById("builderPreviewWrap"),
-      theme: currentTheme,
-      onChange: () => {}
-    });
+const builder = VeraPageBuilder.createBuilder({
+  blocksWrap: document.getElementById("builderBlocksWrap"),
+  previewWrap: document.getElementById("builderPreviewWrap"),
+  theme: currentTheme,
+  pageLayout: {
+    contentWidth: 1200,
+    pagePaddingX: 24,
+    sectionGap: 18,
+    gridColumns: 12
+  },
+  onChange: () => {}
+});
 
     function uid() {
       return "p-" + Math.random().toString(36).slice(2) + Date.now();
@@ -167,26 +193,30 @@
       statusBox.textContent = message;
     }
 
-    function emptyPage() {
-      return {
-        id: uid(),
-        title: "Yeni Sayfa",
-        slug: "yeni-sayfa",
-        status: "draft",
-        isHome: false,
-        metaTitle: "Yeni Sayfa",
-        metaDescription: "",
-        editorMode: "blocks",
-        pageOptions: {
-          showHeader: true,
-          showFooter: true,
-          customBodyClass: ""
-        },
-        blocks: [],
-        overrides: { html: "", css: "", js: "" },
-        code: { html: "", css: "", js: "" }
-      };
-    }
+function emptyPage() {
+  return {
+    id: uid(),
+    title: "Yeni Sayfa",
+    slug: "yeni-sayfa",
+    status: "draft",
+    isHome: false,
+    metaTitle: "Yeni Sayfa",
+    metaDescription: "",
+    editorMode: "blocks",
+    pageOptions: {
+      showHeader: true,
+      showFooter: true,
+      customBodyClass: "",
+      contentWidth: 1200,
+      pagePaddingX: 24,
+      sectionGap: 18,
+      gridColumns: 12
+    },
+    blocks: [],
+    overrides: { html: "", css: "", js: "" },
+    code: { html: "", css: "", js: "" }
+  };
+}
 
     function toggleMode() {
       const isBlocks = editorMode.value === "blocks";
@@ -207,6 +237,17 @@
       metaTitle.value = page.metaTitle || "";
       metaDescription.value = page.metaDescription || "";
       customBodyClass.value = page.pageOptions?.customBodyClass || "";
+      contentWidth.value = page.pageOptions?.contentWidth ?? 1200;
+pagePaddingX.value = page.pageOptions?.pagePaddingX ?? 24;
+sectionGap.value = page.pageOptions?.sectionGap ?? 18;
+gridColumns.value = page.pageOptions?.gridColumns ?? 12;
+
+builder.setPageLayout({
+  contentWidth: page.pageOptions?.contentWidth ?? 1200,
+  pagePaddingX: page.pageOptions?.pagePaddingX ?? 24,
+  sectionGap: page.pageOptions?.sectionGap ?? 18,
+  gridColumns: page.pageOptions?.gridColumns ?? 12
+});
       codeHtml.value = page.code?.html || "";
       codeCss.value = page.code?.css || "";
       codeJs.value = page.code?.js || "";
@@ -225,11 +266,15 @@
         metaTitle: metaTitle.value.trim() || pageTitle.value.trim() || "Yeni Sayfa",
         metaDescription: metaDescription.value.trim(),
         editorMode: editorMode.value,
-        pageOptions: {
-          showHeader: showHeader.value === "true",
-          showFooter: showFooter.value === "true",
-          customBodyClass: customBodyClass.value.trim()
-        },
+pageOptions: {
+  showHeader: showHeader.value === "true",
+  showFooter: showFooter.value === "true",
+  customBodyClass: customBodyClass.value.trim(),
+  contentWidth: Number(contentWidth.value || 1200),
+  pagePaddingX: Number(pagePaddingX.value || 24),
+  sectionGap: Number(sectionGap.value || 18),
+  gridColumns: Number(gridColumns.value || 12)
+},
         blocks: builder.getBlocks(),
         overrides: {
           html: "",
@@ -385,7 +430,25 @@
     });
 
     editorMode.addEventListener("change", toggleMode);
+[contentWidth, pagePaddingX, sectionGap, gridColumns].forEach((field) => {
+  field.addEventListener("input", () => {
+    builder.setPageLayout({
+      contentWidth: Number(contentWidth.value || 1200),
+      pagePaddingX: Number(pagePaddingX.value || 24),
+      sectionGap: Number(sectionGap.value || 18),
+      gridColumns: Number(gridColumns.value || 12)
+    });
+  });
 
+  field.addEventListener("change", () => {
+    builder.setPageLayout({
+      contentWidth: Number(contentWidth.value || 1200),
+      pagePaddingX: Number(pagePaddingX.value || 24),
+      sectionGap: Number(sectionGap.value || 18),
+      gridColumns: Number(gridColumns.value || 12)
+    });
+  });
+});
     openBtn.addEventListener("click", () => {
       const slug = slugify(pageSlug.value || pageTitle.value);
       const path = slug ? `/${slug}` : "/";
