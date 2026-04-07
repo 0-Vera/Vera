@@ -191,8 +191,9 @@ window.VeraPageBuilder = (() => {
         sectionGap: 18,
         gridColumns: 12
       },
-      targetBlocksWrap: options.blocksWrap,
-      targetPreviewWrap: options.previewWrap,
+targetBlocksWrap: options.blocksWrap,
+targetMirrorBlocksWrap: options.mirrorBlocksWrap || null,
+targetPreviewWrap: options.previewWrap,
       onChange: typeof options.onChange === "function" ? options.onChange : () => {},
       dragIndex: null,
       selectedId: null
@@ -520,142 +521,144 @@ window.VeraPageBuilder = (() => {
       `;
     }
 
-    function renderBlocks() {
-      const wrap = state.targetBlocksWrap;
-      if (!wrap) return;
+function renderBlocks() {
+  const wraps = [state.targetBlocksWrap, state.targetMirrorBlocksWrap].filter(Boolean);
 
-      wrap.innerHTML = "";
+  wraps.forEach((wrap) => {
+    wrap.innerHTML = "";
 
-      if (!state.blocks.length) {
-        wrap.innerHTML = "<p style='color:#64748b'>Henüz blok yok.</p>";
-        return;
-      }
+    if (!state.blocks.length) {
+      wrap.innerHTML = "<p style='color:#64748b'>Henüz blok yok.</p>";
+      return;
+    }
 
-      state.blocks.forEach((block, index) => {
-        const selectedClass = block.id === state.selectedId ? " builder-item-selected" : "";
-        const el = document.createElement("div");
-        el.className = "builder-item" + selectedClass;
-        el.setAttribute("draggable", "true");
-        el.dataset.index = String(index);
+    state.blocks.forEach((block, index) => {
+      const selectedClass = block.id === state.selectedId ? " builder-item-selected" : "";
+      const el = document.createElement("div");
+      el.className = "builder-item" + selectedClass;
+      el.setAttribute("draggable", "true");
+      el.dataset.index = String(index);
 
-        el.innerHTML = `
-          <div class="builder-head">
-            <div class="builder-title">${block.type.toUpperCase()} BLOĞU</div>
-            <div class="builder-actions">
-              <button class="mini-btn duplicate" type="button">Kopyala</button>
-              <button class="mini-btn up" type="button">Yukarı</button>
-              <button class="mini-btn down" type="button">Aşağı</button>
-              <button class="mini-btn danger remove" type="button">Sil</button>
-            </div>
+      el.innerHTML = `
+        <div class="builder-head">
+          <div class="builder-title">${block.type.toUpperCase()} BLOĞU</div>
+          <div class="builder-actions">
+            <button class="mini-btn duplicate" type="button">Kopyala</button>
+            <button class="mini-btn up" type="button">Yukarı</button>
+            <button class="mini-btn down" type="button">Aşağı</button>
+            <button class="mini-btn danger remove" type="button">Sil</button>
           </div>
+        </div>
 
-          <div style="margin-bottom:10px;color:#64748b;font-size:12px">Sürükleyip bırakarak blok sırasını değiştirebilirsin.</div>
+        <div style="margin-bottom:10px;color:#64748b;font-size:12px">Sürükleyip bırakarak blok sırasını değiştirebilirsin.</div>
 
-          <label>Görünürlük</label>
-          <select data-key="visible">
-            <option value="true" ${block.visible !== false ? "selected" : ""}>Aktif</option>
-            <option value="false" ${block.visible === false ? "selected" : ""}>Pasif</option>
-          </select>
+        <label>Görünürlük</label>
+        <select data-key="visible">
+          <option value="true" ${block.visible !== false ? "selected" : ""}>Aktif</option>
+          <option value="false" ${block.visible === false ? "selected" : ""}>Pasif</option>
+        </select>
 
-          ${renderBlockFields(block)}
-          ${styleFields(block)}
-        `;
+        ${renderBlockFields(block)}
+        ${styleFields(block)}
+      `;
 
-        el.addEventListener("click", () => {
-          setSelected(block.id);
-        });
+      el.addEventListener("click", () => {
+        setSelected(block.id);
+      });
 
-        el.addEventListener("dragstart", () => {
-          state.dragIndex = index;
-          el.style.opacity = "0.5";
-        });
+      el.addEventListener("dragstart", () => {
+        state.dragIndex = index;
+        el.style.opacity = "0.5";
+      });
 
-        el.addEventListener("dragend", () => {
-          state.dragIndex = null;
-          el.style.opacity = "";
-          wrap.querySelectorAll(".builder-item").forEach((node) => {
+      el.addEventListener("dragend", () => {
+        state.dragIndex = null;
+        el.style.opacity = "";
+        wraps.forEach((targetWrap) => {
+          targetWrap.querySelectorAll(".builder-item").forEach((node) => {
             node.style.borderColor = "";
             node.style.boxShadow = "";
           });
         });
-
-        el.addEventListener("dragover", (event) => {
-          event.preventDefault();
-          el.style.borderColor = "#2563eb";
-          el.style.boxShadow = "0 0 0 2px rgba(37,99,235,.08)";
-        });
-
-        el.addEventListener("dragleave", () => {
-          el.style.borderColor = "";
-          el.style.boxShadow = "";
-        });
-
-        el.addEventListener("drop", (event) => {
-          event.preventDefault();
-          el.style.borderColor = "";
-          el.style.boxShadow = "";
-          moveBlockToIndex(state.dragIndex, index);
-        });
-
-        el.querySelector(".duplicate").addEventListener("click", (e) => {
-          e.stopPropagation();
-          duplicateBlock(index);
-        });
-
-        el.querySelector(".up").addEventListener("click", (e) => {
-          e.stopPropagation();
-          moveBlock(index, -1);
-        });
-
-        el.querySelector(".down").addEventListener("click", (e) => {
-          e.stopPropagation();
-          moveBlock(index, 1);
-        });
-
-        el.querySelector(".remove").addEventListener("click", (e) => {
-          e.stopPropagation();
-          removeBlock(index);
-        });
-
-        el.querySelectorAll("[data-key]").forEach((field) => {
-          const applyValue = () => {
-            const key = field.getAttribute("data-key");
-            let value = field.value;
-
-            if (key === "visible" || key === "fullWidth") value = value === "true";
-
-            if ([
-              "padding",
-              "radius",
-              "maxWidth",
-              "height",
-              "colStartDesktop",
-              "colSpanDesktop",
-              "colStartTablet",
-              "colSpanTablet",
-              "colStartMobile",
-              "colSpanMobile",
-              "rowSpan",
-              "minHeight",
-              "innerMaxWidth"
-            ].includes(key)) {
-              value = Number(value || 0);
-            }
-
-            state.blocks[index][key] = value;
-            state.blocks[index] = normalizeBlock(state.blocks[index], index);
-            render();
-            emitChange();
-          };
-
-          field.addEventListener("input", applyValue);
-          field.addEventListener("change", applyValue);
-        });
-
-        wrap.appendChild(el);
       });
-    }
 
+      el.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        el.style.borderColor = "#2563eb";
+        el.style.boxShadow = "0 0 0 2px rgba(37,99,235,.08)";
+      });
+
+      el.addEventListener("dragleave", () => {
+        el.style.borderColor = "";
+        el.style.boxShadow = "";
+      });
+
+      el.addEventListener("drop", (event) => {
+        event.preventDefault();
+        el.style.borderColor = "";
+        el.style.boxShadow = "";
+        moveBlockToIndex(state.dragIndex, index);
+      });
+
+      el.querySelector(".duplicate").addEventListener("click", (e) => {
+        e.stopPropagation();
+        duplicateBlock(index);
+      });
+
+      el.querySelector(".up").addEventListener("click", (e) => {
+        e.stopPropagation();
+        moveBlock(index, -1);
+      });
+
+      el.querySelector(".down").addEventListener("click", (e) => {
+        e.stopPropagation();
+        moveBlock(index, 1);
+      });
+
+      el.querySelector(".remove").addEventListener("click", (e) => {
+        e.stopPropagation();
+        removeBlock(index);
+      });
+
+      el.querySelectorAll("[data-key]").forEach((field) => {
+        const applyValue = () => {
+          const key = field.getAttribute("data-key");
+          let value = field.value;
+
+          if (key === "visible" || key === "fullWidth") value = value === "true";
+
+          if ([
+            "padding",
+            "radius",
+            "maxWidth",
+            "height",
+            "colStartDesktop",
+            "colSpanDesktop",
+            "colStartTablet",
+            "colSpanTablet",
+            "colStartMobile",
+            "colSpanMobile",
+            "rowSpan",
+            "minHeight",
+            "innerMaxWidth"
+          ].includes(key)) {
+            value = Number(value || 0);
+          }
+
+          state.blocks[index][key] = value;
+          state.blocks[index] = normalizeBlock(state.blocks[index], index);
+          render();
+          emitChange();
+        };
+
+        field.addEventListener("input", applyValue);
+        field.addEventListener("change", applyValue);
+      });
+
+      wrap.appendChild(el);
+    });
+  });
+}
     function getPreviewCardHtml(block) {
       if (block.type === "hero") {
         return `
@@ -720,7 +723,7 @@ window.VeraPageBuilder = (() => {
             <button class="mini-btn" data-action="toggle-full" type="button">${block.fullWidth ? "Tam Genişlik Kapat" : "Tam Genişlik Aç"}</button>
           </div>
 
-          <div class="builder-grid" style="margin-top:12px">
+          <div class="builder-grid compact-grid" style="margin-top:12px">
             <div>
               <label>Desktop Başlangıç</label>
               <input id="design-colStartDesktop" type="number" min="1" max="12" value="${Number(block.colStartDesktop || 1)}" ${block.fullWidth ? "disabled" : ""}>
@@ -845,36 +848,46 @@ window.VeraPageBuilder = (() => {
         })
         .join("");
 
-      wrap.innerHTML = `
-        <div class="design-mode-shell">
-          <div class="design-toolbar-note">
-            Tasarım modu: Blok seç, grid üstünde genişlet/daralt, sola-sağa taşı.
-          </div>
+ wrap.innerHTML = `
+  <div class="design-mode-shell">
+    <div class="design-toolbar-note">
+      Tasarım modu: Blok seç, grid üstünde taşı, genişlet, daralt.
+    </div>
 
-          <div
-            class="design-canvas"
-            style="
-              display:grid;
-              grid-template-columns:repeat(${totalCols}, minmax(0, 1fr));
-              background:
-                linear-gradient(to right, rgba(37,99,235,.08) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(37,99,235,.06) 1px, transparent 1px),
-                ${state.theme.bodyBg || "#f8fafc"};
-              background-size: calc(100% / ${totalCols}) 100%, 100% 48px, auto;
-              color:${state.theme.bodyText || "#0f172a"};
-              padding:${Number(state.pageLayout.pagePaddingX || 24)}px;
-              gap:${Number(state.pageLayout.sectionGap || 18)}px;
-              width:100%;
-            "
-          >
-            ${itemsHtml || `<p style="color:#64748b;margin:0">Henüz blok yok.</p>`}
-          </div>
+    <div class="compact-toolbar">
+      <button class="mini-btn" data-action="move-left" type="button">Sola</button>
+      <button class="mini-btn" data-action="move-right" type="button">Sağa</button>
+      <button class="mini-btn" data-action="shrink" type="button">Daralt</button>
+      <button class="mini-btn" data-action="grow" type="button">Genişlet</button>
+      <button class="mini-btn" data-action="row-less" type="button">Yükseklik -</button>
+      <button class="mini-btn" data-action="row-more" type="button">Yükseklik +</button>
+      <button class="mini-btn" data-action="toggle-full" type="button">${selected?.fullWidth ? "Tam Genişlik Kapat" : "Tam Genişlik Aç"}</button>
+    </div>
 
-          <div class="design-inspector">
-            ${selected ? renderSelectedInspector() : `<p style="color:#64748b;margin:0">Bir blok seç.</p>`}
-          </div>
-        </div>
-      `;
+    <div
+      class="design-canvas"
+      style="
+        display:grid;
+        grid-template-columns:repeat(${totalCols}, minmax(0, 1fr));
+        background:
+          linear-gradient(to right, rgba(37,99,235,.08) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(37,99,235,.06) 1px, transparent 1px),
+          ${state.theme.bodyBg || "#f8fafc"};
+        background-size: calc(100% / ${totalCols}) 100%, 100% 48px, auto;
+        color:${state.theme.bodyText || "#0f172a"};
+        padding:${Number(state.pageLayout.pagePaddingX || 24)}px;
+        gap:${Number(state.pageLayout.sectionGap || 18)}px;
+        width:100%;
+      "
+    >
+      ${itemsHtml || `<p style="color:#64748b;margin:0">Henüz blok yok.</p>`}
+    </div>
+
+    <div class="design-inspector">
+      ${selected ? renderSelectedInspector() : `<p style="color:#64748b;margin:0">Bir blok seç.</p>`}
+    </div>
+  </div>
+`;
 
       wrap.querySelectorAll(".design-item").forEach((node) => {
         node.addEventListener("click", () => {
