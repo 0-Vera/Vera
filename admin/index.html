@@ -63,7 +63,8 @@
       margin: 22px 0 10px;
     }
 
-    .nav-btn {
+    .nav-btn,
+    .nav-link {
       width: 100%;
       text-align: left;
       border: 0;
@@ -74,10 +75,14 @@
       cursor: pointer;
       font-size: 14px;
       margin-bottom: 8px;
+      display: block;
+      text-decoration: none;
     }
 
     .nav-btn:hover,
-    .nav-btn.active {
+    .nav-link:hover,
+    .nav-btn.active,
+    .nav-link.active {
       background: rgba(255,255,255,.08);
     }
 
@@ -143,9 +148,9 @@
       gap: 18px;
     }
 
-    .editor-grid {
+    .section-grid {
       display: grid;
-      grid-template-columns: 1.15fr .85fr;
+      grid-template-columns: 1.2fr .8fr;
       gap: 18px;
     }
 
@@ -208,7 +213,8 @@
     .status.ok { background: #dcfce7; color: #166534; }
     .status.error { background: #fee2e2; color: #991b1b; }
 
-    .block-item {
+    .block-item,
+    .menu-item {
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 14px;
@@ -292,23 +298,24 @@
       background: #fff;
     }
 
-    .style-grid {
+    .style-grid,
+    .theme-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
-    .theme-grid {
+    .toggle-grid {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
 
     @media (max-width: 1100px) {
       .layout { grid-template-columns: 1fr; }
       .sidebar { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.06); }
-      .editor-grid { grid-template-columns: 1fr; }
-      .style-grid, .theme-grid { grid-template-columns: 1fr; }
+      .section-grid { grid-template-columns: 1fr; }
+      .style-grid, .theme-grid, .toggle-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -319,11 +326,11 @@
     <aside class="sidebar">
       <div class="brand">
         <h1>Vera Admin</h1>
-        <p>Blok tabanlı editör</p>
+        <p>Güçlendirilmiş içerik paneli</p>
       </div>
 
-      <div class="nav-title">Menü</div>
-      <button class="nav-btn active" type="button">Ana Siteyi Düzenle</button>
+      <div class="nav-title">Editör</div>
+      <a class="nav-link active" href="/admin">Ana Sayfa Editörü</a>
 
       <div class="nav-title">Oturum</div>
       <button id="logoutBtnSide" class="nav-btn" type="button">Çıkış Yap</button>
@@ -333,7 +340,7 @@
       <header class="topbar">
         <div class="topbar-left">
           <h2>Ana Site Editörü</h2>
-          <p>Bloklar + site ayarları + kod override</p>
+          <p>Site ayarları + sayfa ayarları + bloklar + kod override</p>
         </div>
 
         <div class="topbar-right">
@@ -343,6 +350,74 @@
       </header>
 
       <section class="content">
+        <div class="card">
+          <h3>Global Site Ayarları</h3>
+          <div class="theme-grid">
+            <div>
+              <label for="siteName">Site Adı</label>
+              <input id="siteName" type="text">
+            </div>
+            <div>
+              <label for="logoText">Logo Metni</label>
+              <input id="logoText" type="text">
+            </div>
+            <div>
+              <label for="logoLink">Logo Linki</label>
+              <input id="logoLink" type="text">
+            </div>
+            <div>
+              <label for="contactEmail">E-posta</label>
+              <input id="contactEmail" type="text">
+            </div>
+            <div>
+              <label for="contactPhone">Telefon</label>
+              <input id="contactPhone" type="text">
+            </div>
+            <div>
+              <label for="footerText">Footer Yazısı</label>
+              <input id="footerText" type="text">
+            </div>
+          </div>
+
+          <div class="toggle-grid">
+            <div>
+              <label for="showHeader">Header Göster</label>
+              <select id="showHeader">
+                <option value="true">Evet</option>
+                <option value="false">Hayır</option>
+              </select>
+            </div>
+            <div>
+              <label for="showFooter">Footer Göster</label>
+              <select id="showFooter">
+                <option value="true">Evet</option>
+                <option value="false">Hayır</option>
+              </select>
+            </div>
+            <div>
+              <label for="showTopCta">Üst CTA Göster</label>
+              <select id="showTopCta">
+                <option value="true">Evet</option>
+                <option value="false">Hayır</option>
+              </select>
+            </div>
+            <div>
+              <label for="topCtaText">Üst CTA Metni</label>
+              <input id="topCtaText" type="text">
+            </div>
+            <div>
+              <label for="topCtaLink">Üst CTA Linki</label>
+              <input id="topCtaLink" type="text">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Üst Menü</h3>
+          <button id="addMenuBtn" class="btn btn-secondary" type="button">Menü Öğesi Ekle</button>
+          <div id="menuWrap" style="margin-top:14px"></div>
+        </div>
+
         <div class="card">
           <h3>Site Ayarları</h3>
           <div class="theme-grid">
@@ -370,21 +445,45 @@
         </div>
 
         <div class="card">
-          <h3>Sayfa Meta</h3>
+          <h3>Sayfa Meta ve Görünüm</h3>
           <label for="pageTitle">Sayfa Başlığı</label>
           <input id="pageTitle" type="text" />
 
           <label for="metaDescription">Meta Açıklama</label>
           <textarea id="metaDescription"></textarea>
 
+          <div class="toggle-grid">
+            <div>
+              <label for="pageShowHeader">Bu Sayfada Header</label>
+              <select id="pageShowHeader">
+                <option value="true">Göster</option>
+                <option value="false">Gizle</option>
+              </select>
+            </div>
+            <div>
+              <label for="pageShowFooter">Bu Sayfada Footer</label>
+              <select id="pageShowFooter">
+                <option value="true">Göster</option>
+                <option value="false">Gizle</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="customBodyClass">Body Class</label>
+          <input id="customBodyClass" type="text" placeholder="ör: landing-page dark-body">
+
           <button id="addHeroBtn" class="btn btn-secondary" type="button">Hero Ekle</button>
           <button id="addTextBtn" class="btn btn-secondary" type="button">Metin Ekle</button>
           <button id="addButtonBtn" class="btn btn-secondary" type="button">Buton Ekle</button>
           <button id="addImageBtn" class="btn btn-secondary" type="button">Görsel Ekle</button>
           <button id="addHtmlBtn" class="btn btn-secondary" type="button">HTML Ekle</button>
+          <button id="addSpacerBtn" class="btn btn-secondary" type="button">Boşluk Ekle</button>
+          <button id="exportJsonBtn" class="btn btn-secondary" type="button">JSON Dışa Aktar</button>
+          <button id="importJsonBtn" class="btn btn-secondary" type="button">JSON İçe Aktar</button>
+          <input id="importJsonInput" type="file" accept="application/json" style="display:none">
         </div>
 
-        <div class="editor-grid">
+        <div class="section-grid">
           <div class="card">
             <h3>Bloklar</h3>
             <div id="blocksWrap"></div>
@@ -427,12 +526,32 @@
         primaryColor: "#2563eb",
         containerWidth: 1200
       },
+      pageOptions: {
+        showHeader: true,
+        showFooter: true,
+        customBodyClass: ""
+      },
       overrides: {
         html: "",
         css: "",
         js: ""
       },
       blocks: []
+    };
+
+    let siteSettings = {
+      siteName: "Vera",
+      logoText: "Vera",
+      logoLink: "/",
+      contactEmail: "",
+      contactPhone: "",
+      footerText: "© Vera",
+      showHeader: true,
+      showFooter: true,
+      showTopCta: true,
+      topCtaText: "İletişim",
+      topCtaLink: "/iletisim",
+      menuItems: []
     };
 
     function uid() {
@@ -464,7 +583,9 @@
         padding: 24,
         radius: 18,
         align: "left",
-        maxWidth: 100
+        maxWidth: 100,
+        cssClass: "",
+        htmlId: ""
       };
     }
 
@@ -506,6 +627,7 @@
         src: "",
         alt: "",
         width: "100%",
+        link: "",
         align: "center"
       };
     }
@@ -514,6 +636,24 @@
       return {
         ...baseBlock("html"),
         html: "<div>Özel HTML</div>"
+      };
+    }
+
+    function newSpacer() {
+      return {
+        ...baseBlock("spacer"),
+        height: 32,
+        background: "transparent",
+        padding: 0,
+        radius: 0
+      };
+    }
+
+    function newMenuItem() {
+      return {
+        id: uid(),
+        text: "Menü",
+        link: "#"
       };
     }
 
@@ -541,6 +681,15 @@
       renderPreview();
     }
 
+    function duplicateBlock(index) {
+      const source = JSON.parse(JSON.stringify(pageData.blocks[index]));
+      source.id = uid();
+      pageData.blocks.splice(index + 1, 0, source);
+      reindexBlocks();
+      renderBlocks();
+      renderPreview();
+    }
+
     function readThemeFromInputs() {
       pageData.theme = {
         bodyBg: document.getElementById("themeBodyBg").value.trim() || "#f8fafc",
@@ -551,12 +700,82 @@
       };
     }
 
+    function readPageOptionsFromInputs() {
+      pageData.pageOptions = {
+        showHeader: document.getElementById("pageShowHeader").value === "true",
+        showFooter: document.getElementById("pageShowFooter").value === "true",
+        customBodyClass: document.getElementById("customBodyClass").value.trim()
+      };
+    }
+
     function readOverridesFromInputs() {
       pageData.overrides = {
         html: document.getElementById("overrideHtml").value,
         css: document.getElementById("overrideCss").value,
         js: document.getElementById("overrideJs").value
       };
+    }
+
+    function readSiteSettingsFromInputs() {
+      siteSettings = {
+        siteName: document.getElementById("siteName").value.trim() || "Vera",
+        logoText: document.getElementById("logoText").value.trim() || "Vera",
+        logoLink: document.getElementById("logoLink").value.trim() || "/",
+        contactEmail: document.getElementById("contactEmail").value.trim(),
+        contactPhone: document.getElementById("contactPhone").value.trim(),
+        footerText: document.getElementById("footerText").value.trim() || "© Vera",
+        showHeader: document.getElementById("showHeader").value === "true",
+        showFooter: document.getElementById("showFooter").value === "true",
+        showTopCta: document.getElementById("showTopCta").value === "true",
+        topCtaText: document.getElementById("topCtaText").value.trim(),
+        topCtaLink: document.getElementById("topCtaLink").value.trim(),
+        menuItems: siteSettings.menuItems || []
+      };
+    }
+
+    function renderMenuItemsEditor() {
+      const wrap = document.getElementById("menuWrap");
+      wrap.innerHTML = "";
+
+      if (!siteSettings.menuItems.length) {
+        wrap.innerHTML = "<p style='color:#64748b'>Henüz menü öğesi yok.</p>";
+        return;
+      }
+
+      siteSettings.menuItems.forEach((item, index) => {
+        const el = document.createElement("div");
+        el.className = "menu-item";
+        el.innerHTML = `
+          <div class="block-head">
+            <div class="block-title">Menü Öğesi ${index + 1}</div>
+            <div class="block-actions">
+              <button class="mini-btn danger remove-menu" type="button">Sil</button>
+            </div>
+          </div>
+          <label>Metin</label>
+          <input data-menu-key="text" value="${escapeHtml(item.text)}">
+          <label>Link</label>
+          <input data-menu-key="link" value="${escapeHtml(item.link)}">
+        `;
+
+        el.querySelector(".remove-menu").addEventListener("click", () => {
+          siteSettings.menuItems.splice(index, 1);
+          renderMenuItemsEditor();
+          renderPreview();
+        });
+
+        el.querySelectorAll("[data-menu-key]").forEach((field) => {
+          const applyValue = () => {
+            const key = field.getAttribute("data-menu-key");
+            siteSettings.menuItems[index][key] = field.value;
+            renderPreview();
+          };
+          field.addEventListener("input", applyValue);
+          field.addEventListener("change", applyValue);
+        });
+
+        wrap.appendChild(el);
+      });
     }
 
     function styleFields(block) {
@@ -589,6 +808,14 @@
           <div>
             <label>Maks. Genişlik (%)</label>
             <input data-key="maxWidth" type="number" min="30" max="100" value="${Number(block.maxWidth || 100)}">
+          </div>
+          <div>
+            <label>CSS Class</label>
+            <input data-key="cssClass" value="${escapeHtml(block.cssClass || "")}">
+          </div>
+          <div>
+            <label>HTML ID</label>
+            <input data-key="htmlId" value="${escapeHtml(block.htmlId || "")}">
           </div>
         </div>
       `;
@@ -661,11 +888,19 @@
 
             <label>Genişlik</label>
             <input data-key="width" value="${escapeHtml(block.width)}">
+
+            <label>Tıklama Linki</label>
+            <input data-key="link" value="${escapeHtml(block.link || "")}">
           `;
         } else if (block.type === "html") {
           fields = `
             <label>HTML</label>
             <textarea data-key="html">${escapeHtml(block.html)}</textarea>
+          `;
+        } else if (block.type === "spacer") {
+          fields = `
+            <label>Yükseklik</label>
+            <input data-key="height" type="number" value="${Number(block.height || 32)}">
           `;
         }
 
@@ -673,6 +908,7 @@
           <div class="block-head">
             <div class="block-title">${block.type.toUpperCase()} BLOĞU</div>
             <div class="block-actions">
+              <button class="mini-btn duplicate" type="button">Kopyala</button>
               <button class="mini-btn move-up" type="button">Yukarı</button>
               <button class="mini-btn move-down" type="button">Aşağı</button>
               <button class="mini-btn danger remove" type="button">Sil</button>
@@ -689,6 +925,7 @@
           ${styleFields(block)}
         `;
 
+        el.querySelector(".duplicate").addEventListener("click", () => duplicateBlock(index));
         el.querySelector(".move-up").addEventListener("click", () => moveBlock(index, -1));
         el.querySelector(".move-down").addEventListener("click", () => moveBlock(index, 1));
         el.querySelector(".remove").addEventListener("click", () => removeBlock(index));
@@ -699,7 +936,7 @@
             let value = field.value;
 
             if (key === "visible") value = value === "true";
-            if (["padding", "radius", "maxWidth"].includes(key)) value = Number(value || 0);
+            if (["padding", "radius", "maxWidth", "height"].includes(key)) value = Number(value || 0);
 
             pageData.blocks[index][key] = value;
             renderPreview();
@@ -716,7 +953,8 @@
     function previewWrapper(block, innerHtml) {
       return `
         <div
-          class="preview-card"
+          class="preview-card ${block.cssClass || ""}"
+          ${block.htmlId ? `id="${escapeHtml(block.htmlId)}"` : ""}
           style="
             background:${block.background || "#ffffff"};
             color:${block.color || "#0f172a"};
@@ -733,6 +971,37 @@
       `;
     }
 
+    function renderPreviewHeader() {
+      const headerVisible = siteSettings.showHeader && pageData.pageOptions.showHeader;
+      if (!headerVisible) return "";
+
+      const menuHtml = (siteSettings.menuItems || [])
+        .map((item) => `<span>${escapeHtml(item.text)}</span>`)
+        .join("");
+
+      return `
+        <div class="preview-card" style="padding:16px 20px;border-style:solid;display:flex;justify-content:space-between;align-items:center;gap:16px;max-width:100%;">
+          <strong>${escapeHtml(siteSettings.logoText || siteSettings.siteName || "Vera")}</strong>
+          <div class="preview-actions" style="justify-content:flex-end;flex:1;">${menuHtml}</div>
+          ${siteSettings.showTopCta && siteSettings.topCtaText ? `<span style="background:${pageData.theme.primaryColor};border-color:${pageData.theme.primaryColor};color:#fff;">${escapeHtml(siteSettings.topCtaText)}</span>` : ""}
+        </div>
+      `;
+    }
+
+    function renderPreviewFooter() {
+      const footerVisible = siteSettings.showFooter && pageData.pageOptions.showFooter;
+      if (!footerVisible) return "";
+
+      const contact = [siteSettings.contactEmail, siteSettings.contactPhone].filter(Boolean).join(" • ");
+
+      return `
+        <div class="preview-card" style="padding:16px 20px;border-style:solid;max-width:100%;">
+          <p style="margin:0 0 8px;color:#334155;">${escapeHtml(siteSettings.footerText || "")}</p>
+          ${contact ? `<p style="margin:0;color:#64748b;">${escapeHtml(contact)}</p>` : ""}
+        </div>
+      `;
+    }
+
     function renderPreview() {
       const wrap = document.getElementById("previewWrap");
       wrap.innerHTML = "";
@@ -742,6 +1011,9 @@
       wrap.style.color = pageData.theme.bodyText || "#0f172a";
       wrap.style.padding = "8px";
       wrap.style.borderRadius = "12px";
+
+      const headerHtml = renderPreviewHeader();
+      if (headerHtml) wrap.insertAdjacentHTML("beforeend", headerHtml);
 
       pageData.blocks.forEach((block) => {
         if (block.visible === false) return;
@@ -776,6 +1048,8 @@
           html = previewWrapper(block, `
             <div>${block.html || ""}</div>
           `);
+        } else if (block.type === "spacer") {
+          html = `<div style="height:${Number(block.height || 32)}px"></div>`;
         }
 
         wrap.insertAdjacentHTML("beforeend", html);
@@ -788,9 +1062,14 @@
           padding: 24,
           radius: 18,
           align: "left",
-          maxWidth: 100
+          maxWidth: 100,
+          cssClass: "",
+          htmlId: ""
         }, pageData.overrides.html));
       }
+
+      const footerHtml = renderPreviewFooter();
+      if (footerHtml) wrap.insertAdjacentHTML("beforeend", footerHtml);
     }
 
     async function checkSession() {
@@ -817,19 +1096,31 @@
 
     async function loadContent() {
       try {
-        const res = await fetch("/api/site-content", {
-          method: "GET",
-          headers: { "Accept": "application/json" }
-        });
+        const [contentRes, settingsRes] = await Promise.all([
+          fetch("/api/site-content", {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+          }),
+          fetch("/api/site-settings", {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+          })
+        ]);
 
-        const data = await res.json();
-        const content = data.content || {};
+        const contentData = await contentRes.json();
+        const settingsData = await settingsRes.json();
+
+        const content = contentData.content || {};
 
         pageData.pageTitle = content.pageTitle || "Vera";
         pageData.metaDescription = content.metaDescription || "Hoş geldiniz.";
         pageData.theme = content.theme || pageData.theme;
+        pageData.pageOptions = content.pageOptions || pageData.pageOptions;
         pageData.overrides = content.overrides || pageData.overrides;
         pageData.blocks = Array.isArray(content.blocks) ? content.blocks : [];
+
+        siteSettings = settingsData.settings || siteSettings;
+        if (!Array.isArray(siteSettings.menuItems)) siteSettings.menuItems = [];
 
         document.getElementById("pageTitle").value = pageData.pageTitle;
         document.getElementById("metaDescription").value = pageData.metaDescription;
@@ -840,10 +1131,27 @@
         document.getElementById("themePrimaryColor").value = pageData.theme.primaryColor || "#2563eb";
         document.getElementById("themeContainerWidth").value = pageData.theme.containerWidth || 1200;
 
+        document.getElementById("pageShowHeader").value = String(pageData.pageOptions.showHeader !== false);
+        document.getElementById("pageShowFooter").value = String(pageData.pageOptions.showFooter !== false);
+        document.getElementById("customBodyClass").value = pageData.pageOptions.customBodyClass || "";
+
         document.getElementById("overrideHtml").value = pageData.overrides.html || "";
         document.getElementById("overrideCss").value = pageData.overrides.css || "";
         document.getElementById("overrideJs").value = pageData.overrides.js || "";
 
+        document.getElementById("siteName").value = siteSettings.siteName || "";
+        document.getElementById("logoText").value = siteSettings.logoText || "";
+        document.getElementById("logoLink").value = siteSettings.logoLink || "/";
+        document.getElementById("contactEmail").value = siteSettings.contactEmail || "";
+        document.getElementById("contactPhone").value = siteSettings.contactPhone || "";
+        document.getElementById("footerText").value = siteSettings.footerText || "";
+        document.getElementById("showHeader").value = String(siteSettings.showHeader !== false);
+        document.getElementById("showFooter").value = String(siteSettings.showFooter !== false);
+        document.getElementById("showTopCta").value = String(siteSettings.showTopCta !== false);
+        document.getElementById("topCtaText").value = siteSettings.topCtaText || "";
+        document.getElementById("topCtaLink").value = siteSettings.topCtaLink || "";
+
+        renderMenuItemsEditor();
         renderBlocks();
         renderPreview();
       } catch (err) {
@@ -855,23 +1163,42 @@
       pageData.pageTitle = document.getElementById("pageTitle").value.trim();
       pageData.metaDescription = document.getElementById("metaDescription").value.trim();
       readThemeFromInputs();
+      readPageOptionsFromInputs();
       readOverridesFromInputs();
+      readSiteSettingsFromInputs();
 
       try {
-        const res = await fetch("/api/site-content", {
-          method: "POST",
-          credentials: "same-origin",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify(pageData)
-        });
+        const [contentRes, settingsRes] = await Promise.all([
+          fetch("/api/site-content", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify(pageData)
+          }),
+          fetch("/api/site-settings", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify(siteSettings)
+          })
+        ]);
 
-        const data = await res.json();
+        const contentData = await contentRes.json();
+        const settingsData = await settingsRes.json();
 
-        if (!data.ok) {
-          showStatus(data.error || "Kayıt başarısız.", "error");
+        if (!contentData.ok) {
+          showStatus(contentData.error || "İçerik kaydı başarısız.", "error");
+          return;
+        }
+
+        if (!settingsData.ok) {
+          showStatus(settingsData.error || "Site ayarları kaydı başarısız.", "error");
           return;
         }
 
@@ -892,6 +1219,87 @@
       window.location.replace("/login");
     }
 
+    function exportJson() {
+      readThemeFromInputs();
+      readPageOptionsFromInputs();
+      readOverridesFromInputs();
+      readSiteSettingsFromInputs();
+
+      const payload = {
+        siteSettings,
+        pageData
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "vera-export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJsonFile(file) {
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+
+          if (parsed.siteSettings) {
+            siteSettings = parsed.siteSettings;
+            if (!Array.isArray(siteSettings.menuItems)) siteSettings.menuItems = [];
+          }
+
+          if (parsed.pageData) {
+            pageData = parsed.pageData;
+            if (!pageData.pageOptions) {
+              pageData.pageOptions = { showHeader: true, showFooter: true, customBodyClass: "" };
+            }
+          }
+
+          loadContentFromState();
+          showStatus("JSON içe aktarıldı. Kaydetmeyi unutma.", "ok");
+        } catch (err) {
+          showStatus("JSON okunamadı.", "error");
+        }
+      };
+      reader.readAsText(file, "utf-8");
+    }
+
+    function loadContentFromState() {
+      document.getElementById("pageTitle").value = pageData.pageTitle || "Vera";
+      document.getElementById("metaDescription").value = pageData.metaDescription || "";
+      document.getElementById("themeBodyBg").value = pageData.theme?.bodyBg || "#f8fafc";
+      document.getElementById("themeBodyText").value = pageData.theme?.bodyText || "#0f172a";
+      document.getElementById("themeBorderColor").value = pageData.theme?.borderColor || "#e2e8f0";
+      document.getElementById("themePrimaryColor").value = pageData.theme?.primaryColor || "#2563eb";
+      document.getElementById("themeContainerWidth").value = pageData.theme?.containerWidth || 1200;
+      document.getElementById("pageShowHeader").value = String(pageData.pageOptions?.showHeader !== false);
+      document.getElementById("pageShowFooter").value = String(pageData.pageOptions?.showFooter !== false);
+      document.getElementById("customBodyClass").value = pageData.pageOptions?.customBodyClass || "";
+      document.getElementById("overrideHtml").value = pageData.overrides?.html || "";
+      document.getElementById("overrideCss").value = pageData.overrides?.css || "";
+      document.getElementById("overrideJs").value = pageData.overrides?.js || "";
+
+      document.getElementById("siteName").value = siteSettings.siteName || "";
+      document.getElementById("logoText").value = siteSettings.logoText || "";
+      document.getElementById("logoLink").value = siteSettings.logoLink || "/";
+      document.getElementById("contactEmail").value = siteSettings.contactEmail || "";
+      document.getElementById("contactPhone").value = siteSettings.contactPhone || "";
+      document.getElementById("footerText").value = siteSettings.footerText || "";
+      document.getElementById("showHeader").value = String(siteSettings.showHeader !== false);
+      document.getElementById("showFooter").value = String(siteSettings.showFooter !== false);
+      document.getElementById("showTopCta").value = String(siteSettings.showTopCta !== false);
+      document.getElementById("topCtaText").value = siteSettings.topCtaText || "";
+      document.getElementById("topCtaLink").value = siteSettings.topCtaLink || "";
+
+      renderMenuItemsEditor();
+      renderBlocks();
+      renderPreview();
+    }
+
     document.getElementById("pageTitle").addEventListener("input", () => {
       pageData.pageTitle = document.getElementById("pageTitle").value.trim();
       renderPreview();
@@ -908,11 +1316,39 @@
       });
     });
 
+    ["pageShowHeader","pageShowFooter","customBodyClass"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", () => {
+        readPageOptionsFromInputs();
+        renderPreview();
+      });
+      document.getElementById(id).addEventListener("change", () => {
+        readPageOptionsFromInputs();
+        renderPreview();
+      });
+    });
+
     ["overrideHtml","overrideCss","overrideJs"].forEach((id) => {
       document.getElementById(id).addEventListener("input", () => {
         readOverridesFromInputs();
         renderPreview();
       });
+    });
+
+    ["siteName","logoText","logoLink","contactEmail","contactPhone","footerText","showHeader","showFooter","showTopCta","topCtaText","topCtaLink"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", () => {
+        readSiteSettingsFromInputs();
+        renderPreview();
+      });
+      document.getElementById(id).addEventListener("change", () => {
+        readSiteSettingsFromInputs();
+        renderPreview();
+      });
+    });
+
+    document.getElementById("addMenuBtn").addEventListener("click", () => {
+      siteSettings.menuItems.push(newMenuItem());
+      renderMenuItemsEditor();
+      renderPreview();
     });
 
     document.getElementById("addHeroBtn").addEventListener("click", () => {
@@ -948,6 +1384,22 @@
       reindexBlocks();
       renderBlocks();
       renderPreview();
+    });
+
+    document.getElementById("addSpacerBtn").addEventListener("click", () => {
+      pageData.blocks.push(newSpacer());
+      reindexBlocks();
+      renderBlocks();
+      renderPreview();
+    });
+
+    document.getElementById("exportJsonBtn").addEventListener("click", exportJson);
+    document.getElementById("importJsonBtn").addEventListener("click", () => {
+      document.getElementById("importJsonInput").click();
+    });
+    document.getElementById("importJsonInput").addEventListener("change", (event) => {
+      importJsonFile(event.target.files?.[0]);
+      event.target.value = "";
     });
 
     document.getElementById("saveBtn").addEventListener("click", saveContent);
