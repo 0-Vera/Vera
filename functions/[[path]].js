@@ -78,33 +78,54 @@ function renderMenuItems(items, currentPath = "/") {
     .join("");
 }
 
-function blockWrapper(block, innerHtml) {
+function blockWrapper(block, innerHtml, pageOptions = {}) {
   const align = ["left", "center", "right"].includes(block.align) ? block.align : "left";
   const justify = align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start";
   const className = ["block-inner", block.cssClass || ""].filter(Boolean).join(" ");
   const htmlId = block.htmlId ? `id="${escapeHtml(block.htmlId)}"` : "";
 
+  const colSpanDesktop = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
+  const rowSpan = Number(block.rowSpan || 1);
+  const minHeight = Number(block.minHeight || 0);
+  const innerMaxWidth = Number(block.innerMaxWidth || 100);
+
+  const innerStyle =
+    block.contentWidthMode === "boxed"
+      ? `max-width:${innerMaxWidth}%;margin:${align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0"};`
+      : "";
+
   return `
-    <section class="block-shell" style="justify-content:${justify}">
+    <section
+      class="block-shell"
+      style="
+        grid-column: span ${colSpanDesktop};
+        grid-row: span ${rowSpan};
+        justify-content:${justify};
+      "
+    >
       <div
         ${htmlId}
         class="${className}"
         style="
+          width:100%;
           max-width:${Number(block.maxWidth || 100)}%;
           background:${block.background || "#ffffff"};
           color:${block.color || "#0f172a"};
           padding:${Number(block.padding || 24)}px;
           border-radius:${Number(block.radius || 18)}px;
           text-align:${align};
+          min-height:${minHeight}px;
         "
       >
-        ${innerHtml}
+        <div style="${innerStyle}">
+          ${innerHtml}
+        </div>
       </div>
     </section>
   `;
 }
 
-function renderBlock(block) {
+function renderBlock(block, pageOptions = {}) {
   if (!block || block.visible === false) return "";
 
   if (block.type === "hero") {
@@ -117,7 +138,7 @@ function renderBlock(block) {
           ${block.secondaryText ? `<a class="btn" href="${escapeHtml(normalizeLink(block.secondaryLink, "#"))}">${escapeHtml(block.secondaryText)}</a>` : ""}
         </div>
       </div>
-    `);
+    `, pageOptions);
   }
 
   if (block.type === "text") {
@@ -126,7 +147,7 @@ function renderBlock(block) {
         ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
         <p>${escapeHtml(block.text)}</p>
       </div>
-    `);
+    `, pageOptions);
   }
 
   if (block.type === "button") {
@@ -134,29 +155,31 @@ function renderBlock(block) {
       <div class="button-block ${block.align || "left"}">
         <a class="btn ${block.style === "primary" ? "primary" : ""}" href="${escapeHtml(normalizeLink(block.link, "#"))}">${escapeHtml(block.text)}</a>
       </div>
-    `);
+    `, pageOptions);
   }
 
   if (block.type === "image") {
     const safeSrc = normalizeImageSrc(block.src);
     const safeLink = normalizeLink(block.link, "");
     const imageHtml = safeSrc
-      ? `<img src="${escapeHtml(safeSrc)}" alt="${escapeHtml(block.alt || "")}" loading="lazy" decoding="async" style="width:${escapeHtml(block.width || "100%")};">`
+      ? `<img src="${escapeHtml(safeSrc)}" alt="${escapeHtml(block.alt || "")}" loading="lazy" decoding="async" style="max-width:${escapeHtml(block.width || "100%")};width:100%;height:auto;">`
       : `<p>Görsel URL girilmedi.</p>`;
 
     return blockWrapper(block, `
       <div class="image-block">
         ${safeLink ? `<a href="${escapeHtml(safeLink)}">${imageHtml}</a>` : imageHtml}
       </div>
-    `);
+    `, pageOptions);
   }
 
   if (block.type === "html") {
-    return blockWrapper(block, `<div class="html-block">${block.html || ""}</div>`);
+    return blockWrapper(block, `<div class="html-block">${block.html || ""}</div>`, pageOptions);
   }
 
   if (block.type === "spacer") {
-    return `<div style="height:${Number(block.height || 32)}px"></div>`;
+    return `
+      <div style="grid-column:span 12;height:${Number(block.height || 32)}px"></div>
+    `;
   }
 
   return "";
@@ -238,7 +261,7 @@ function renderPage({ siteSettings, page, currentPath }) {
 
   const contentHtml = isCodeMode
     ? `${code.html || ""}`
-    : blocks.map((block) => renderBlock(block)).join("") + (overrides.html || "");
+    : blocks.map((block) => renderBlock(block, pageOptions)).join("") + (overrides.html || "");
 
   return `<!DOCTYPE html>
 <html lang="tr">
@@ -276,8 +299,45 @@ function renderPage({ siteSettings, page, currentPath }) {
     .site-nav a:hover,.site-nav a.active{background:#eff6ff;color:#1d4ed8}
     .top-cta{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;padding:11px 16px;font-weight:700;background:var(--primary-color);color:#ffffff;border:1px solid var(--primary-color);transition:transform .18s ease,box-shadow .18s ease}
     .top-cta:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(37,99,235,.18)}
-    .wrap{padding-top:24px;padding-bottom:24px}
-    .stack{display:flex;flex-direction:column;gap:18px;min-height:40vh}
+.wrap{
+  max-width:${Number(pageOptions.contentWidth || theme.containerWidth || 1200)}px;
+  margin:0 auto;
+  padding-top:24px;
+  padding-bottom:24px;
+  padding-left:${Number(pageOptions.pagePaddingX || 24)}px;
+  padding-right:${Number(pageOptions.pagePaddingX || 24)}px;
+}
+
+.stack{
+  display:grid;
+  grid-template-columns:repeat(${Number(pageOptions.gridColumns || 12)}, minmax(0,1fr));
+  gap:${Number(pageOptions.sectionGap || 18)}px;
+  min-height:40vh;
+}
+
+.block-shell{
+  width:100%;
+  display:flex;
+  min-width:0;
+}
+
+.block-inner{
+  width:100%;
+  min-width:0;
+  border:1px solid var(--border-color);
+  box-shadow:0 1px 2px rgba(15,23,42,.05);
+  overflow-wrap:anywhere;
+}
+
+@media(max-width:1024px){
+  .stack{grid-template-columns:repeat(12,minmax(0,1fr))}
+  .block-shell{grid-column:span 12 !important}
+}
+
+@media(max-width:640px){
+  .stack{grid-template-columns:repeat(12,minmax(0,1fr))}
+  .block-shell{grid-column:span 12 !important}
+}
     .block-shell{width:100%;display:flex}
     .block-inner{width:100%;border:1px solid var(--border-color);box-shadow:0 1px 2px rgba(15,23,42,.05);overflow-wrap:anywhere}
     .hero h1{margin:0 0 12px;font-size:38px;line-height:1.15}
