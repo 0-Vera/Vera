@@ -35,22 +35,16 @@ window.VeraPageBuilder = (() => {
       maxWidth: 100,
       cssClass: "",
       htmlId: "",
-
       layoutMode: "grid",
       fullWidth: false,
-
       colStartDesktop: 1,
       colSpanDesktop: 12,
-
       colStartTablet: 1,
       colSpanTablet: 12,
-
       colStartMobile: 1,
       colSpanMobile: 12,
-
       rowSpan: 1,
       minHeight: 0,
-
       contentWidthMode: "full",
       innerMaxWidth: 100
     };
@@ -68,9 +62,7 @@ window.VeraPageBuilder = (() => {
       align: "center",
       padding: 32,
       radius: 20,
-      fullWidth: true,
-      colStartDesktop: 1,
-      colSpanDesktop: 12
+      fullWidth: true
     };
   }
 
@@ -124,9 +116,7 @@ window.VeraPageBuilder = (() => {
       background: "transparent",
       padding: 0,
       radius: 0,
-      fullWidth: true,
-      colStartDesktop: 1,
-      colSpanDesktop: 12
+      fullWidth: true
     };
   }
 
@@ -227,9 +217,7 @@ window.VeraPageBuilder = (() => {
     function setBlocks(blocks) {
       state.blocks = Array.isArray(blocks) ? blocks.map((b, i) => normalizeBlock(clone(b), i)) : [];
       reindexBlocks();
-      if (!state.selectedId && state.blocks.length) {
-        state.selectedId = state.blocks[0].id;
-      }
+      if (!state.selectedId && state.blocks.length) state.selectedId = state.blocks[0].id;
       if (state.selectedId && !state.blocks.find((b) => b.id === state.selectedId)) {
         state.selectedId = state.blocks[0]?.id || null;
       }
@@ -340,9 +328,7 @@ window.VeraPageBuilder = (() => {
       if (index < 0) return;
       const block = state.blocks[index];
       if (block.fullWidth) return;
-
-      const nextStart = Number(block.colStartDesktop || 1) + direction;
-      updateBlock(index, { colStartDesktop: nextStart });
+      updateBlock(index, { colStartDesktop: Number(block.colStartDesktop || 1) + direction });
     }
 
     function resizeSelectedHorizontal(direction) {
@@ -350,9 +336,7 @@ window.VeraPageBuilder = (() => {
       if (index < 0) return;
       const block = state.blocks[index];
       if (block.fullWidth) return;
-
-      const nextSpan = Number(block.colSpanDesktop || 12) + direction;
-      updateBlock(index, { colSpanDesktop: nextSpan });
+      updateBlock(index, { colSpanDesktop: Number(block.colSpanDesktop || 12) + direction });
     }
 
     function toggleSelectedFullWidth() {
@@ -798,9 +782,7 @@ window.VeraPageBuilder = (() => {
         const input = preview.querySelector("#" + id);
         if (!input) return;
         const apply = () => {
-          updateBlock(index, {
-            [key]: numeric ? Number(input.value || 0) : input.value
-          });
+          updateBlock(index, { [key]: numeric ? Number(input.value || 0) : input.value });
         };
         input.addEventListener("input", apply);
         input.addEventListener("change", apply);
@@ -822,13 +804,14 @@ window.VeraPageBuilder = (() => {
 
       const selectedIndex = getSelectedIndex();
       const selected = selectedIndex >= 0 ? state.blocks[selectedIndex] : null;
+      const totalCols = Number(state.pageLayout.gridColumns || 12);
 
       const itemsHtml = state.blocks
         .filter((block) => block.visible !== false)
         .map((block) => {
           const selectedClass = block.id === state.selectedId ? " design-item-selected" : "";
           const style = block.fullWidth
-            ? `grid-column:1 / span 12;grid-row:span ${Number(block.rowSpan || 1)};`
+            ? `grid-column:1 / span ${totalCols};grid-row:span ${Number(block.rowSpan || 1)};`
             : `grid-column:${Number(block.colStartDesktop || 1)} / span ${Number(block.colSpanDesktop || 12)};grid-row:span ${Number(block.rowSpan || 1)};`;
 
           const innerStyle =
@@ -865,21 +848,23 @@ window.VeraPageBuilder = (() => {
       wrap.innerHTML = `
         <div class="design-mode-shell">
           <div class="design-toolbar-note">
-            Tasarım modu: Blok seç, grid üstünde genişlet/daralt, sola-sağa taşı. Böylece yatay tasarım yapabilirsin.
+            Tasarım modu: Blok seç, grid üstünde genişlet/daralt, sola-sağa taşı.
           </div>
 
           <div
             class="design-canvas"
             style="
+              display:grid;
+              grid-template-columns:repeat(${totalCols}, minmax(0, 1fr));
               background:
                 linear-gradient(to right, rgba(37,99,235,.08) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(37,99,235,.06) 1px, transparent 1px),
                 ${state.theme.bodyBg || "#f8fafc"};
-              background-size: calc(100% / ${Number(state.pageLayout.gridColumns || 12)}) 100%, 100% 48px, auto;
+              background-size: calc(100% / ${totalCols}) 100%, 100% 48px, auto;
               color:${state.theme.bodyText || "#0f172a"};
               padding:${Number(state.pageLayout.pagePaddingX || 24)}px;
               gap:${Number(state.pageLayout.sectionGap || 18)}px;
-              max-width:${Number(state.pageLayout.contentWidth || state.theme.containerWidth || 1200)}px;
+              width:100%;
             "
           >
             ${itemsHtml || `<p style="color:#64748b;margin:0">Henüz blok yok.</p>`}
