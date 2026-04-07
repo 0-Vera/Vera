@@ -191,12 +191,14 @@ window.VeraPageBuilder = (() => {
         sectionGap: 18,
         gridColumns: 12
       },
-targetBlocksWrap: options.blocksWrap,
-targetMirrorBlocksWrap: options.mirrorBlocksWrap || null,
-targetPreviewWrap: options.previewWrap,
+      targetBlocksWrap: options.blocksWrap,
+      targetPreviewWrap: options.previewWrap,
+      targetInspectorWrap: options.inspectorWrap || null,
+      targetToolbarWrap: options.toolbarWrap || null,
       onChange: typeof options.onChange === "function" ? options.onChange : () => {},
       dragIndex: null,
-      selectedId: null
+      selectedId: null,
+      expandedIds: new Set()
     };
 
     function reindexBlocks() {
@@ -211,8 +213,7 @@ targetPreviewWrap: options.previewWrap,
 
     function setSelected(id) {
       state.selectedId = id || null;
-      renderPreview();
-      renderBlocks();
+      render();
     }
 
     function setBlocks(blocks) {
@@ -269,6 +270,7 @@ targetPreviewWrap: options.previewWrap,
       const normalized = normalizeBlock(block, order);
       state.blocks.push(normalized);
       state.selectedId = normalized.id;
+      state.expandedIds.add(normalized.id);
       render();
       emitChange();
     }
@@ -279,6 +281,7 @@ targetPreviewWrap: options.previewWrap,
       const next = normalizeBlock(source, index + 1);
       state.blocks.splice(index + 1, 0, next);
       state.selectedId = next.id;
+      state.expandedIds.add(next.id);
       render();
       emitChange();
     }
@@ -296,6 +299,7 @@ targetPreviewWrap: options.previewWrap,
     function removeBlock(index) {
       const removingId = state.blocks[index]?.id;
       state.blocks.splice(index, 1);
+      state.expandedIds.delete(removingId);
       if (state.selectedId === removingId) {
         state.selectedId = state.blocks[0]?.id || null;
       }
@@ -354,6 +358,12 @@ targetPreviewWrap: options.previewWrap,
       updateBlock(index, { rowSpan: Number(block.rowSpan || 1) + direction });
     }
 
+    function toggleExpanded(id) {
+      if (state.expandedIds.has(id)) state.expandedIds.delete(id);
+      else state.expandedIds.add(id);
+      renderBlocks();
+    }
+
     function renderBlockFields(block) {
       if (block.type === "hero") {
         return `
@@ -361,13 +371,13 @@ targetPreviewWrap: options.previewWrap,
           <input data-key="title" value="${escapeHtml(block.title)}">
           <label>Açıklama</label>
           <textarea data-key="text">${escapeHtml(block.text)}</textarea>
-          <label>Birinci Buton Metni</label>
+          <label>1. Buton</label>
           <input data-key="primaryText" value="${escapeHtml(block.primaryText)}">
-          <label>Birinci Buton Linki</label>
+          <label>1. Link</label>
           <input data-key="primaryLink" value="${escapeHtml(block.primaryLink)}">
-          <label>İkinci Buton Metni</label>
+          <label>2. Buton</label>
           <input data-key="secondaryText" value="${escapeHtml(block.secondaryText)}">
-          <label>İkinci Buton Linki</label>
+          <label>2. Link</label>
           <input data-key="secondaryLink" value="${escapeHtml(block.secondaryLink)}">
         `;
       }
@@ -383,7 +393,7 @@ targetPreviewWrap: options.previewWrap,
 
       if (block.type === "button") {
         return `
-          <label>Buton Metni</label>
+          <label>Buton</label>
           <input data-key="text" value="${escapeHtml(block.text)}">
           <label>Link</label>
           <input data-key="link" value="${escapeHtml(block.link)}">
@@ -399,11 +409,11 @@ targetPreviewWrap: options.previewWrap,
         return `
           <label>Görsel URL</label>
           <input data-key="src" value="${escapeHtml(block.src)}">
-          <label>Alt Metin</label>
+          <label>Alt</label>
           <input data-key="alt" value="${escapeHtml(block.alt)}">
           <label>Genişlik</label>
           <input data-key="width" value="${escapeHtml(block.width)}">
-          <label>Tıklama Linki</label>
+          <label>Link</label>
           <input data-key="link" value="${escapeHtml(block.link || "")}">
         `;
       }
@@ -425,240 +435,90 @@ targetPreviewWrap: options.previewWrap,
       return "";
     }
 
-    function styleFields(block) {
+    function renderCompactBlockCard(block, index) {
+      const isSelected = block.id === state.selectedId;
+      const isExpanded = state.expandedIds.has(block.id);
+
       return `
-        <div class="builder-grid">
-          <div>
-            <label>Arka Plan</label>
-            <input data-key="background" value="${escapeHtml(block.background)}">
+        <div class="compact-block-card${isSelected ? " compact-block-selected" : ""}" data-id="${escapeHtml(block.id)}">
+          <div class="compact-block-head">
+            <button class="compact-arrow" type="button" data-expand="${escapeHtml(block.id)}">${isExpanded ? "▾" : "▸"}</button>
+            <button class="compact-title" type="button" data-select="${escapeHtml(block.id)}">${escapeHtml(block.type.toUpperCase())}</button>
+            <div class="compact-actions">
+              <button class="compact-mini" type="button" data-up="${index}">↑</button>
+              <button class="compact-mini" type="button" data-down="${index}">↓</button>
+              <button class="compact-mini" type="button" data-copy="${index}">⎘</button>
+              <button class="compact-mini danger" type="button" data-remove="${index}">×</button>
+            </div>
           </div>
-          <div>
-            <label>Yazı Rengi</label>
-            <input data-key="color" value="${escapeHtml(block.color)}">
-          </div>
-          <div>
-            <label>Padding</label>
-            <input data-key="padding" type="number" value="${Number(block.padding || 24)}">
-          </div>
-          <div>
-            <label>Radius</label>
-            <input data-key="radius" type="number" value="${Number(block.radius || 18)}">
-          </div>
-          <div>
-            <label>Hizalama</label>
-            <select data-key="align">
-              <option value="left" ${block.align === "left" ? "selected" : ""}>Sol</option>
-              <option value="center" ${block.align === "center" ? "selected" : ""}>Orta</option>
-              <option value="right" ${block.align === "right" ? "selected" : ""}>Sağ</option>
-            </select>
-          </div>
-          <div>
-            <label>Maks. Genişlik (%)</label>
-            <input data-key="maxWidth" type="number" min="30" max="100" value="${Number(block.maxWidth || 100)}">
-          </div>
-          <div>
-            <label>CSS Class</label>
-            <input data-key="cssClass" value="${escapeHtml(block.cssClass || "")}">
-          </div>
-          <div>
-            <label>HTML ID</label>
-            <input data-key="htmlId" value="${escapeHtml(block.htmlId || "")}">
-          </div>
-        </div>
 
-        <div class="builder-grid" style="margin-top:12px">
-          <div>
-            <label>Tam Genişlik</label>
-            <select data-key="fullWidth">
-              <option value="false" ${!block.fullWidth ? "selected" : ""}>Hayır</option>
-              <option value="true" ${block.fullWidth ? "selected" : ""}>Evet</option>
-            </select>
-          </div>
-          <div>
-            <label>Desktop Başlangıç</label>
-            <input data-key="colStartDesktop" type="number" min="1" max="12" value="${Number(block.colStartDesktop || 1)}" ${block.fullWidth ? "disabled" : ""}>
-          </div>
-          <div>
-            <label>Desktop Kolon</label>
-            <input data-key="colSpanDesktop" type="number" min="1" max="12" value="${Number(block.colSpanDesktop || 12)}" ${block.fullWidth ? "disabled" : ""}>
-          </div>
-          <div>
-            <label>Tablet Başlangıç</label>
-            <input data-key="colStartTablet" type="number" min="1" max="12" value="${Number(block.colStartTablet || 1)}" ${block.fullWidth ? "disabled" : ""}>
-          </div>
-          <div>
-            <label>Tablet Kolon</label>
-            <input data-key="colSpanTablet" type="number" min="1" max="12" value="${Number(block.colSpanTablet || 12)}" ${block.fullWidth ? "disabled" : ""}>
-          </div>
-          <div>
-            <label>Mobil Başlangıç</label>
-            <input data-key="colStartMobile" type="number" min="1" max="12" value="${Number(block.colStartMobile || 1)}" ${block.fullWidth ? "disabled" : ""}>
-          </div>
-          <div>
-            <label>Mobil Kolon</label>
-            <input data-key="colSpanMobile" type="number" min="1" max="12" value="${Number(block.colSpanMobile || 12)}" ${block.fullWidth ? "disabled" : ""}>
-          </div>
-          <div>
-            <label>Satır Yüksekliği</label>
-            <input data-key="rowSpan" type="number" min="1" max="12" value="${Number(block.rowSpan || 1)}">
-          </div>
-          <div>
-            <label>Min. Yükseklik (px)</label>
-            <input data-key="minHeight" type="number" min="0" max="2000" value="${Number(block.minHeight || 0)}">
-          </div>
-          <div>
-            <label>İç Genişlik</label>
-            <select data-key="contentWidthMode">
-              <option value="full" ${block.contentWidthMode === "full" ? "selected" : ""}>Tam</option>
-              <option value="boxed" ${block.contentWidthMode === "boxed" ? "selected" : ""}>Kutulu</option>
-            </select>
-          </div>
-          <div>
-            <label>İç Maks. Genişlik (%)</label>
-            <input data-key="innerMaxWidth" type="number" min="20" max="100" value="${Number(block.innerMaxWidth || 100)}">
-          </div>
+          ${isExpanded ? `
+            <div class="compact-block-body">
+              <label>Aktif</label>
+              <select data-index="${index}" data-key="visible">
+                <option value="true" ${block.visible !== false ? "selected" : ""}>Evet</option>
+                <option value="false" ${block.visible === false ? "selected" : ""}>Hayır</option>
+              </select>
+              ${renderBlockFields(block)}
+            </div>
+          ` : ""}
         </div>
       `;
     }
 
-function renderBlocks() {
-  const wraps = [state.targetBlocksWrap, state.targetMirrorBlocksWrap].filter(Boolean);
-
-  wraps.forEach((wrap) => {
-    wrap.innerHTML = "";
-
-    if (!state.blocks.length) {
-      wrap.innerHTML = "<p style='color:#64748b'>Henüz blok yok.</p>";
-      return;
-    }
-
-    state.blocks.forEach((block, index) => {
-      const selectedClass = block.id === state.selectedId ? " builder-item-selected" : "";
-      const el = document.createElement("div");
-      el.className = "builder-item" + selectedClass;
-      el.setAttribute("draggable", "true");
-      el.dataset.index = String(index);
-
-      el.innerHTML = `
-        <div class="builder-head">
-          <div class="builder-title">${block.type.toUpperCase()} BLOĞU</div>
-          <div class="builder-actions">
-            <button class="mini-btn duplicate" type="button">Kopyala</button>
-            <button class="mini-btn up" type="button">Yukarı</button>
-            <button class="mini-btn down" type="button">Aşağı</button>
-            <button class="mini-btn danger remove" type="button">Sil</button>
-          </div>
-        </div>
-
-        <div style="margin-bottom:10px;color:#64748b;font-size:12px">Sürükleyip bırakarak blok sırasını değiştirebilirsin.</div>
-
-        <label>Görünürlük</label>
-        <select data-key="visible">
-          <option value="true" ${block.visible !== false ? "selected" : ""}>Aktif</option>
-          <option value="false" ${block.visible === false ? "selected" : ""}>Pasif</option>
-        </select>
-
-        ${renderBlockFields(block)}
-        ${styleFields(block)}
-      `;
-
-      el.addEventListener("click", () => {
-        setSelected(block.id);
+    function bindCompactCardEvents(wrap) {
+      wrap.querySelectorAll("[data-select]").forEach((el) => {
+        el.addEventListener("click", () => setSelected(el.getAttribute("data-select")));
       });
 
-      el.addEventListener("dragstart", () => {
-        state.dragIndex = index;
-        el.style.opacity = "0.5";
+      wrap.querySelectorAll("[data-expand]").forEach((el) => {
+        el.addEventListener("click", () => toggleExpanded(el.getAttribute("data-expand")));
       });
 
-      el.addEventListener("dragend", () => {
-        state.dragIndex = null;
-        el.style.opacity = "";
-        wraps.forEach((targetWrap) => {
-          targetWrap.querySelectorAll(".builder-item").forEach((node) => {
-            node.style.borderColor = "";
-            node.style.boxShadow = "";
-          });
-        });
+      wrap.querySelectorAll("[data-up]").forEach((el) => {
+        el.addEventListener("click", () => moveBlock(Number(el.getAttribute("data-up")), -1));
       });
 
-      el.addEventListener("dragover", (event) => {
-        event.preventDefault();
-        el.style.borderColor = "#2563eb";
-        el.style.boxShadow = "0 0 0 2px rgba(37,99,235,.08)";
+      wrap.querySelectorAll("[data-down]").forEach((el) => {
+        el.addEventListener("click", () => moveBlock(Number(el.getAttribute("data-down")), 1));
       });
 
-      el.addEventListener("dragleave", () => {
-        el.style.borderColor = "";
-        el.style.boxShadow = "";
+      wrap.querySelectorAll("[data-copy]").forEach((el) => {
+        el.addEventListener("click", () => duplicateBlock(Number(el.getAttribute("data-copy"))));
       });
 
-      el.addEventListener("drop", (event) => {
-        event.preventDefault();
-        el.style.borderColor = "";
-        el.style.boxShadow = "";
-        moveBlockToIndex(state.dragIndex, index);
+      wrap.querySelectorAll("[data-remove]").forEach((el) => {
+        el.addEventListener("click", () => removeBlock(Number(el.getAttribute("data-remove"))));
       });
 
-      el.querySelector(".duplicate").addEventListener("click", (e) => {
-        e.stopPropagation();
-        duplicateBlock(index);
-      });
-
-      el.querySelector(".up").addEventListener("click", (e) => {
-        e.stopPropagation();
-        moveBlock(index, -1);
-      });
-
-      el.querySelector(".down").addEventListener("click", (e) => {
-        e.stopPropagation();
-        moveBlock(index, 1);
-      });
-
-      el.querySelector(".remove").addEventListener("click", (e) => {
-        e.stopPropagation();
-        removeBlock(index);
-      });
-
-      el.querySelectorAll("[data-key]").forEach((field) => {
+      wrap.querySelectorAll("[data-index][data-key]").forEach((field) => {
         const applyValue = () => {
+          const index = Number(field.getAttribute("data-index"));
           const key = field.getAttribute("data-key");
           let value = field.value;
-
-          if (key === "visible" || key === "fullWidth") value = value === "true";
-
-          if ([
-            "padding",
-            "radius",
-            "maxWidth",
-            "height",
-            "colStartDesktop",
-            "colSpanDesktop",
-            "colStartTablet",
-            "colSpanTablet",
-            "colStartMobile",
-            "colSpanMobile",
-            "rowSpan",
-            "minHeight",
-            "innerMaxWidth"
-          ].includes(key)) {
-            value = Number(value || 0);
-          }
-
-          state.blocks[index][key] = value;
-          state.blocks[index] = normalizeBlock(state.blocks[index], index);
-          render();
-          emitChange();
+          if (key === "visible") value = value === "true";
+          updateBlock(index, { [key]: value });
         };
-
         field.addEventListener("input", applyValue);
         field.addEventListener("change", applyValue);
       });
+    }
 
-      wrap.appendChild(el);
-    });
-  });
-}
+    function renderBlocks() {
+      const wrap = state.targetBlocksWrap;
+      if (!wrap) return;
+
+      wrap.innerHTML = "";
+
+      if (!state.blocks.length) {
+        wrap.innerHTML = "<p style='color:#64748b;margin:0'>Henüz blok yok.</p>";
+        return;
+      }
+
+      wrap.innerHTML = state.blocks.map((block, index) => renderCompactBlockCard(block, index)).join("");
+      bindCompactCardEvents(wrap);
+    }
+
     function getPreviewCardHtml(block) {
       if (block.type === "hero") {
         return `
@@ -688,7 +548,7 @@ function renderBlocks() {
 
       if (block.type === "image") {
         return block.src
-          ? `<img src="${escapeHtml(block.src)}" alt="${escapeHtml(block.alt || "")}" style="max-width:${escapeHtml(block.width || "100%")};width:100%;border-radius:12px;">`
+          ? `<img src="${escapeHtml(block.src)}" alt="${escapeHtml(block.alt || "")}" style="max-width:${escapeHtml(block.width || "100%")};width:100%;border-radius:10px;">`
           : `<p>Görsel URL girilmedi.</p>`;
       }
 
@@ -703,69 +563,23 @@ function renderBlocks() {
       return "";
     }
 
-    function renderSelectedInspector() {
-      const index = getSelectedIndex();
-      if (index < 0) return `<p style="color:#64748b;margin:0">Bir blok seç.</p>`;
+    function renderToolbar() {
+      const wrap = state.targetToolbarWrap;
+      if (!wrap) return;
 
-      const block = state.blocks[index];
-
-      return `
-        <div class="design-inspector-card">
-          <div class="design-inspector-title">Seçili Blok: ${escapeHtml(block.type.toUpperCase())}</div>
-
-          <div class="design-control-row">
-            <button class="mini-btn" data-action="move-left" type="button">Sola Kaydır</button>
-            <button class="mini-btn" data-action="move-right" type="button">Sağa Kaydır</button>
-            <button class="mini-btn" data-action="shrink" type="button">Daralt</button>
-            <button class="mini-btn" data-action="grow" type="button">Genişlet</button>
-            <button class="mini-btn" data-action="row-less" type="button">Yüksekliği Azalt</button>
-            <button class="mini-btn" data-action="row-more" type="button">Yüksekliği Artır</button>
-            <button class="mini-btn" data-action="toggle-full" type="button">${block.fullWidth ? "Tam Genişlik Kapat" : "Tam Genişlik Aç"}</button>
-          </div>
-
-          <div class="builder-grid compact-grid" style="margin-top:12px">
-            <div>
-              <label>Desktop Başlangıç</label>
-              <input id="design-colStartDesktop" type="number" min="1" max="12" value="${Number(block.colStartDesktop || 1)}" ${block.fullWidth ? "disabled" : ""}>
-            </div>
-            <div>
-              <label>Desktop Kolon</label>
-              <input id="design-colSpanDesktop" type="number" min="1" max="12" value="${Number(block.colSpanDesktop || 12)}" ${block.fullWidth ? "disabled" : ""}>
-            </div>
-            <div>
-              <label>Satır Span</label>
-              <input id="design-rowSpan" type="number" min="1" max="12" value="${Number(block.rowSpan || 1)}">
-            </div>
-            <div>
-              <label>Tablet Başlangıç</label>
-              <input id="design-colStartTablet" type="number" min="1" max="12" value="${Number(block.colStartTablet || 1)}" ${block.fullWidth ? "disabled" : ""}>
-            </div>
-            <div>
-              <label>Tablet Kolon</label>
-              <input id="design-colSpanTablet" type="number" min="1" max="12" value="${Number(block.colSpanTablet || 12)}" ${block.fullWidth ? "disabled" : ""}>
-            </div>
-            <div>
-              <label>Mobil Başlangıç</label>
-              <input id="design-colStartMobile" type="number" min="1" max="12" value="${Number(block.colStartMobile || 1)}" ${block.fullWidth ? "disabled" : ""}>
-            </div>
-            <div>
-              <label>Mobil Kolon</label>
-              <input id="design-colSpanMobile" type="number" min="1" max="12" value="${Number(block.colSpanMobile || 12)}" ${block.fullWidth ? "disabled" : ""}>
-            </div>
-            <div>
-              <label>Min. Yükseklik</label>
-              <input id="design-minHeight" type="number" min="0" max="2000" value="${Number(block.minHeight || 0)}">
-            </div>
-          </div>
+      wrap.innerHTML = `
+        <div class="mini-toolbar-row">
+          <button class="tiny-btn" data-action="move-left" type="button">←</button>
+          <button class="tiny-btn" data-action="move-right" type="button">→</button>
+          <button class="tiny-btn" data-action="shrink" type="button">－</button>
+          <button class="tiny-btn" data-action="grow" type="button">＋</button>
+          <button class="tiny-btn" data-action="row-less" type="button">▭－</button>
+          <button class="tiny-btn" data-action="row-more" type="button">▭＋</button>
+          <button class="tiny-btn" data-action="toggle-full" type="button">□</button>
         </div>
       `;
-    }
 
-    function attachInspectorEvents() {
-      const preview = state.targetPreviewWrap;
-      if (!preview) return;
-
-      preview.querySelectorAll("[data-action]").forEach((btn) => {
+      wrap.querySelectorAll("[data-action]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const action = btn.getAttribute("data-action");
           if (action === "move-left") nudgeSelectedHorizontal(-1);
@@ -777,36 +591,62 @@ function renderBlocks() {
           if (action === "toggle-full") toggleSelectedFullWidth();
         });
       });
+    }
+
+    function renderInspector() {
+      const wrap = state.targetInspectorWrap;
+      if (!wrap) return;
 
       const index = getSelectedIndex();
-      if (index < 0) return;
+      if (index < 0) {
+        wrap.innerHTML = `<div class="mini-inspector-empty">Blok seç</div>`;
+        return;
+      }
 
-      const bind = (id, key, numeric = true) => {
-        const input = preview.querySelector("#" + id);
+      const block = state.blocks[index];
+
+      wrap.innerHTML = `
+        <div class="mini-inspector-card">
+          <div class="mini-inspector-title">${escapeHtml(block.type.toUpperCase())}</div>
+          <div class="mini-inspector-grid">
+            <div>
+              <label>D Baş.</label>
+              <input id="mini-colStartDesktop" type="number" min="1" max="12" value="${Number(block.colStartDesktop || 1)}" ${block.fullWidth ? "disabled" : ""}>
+            </div>
+            <div>
+              <label>D Kol.</label>
+              <input id="mini-colSpanDesktop" type="number" min="1" max="12" value="${Number(block.colSpanDesktop || 12)}" ${block.fullWidth ? "disabled" : ""}>
+            </div>
+            <div>
+              <label>Satır</label>
+              <input id="mini-rowSpan" type="number" min="1" max="12" value="${Number(block.rowSpan || 1)}">
+            </div>
+            <div>
+              <label>Min Y.</label>
+              <input id="mini-minHeight" type="number" min="0" max="2000" value="${Number(block.minHeight || 0)}">
+            </div>
+          </div>
+        </div>
+      `;
+
+      const bind = (id, key) => {
+        const input = wrap.querySelector("#" + id);
         if (!input) return;
-        const apply = () => {
-          updateBlock(index, { [key]: numeric ? Number(input.value || 0) : input.value });
-        };
+        const apply = () => updateBlock(index, { [key]: Number(input.value || 0) });
         input.addEventListener("input", apply);
         input.addEventListener("change", apply);
       };
 
-      bind("design-colStartDesktop", "colStartDesktop");
-      bind("design-colSpanDesktop", "colSpanDesktop");
-      bind("design-rowSpan", "rowSpan");
-      bind("design-colStartTablet", "colStartTablet");
-      bind("design-colSpanTablet", "colSpanTablet");
-      bind("design-colStartMobile", "colStartMobile");
-      bind("design-colSpanMobile", "colSpanMobile");
-      bind("design-minHeight", "minHeight");
+      bind("mini-colStartDesktop", "colStartDesktop");
+      bind("mini-colSpanDesktop", "colSpanDesktop");
+      bind("mini-rowSpan", "rowSpan");
+      bind("mini-minHeight", "minHeight");
     }
 
     function renderPreview() {
       const wrap = state.targetPreviewWrap;
       if (!wrap) return;
 
-      const selectedIndex = getSelectedIndex();
-      const selected = selectedIndex >= 0 ? state.blocks[selectedIndex] : null;
       const totalCols = Number(state.pageLayout.gridColumns || 12);
 
       const itemsHtml = state.blocks
@@ -848,58 +688,38 @@ function renderBlocks() {
         })
         .join("");
 
- wrap.innerHTML = `
-  <div class="design-mode-shell">
-    <div class="design-toolbar-note">
-      Tasarım modu: Blok seç, grid üstünde taşı, genişlet, daralt.
-    </div>
-
-    <div class="compact-toolbar">
-      <button class="mini-btn" data-action="move-left" type="button">Sola</button>
-      <button class="mini-btn" data-action="move-right" type="button">Sağa</button>
-      <button class="mini-btn" data-action="shrink" type="button">Daralt</button>
-      <button class="mini-btn" data-action="grow" type="button">Genişlet</button>
-      <button class="mini-btn" data-action="row-less" type="button">Yükseklik -</button>
-      <button class="mini-btn" data-action="row-more" type="button">Yükseklik +</button>
-      <button class="mini-btn" data-action="toggle-full" type="button">${selected?.fullWidth ? "Tam Genişlik Kapat" : "Tam Genişlik Aç"}</button>
-    </div>
-
-    <div
-      class="design-canvas"
-      style="
-        display:grid;
-        grid-template-columns:repeat(${totalCols}, minmax(0, 1fr));
-        background:
-          linear-gradient(to right, rgba(37,99,235,.08) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(37,99,235,.06) 1px, transparent 1px),
-          ${state.theme.bodyBg || "#f8fafc"};
-        background-size: calc(100% / ${totalCols}) 100%, 100% 48px, auto;
-        color:${state.theme.bodyText || "#0f172a"};
-        padding:${Number(state.pageLayout.pagePaddingX || 24)}px;
-        gap:${Number(state.pageLayout.sectionGap || 18)}px;
-        width:100%;
-      "
-    >
-      ${itemsHtml || `<p style="color:#64748b;margin:0">Henüz blok yok.</p>`}
-    </div>
-
-    <div class="design-inspector">
-      ${selected ? renderSelectedInspector() : `<p style="color:#64748b;margin:0">Bir blok seç.</p>`}
-    </div>
-  </div>
-`;
+      wrap.innerHTML = `
+        <div
+          class="design-canvas"
+          style="
+            display:grid;
+            grid-template-columns:repeat(${totalCols}, minmax(0, 1fr));
+            background:
+              linear-gradient(to right, rgba(37,99,235,.08) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(37,99,235,.06) 1px, transparent 1px),
+              ${state.theme.bodyBg || "#f8fafc"};
+            background-size: calc(100% / ${totalCols}) 100%, 100% 44px, auto;
+            color:${state.theme.bodyText || "#0f172a"};
+            padding:${Number(state.pageLayout.pagePaddingX || 24)}px;
+            gap:${Number(state.pageLayout.sectionGap || 18)}px;
+            width:100%;
+          "
+        >
+          ${itemsHtml || `<p style="color:#64748b;margin:0">Henüz blok yok.</p>`}
+        </div>
+      `;
 
       wrap.querySelectorAll(".design-item").forEach((node) => {
         node.addEventListener("click", () => {
           setSelected(node.getAttribute("data-id"));
         });
       });
-
-      attachInspectorEvents();
     }
 
     function render() {
       reindexBlocks();
+      renderToolbar();
+      renderInspector();
       renderBlocks();
       renderPreview();
     }
