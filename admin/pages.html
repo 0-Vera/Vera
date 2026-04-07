@@ -61,6 +61,47 @@
       .content{grid-template-columns:1fr}
       .toggle-grid,.builder-grid,.workspace-shell{grid-template-columns:1fr}
     }
+    <style>
+  .design-launch-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .design-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.66);
+    z-index:9999;
+    display:none;
+    padding:24px;
+  }
+  .design-overlay.show{display:block}
+  .design-overlay-panel{
+    width:100%;
+    height:100%;
+    background:#fff;
+    border-radius:20px;
+    overflow:hidden;
+    display:grid;
+    grid-template-rows:auto 1fr;
+    box-shadow:0 30px 80px rgba(0,0,0,.28);
+  }
+  .design-overlay-topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:16px 20px;
+    border-bottom:1px solid #e2e8f0;
+    background:#fff;
+  }
+  .design-overlay-topbar h3{margin:0;font-size:18px}
+  .design-overlay-body{
+    overflow:auto;
+    padding:18px;
+    background:#f8fafc;
+  }
+  .design-stage{
+    width:min(100%, 1800px);
+    margin:0 auto;
+  }
+</style>
   </style>
 </head>
 <body>
