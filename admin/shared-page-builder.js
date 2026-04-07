@@ -35,15 +35,14 @@ window.VeraPageBuilder = (() => {
       maxWidth: 100,
       cssClass: "",
       htmlId: "",
-
-      layoutMode: "grid", // grid | free
+      layoutMode: "grid",
       colSpanDesktop: 12,
       colSpanTablet: 12,
       colSpanMobile: 12,
       rowSpan: 1,
       fullWidth: false,
       minHeight: 0,
-      contentWidthMode: "full", // full | boxed
+      contentWidthMode: "full",
       innerMaxWidth: 100
     };
   }
