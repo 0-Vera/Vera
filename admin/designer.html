@@ -127,7 +127,18 @@
           <button class="tiny-btn" data-add="html" type="button">HTML</button>
           <button class="tiny-btn" data-add="spacer" type="button">Boşluk</button>
           <button class="tiny-btn" data-add="table" type="button">Tablo</button>
+          <button class="tiny-btn" data-add="section" type="button">Bölüm</button>
+          <button class="tiny-btn" data-add="features" type="button">Özellik</button>
+          <button class="tiny-btn" data-add="cards" type="button">Kartlar</button>
+          <button class="tiny-btn" data-add="stats" type="button">İstatistik</button>
+          <button class="tiny-btn" data-add="faq" type="button">SSS</button>
         </div>
+      </div>
+
+      <div class="template-panel">
+        <h3>Hazır Bölümler</h3>
+        <p class="template-note">Hazır şablon ekle veya seçili bloğu bu tarayıcıda tekrar kullanılmak üzere kaydet.</p>
+        <div id="templateList" class="template-list"></div>
       </div>
 
       <div id="miniToolbar" class="mini-toolbar"></div>
@@ -159,9 +170,90 @@
     const pageId = url.searchParams.get("id") || "";
 
     let pageData = null;
+    let allPages = [];
     let selectedId = null;
     let expandedIds = new Set();
     let previewReady = false;
+
+    const TEMPLATE_STORAGE_KEY = "veraReusableSectionsV1";
+
+    const BUILTIN_TEMPLATES = [
+      {
+        id: "preset-hero-cta",
+        name: "Hero + CTA",
+        builtIn: true,
+        blocks: [
+          {
+            type: "hero",
+            title: "Güçlü üretim altyapısı",
+            text: "Kurumsal web sitesinde öne çıkan ilk mesaj için hazır hero bölümü.",
+            primaryText: "Teklif Al",
+            primaryActionType: "anchor",
+            primaryActionValue: "#iletisim",
+            secondaryText: "Ürünler",
+            secondaryActionType: "anchor",
+            secondaryActionValue: "#urunler",
+            align: "center",
+            fullWidth: true,
+            padding: 40,
+            radius: 24
+          }
+        ]
+      },
+      {
+        id: "preset-feature-grid",
+        name: "3'lü Özellik Alanı",
+        builtIn: true,
+        blocks: [
+          {
+            type: "section",
+            title: "Neden bizi tercih etmelisiniz?",
+            text: "Öne çıkan güçlü yönleri anlatan hazır alan.",
+            fullWidth: true,
+            padding: 28,
+            radius: 22
+          },
+          {
+            type: "cards",
+            title: "Avantajlar",
+            text: "Kartları kendi başlık ve açıklamalarına göre düzenleyebilirsin.",
+            items: "Hızlı Üretim|Termin yönetimi güçlü\nEsnek Tasarım|Markaya uygun özelleştirme\nKurumsal Destek|Süreç odaklı iletişim",
+            colStartDesktop: 1,
+            colSpanDesktop: 12
+          }
+        ]
+      },
+      {
+        id: "preset-faq",
+        name: "SSS Bölümü",
+        builtIn: true,
+        blocks: [
+          {
+            type: "faq",
+            title: "Sık Sorulan Sorular",
+            text: "Müşterilerin en çok sorduğu soruları burada toplayabilirsin.",
+            items: "Minimum sipariş var mı?|Ürüne göre değişebilir, teklif formu ile netleşir.\nÖzel üretim yapılıyor mu?|Evet, proje bazlı uyarlama yapılabilir.\nTeslim süresi nedir?|Ürün ve miktara göre planlanır."
+          }
+        ]
+      },
+      {
+        id: "preset-stats",
+        name: "İstatistik Şeridi",
+        builtIn: true,
+        blocks: [
+          {
+            type: "stats",
+            title: "Rakamlarla Güçlü Profil",
+            text: "Kısa metrik alanı",
+            items: "1200+|Teslim edilen sipariş\n98%|Müşteri memnuniyeti\n7/24|Operasyon desteği\n16 Yıl|Sektör deneyimi",
+            fullWidth: true,
+            padding: 24,
+            radius: 22
+          }
+        ]
+      }
+    ];
+
 
     function escapeHtml(value) {
       return String(value || "")
@@ -215,16 +307,22 @@
     contentWidthMode: "full",
     innerMaxWidth: 100,
     tableHeaders: "",
-    tableRows: ""
+    tableRows: "",
+    items: ""
   };
 
-  if (type === "hero") return { ...base, title: "Başlık", text: "Açıklama", primaryText: "Buton", primaryLink: "#", primaryActionType: "url", primaryActionValue: "#", primaryActionNewTab: false, secondaryText: "", secondaryLink: "", secondaryActionType: "url", secondaryActionValue: "", secondaryActionNewTab: false, align: "center", padding: 32, radius: 20, fullWidth: true };
+  if (type === "hero") return { ...base, title: "Başlık", text: "Açıklama", primaryText: "Buton", primaryLink: "#", primaryActionType: "url", primaryActionValue: "#", primaryActionPageId: "", primaryActionNewTab: false, secondaryText: "", secondaryLink: "", secondaryActionType: "url", secondaryActionValue: "", secondaryActionPageId: "", secondaryActionNewTab: false, align: "center", padding: 32, radius: 20, fullWidth: true };
   if (type === "text") return { ...base, title: "", text: "Metin", colStartDesktop: 1, colSpanDesktop: 6 };
-  if (type === "button") return { ...base, text: "Buton", link: "#", actionType: "url", actionValue: "#", actionNewTab: false, style: "primary", surface: false, colStartDesktop: 1, colSpanDesktop: 4 };
+  if (type === "button") return { ...base, text: "Buton", link: "#", actionType: "url", actionValue: "#", actionPageId: "", actionNewTab: false, style: "primary", surface: false, colStartDesktop: 1, colSpanDesktop: 4 };
   if (type === "image") return { ...base, src: "", alt: "", width: "100%", link: "", align: "center", colStartDesktop: 7, colSpanDesktop: 6 };
   if (type === "html") return { ...base, html: "<div>Özel HTML</div>" };
   if (type === "spacer") return { ...base, height: 32, background: "transparent", padding: 0, radius: 0, fullWidth: true, surface: false };
   if (type === "table") return { ...base, tableHeaders: "Sütun 1,Sütun 2", tableRows: "Değer 1|Değer 2\nDeğer 3|Değer 4", colStartDesktop: 1, colSpanDesktop: 12 };
+  if (type === "section") return { ...base, title: "Bölüm Başlığı", text: "Bölüm açıklaması", fullWidth: true, padding: 28, radius: 22, contentWidthMode: "boxed", innerMaxWidth: 86 };
+  if (type === "features") return { ...base, title: "Özellikler", text: "Öne çıkan maddeler", items: "Hızlı teslimat\nEsnek üretim\nKurumsal destek", colStartDesktop: 1, colSpanDesktop: 6 };
+  if (type === "cards") return { ...base, title: "Kart Alanı", text: "Kart açıklaması", items: "Başlık 1|Açıklama 1\nBaşlık 2|Açıklama 2\nBaşlık 3|Açıklama 3", colStartDesktop: 1, colSpanDesktop: 12 };
+  if (type === "stats") return { ...base, title: "İstatistikler", text: "Rakamlarla özet alanı", items: "1200+|Teslimat\n98%|Memnuniyet\n16 Yıl|Deneyim\n7/24|Destek", fullWidth: true, padding: 20, radius: 22 };
+  if (type === "faq") return { ...base, title: "Sık Sorulan Sorular", text: "Soru ve cevapları satır satır gir.", items: "Soru 1?|Cevap 1\nSoru 2?|Cevap 2", colStartDesktop: 1, colSpanDesktop: 12 };
   return base;
 }
    function normalizeBlock(block = {}, index = 0) {
@@ -259,15 +357,19 @@
     innerMaxWidth: clamp(block.innerMaxWidth, 20, 100, 100),
     tableHeaders: String(block.tableHeaders || ""),
     tableRows: String(block.tableRows || ""),
-    actionType: ["none","url","anchor","email","phone","whatsapp","download"].includes(block.actionType) ? block.actionType : "url",
+    actionType: ["none","url","page","anchor","email","phone","whatsapp","download"].includes(block.actionType) ? block.actionType : "url",
     actionValue: String(block.actionValue || block.link || ""),
+    actionPageId: String(block.actionPageId || block.action?.pageId || ""),
     actionNewTab: !!block.actionNewTab,
-    primaryActionType: ["none","url","anchor","email","phone","whatsapp","download"].includes(block.primaryActionType) ? block.primaryActionType : "url",
+    primaryActionType: ["none","url","page","anchor","email","phone","whatsapp","download"].includes(block.primaryActionType) ? block.primaryActionType : "url",
     primaryActionValue: String(block.primaryActionValue || block.primaryLink || ""),
+    primaryActionPageId: String(block.primaryActionPageId || block.primaryAction?.pageId || ""),
     primaryActionNewTab: !!block.primaryActionNewTab,
-    secondaryActionType: ["none","url","anchor","email","phone","whatsapp","download"].includes(block.secondaryActionType) ? block.secondaryActionType : "url",
+    secondaryActionType: ["none","url","page","anchor","email","phone","whatsapp","download"].includes(block.secondaryActionType) ? block.secondaryActionType : "url",
     secondaryActionValue: String(block.secondaryActionValue || block.secondaryLink || ""),
-    secondaryActionNewTab: !!block.secondaryActionNewTab
+    secondaryActionPageId: String(block.secondaryActionPageId || block.secondaryAction?.pageId || ""),
+    secondaryActionNewTab: !!block.secondaryActionNewTab,
+    items: String(block.items || "")
   };
 
   normalized.action = {
@@ -278,7 +380,7 @@
     phone: normalized.actionType === "phone" ? normalized.actionValue : "",
     whatsapp: normalized.actionType === "whatsapp" ? normalized.actionValue : "",
     downloadUrl: normalized.actionType === "download" ? normalized.actionValue : "",
-    pageId: "",
+    pageId: normalized.actionType === "page" ? normalized.actionPageId : "",
     newTab: normalized.actionNewTab
   };
 
@@ -290,7 +392,7 @@
     phone: normalized.primaryActionType === "phone" ? normalized.primaryActionValue : "",
     whatsapp: normalized.primaryActionType === "whatsapp" ? normalized.primaryActionValue : "",
     downloadUrl: normalized.primaryActionType === "download" ? normalized.primaryActionValue : "",
-    pageId: "",
+    pageId: normalized.primaryActionType === "page" ? normalized.primaryActionPageId : "",
     newTab: normalized.primaryActionNewTab
   };
 
@@ -302,7 +404,7 @@
     phone: normalized.secondaryActionType === "phone" ? normalized.secondaryActionValue : "",
     whatsapp: normalized.secondaryActionType === "whatsapp" ? normalized.secondaryActionValue : "",
     downloadUrl: normalized.secondaryActionType === "download" ? normalized.secondaryActionValue : "",
-    pageId: "",
+    pageId: normalized.secondaryActionType === "page" ? normalized.secondaryActionPageId : "",
     newTab: normalized.secondaryActionNewTab
   };
 
@@ -316,6 +418,194 @@
   }
 
   return normalized;
+}
+
+function pageOptionsHtml(selectedId) {
+  if (!allPages.length) return `<option value="">Sayfa yok</option>`;
+  return allPages.map((page) => {
+    const value = String(page.id || "");
+    const label = page.isHome ? "Ana Sayfa (/)" : `${page.title || page.slug || "Sayfa"} (${page.slug ? "/" + page.slug : "/"})`;
+    return `<option value="${escapeHtml(value)}"${value === String(selectedId || "") ? " selected" : ""}>${escapeHtml(label)}</option>`;
+  }).join("");
+}
+
+function renderActionEditor(prefix, block, index, label = "Eylem") {
+  const typeKey = prefix ? `${prefix}ActionType` : "actionType";
+  const valueKey = prefix ? `${prefix}ActionValue` : "actionValue";
+  const pageKey = prefix ? `${prefix}ActionPageId` : "actionPageId";
+  const newTabKey = prefix ? `${prefix}ActionNewTab` : "actionNewTab";
+  const currentType = block[typeKey] || "url";
+  const currentValue = block[valueKey] || "";
+  const currentPageId = block[pageKey] || "";
+  const showValue = currentType !== "none" && currentType !== "page";
+  const valueLabelMap = {
+    url: "URL",
+    anchor: "Anchor",
+    email: "E-posta",
+    phone: "Telefon",
+    whatsapp: "WhatsApp",
+    download: "Dosya URL"
+  };
+  const valueLabel = valueLabelMap[currentType] || "Değer";
+  return `
+    <label>${label}</label>
+    <select data-index="${index}" data-key="${typeKey}">
+      <option value="url"${currentType === "url" ? " selected" : ""}>URL</option>
+      <option value="page"${currentType === "page" ? " selected" : ""}>Sayfa</option>
+      <option value="anchor"${currentType === "anchor" ? " selected" : ""}>Anchor</option>
+      <option value="email"${currentType === "email" ? " selected" : ""}>E-posta</option>
+      <option value="phone"${currentType === "phone" ? " selected" : ""}>Telefon</option>
+      <option value="whatsapp"${currentType === "whatsapp" ? " selected" : ""}>WhatsApp</option>
+      <option value="download"${currentType === "download" ? " selected" : ""}>Dosya</option>
+      <option value="none"${currentType === "none" ? " selected" : ""}>Yok</option>
+    </select>
+    ${currentType === "page" ? `
+      <label>Sayfa Seç</label>
+      <select data-index="${index}" data-key="${pageKey}">
+        <option value="">Sayfa seç</option>
+        ${pageOptionsHtml(currentPageId)}
+      </select>
+    ` : ""}
+    ${showValue ? `
+      <label>${valueLabel}</label>
+      <input data-index="${index}" data-key="${valueKey}" value="${escapeHtml(currentValue)}">
+    ` : ""}
+    <label><input data-index="${index}" data-key="${newTabKey}" data-bool="1" type="checkbox"${block[newTabKey] ? " checked" : ""}> Yeni sekme</label>
+  `;
+}
+
+
+function loadSavedTemplates() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(TEMPLATE_STORAGE_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function saveSavedTemplates(list) {
+  localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(Array.isArray(list) ? list : []));
+}
+
+function getAllTemplates() {
+  return [...BUILTIN_TEMPLATES, ...loadSavedTemplates()];
+}
+
+function instantiateTemplateBlocks(template) {
+  const sourceBlocks = Array.isArray(template?.blocks) ? template.blocks : [];
+  return sourceBlocks.map((block, index) => normalizeBlock({
+    ...JSON.parse(JSON.stringify(block)),
+    id: "b-" + Math.random().toString(36).slice(2) + Date.now() + "-" + index
+  }, (pageData?.blocks?.length || 0) + index));
+}
+
+function insertTemplate(templateId) {
+  const template = getAllTemplates().find((item) => item.id === templateId);
+  if (!template || !pageData) return;
+  const blocks = instantiateTemplateBlocks(template);
+  if (!blocks.length) return;
+  pageData.blocks = Array.isArray(pageData.blocks) ? pageData.blocks : [];
+  pageData.blocks.push(...blocks);
+  selectedId = blocks[0].id;
+  blocks.forEach((block) => expandedIds.add(block.id));
+  autoArrangeBlocks();
+}
+
+function saveSelectedAsTemplate() {
+  const index = getSelectedIndex();
+  if (index < 0 || !pageData?.blocks?.[index]) {
+    alert("Önce kaydetmek istediğin bloğu seç.");
+    return;
+  }
+  const defaultName = (pageData.blocks[index].title || pageData.blocks[index].text || pageData.blocks[index].type || "Yeni Şablon").slice(0, 40);
+  const name = prompt("Şablon adı", defaultName);
+  if (!name) return;
+  const saved = loadSavedTemplates();
+  saved.unshift({
+    id: "saved-" + Date.now(),
+    name: String(name).trim(),
+    builtIn: false,
+    blocks: [JSON.parse(JSON.stringify(pageData.blocks[index]))]
+  });
+  saveSavedTemplates(saved.slice(0, 30));
+  renderTemplateLibrary();
+}
+
+function deleteTemplate(templateId) {
+  const saved = loadSavedTemplates().filter((item) => item.id !== templateId);
+  saveSavedTemplates(saved);
+  renderTemplateLibrary();
+}
+
+function renderTemplateLibrary() {
+  const wrap = document.getElementById("templateList");
+  if (!wrap) return;
+  const templates = getAllTemplates();
+  wrap.innerHTML = `
+    <div class="template-item">
+      <div class="template-title">Seçili bloğu kaydet</div>
+      <div class="template-meta">Bu özellik şablonları tarayıcıda saklar. Aynı bilgisayarda tekrar kullanılabilir.</div>
+      <div class="template-actions">
+        <button class="tiny-btn alt" id="saveReusableBtn" type="button">Seçili Bloğu Kaydet</button>
+      </div>
+    </div>
+    ${templates.map((template) => `
+      <div class="template-item">
+        <div class="template-title">${escapeHtml(template.name || "Şablon")}</div>
+        <div class="template-meta">${template.builtIn ? "Hazır bölüm" : "Kayıtlı bölüm"} · ${Array.isArray(template.blocks) ? template.blocks.length : 0} blok</div>
+        <div class="template-actions">
+          <button class="tiny-btn" type="button" data-insert-template="${escapeHtml(template.id)}">Ekle</button>
+          ${template.builtIn ? "" : `<button class="tiny-btn" type="button" data-delete-template="${escapeHtml(template.id)}">Sil</button>`}
+        </div>
+      </div>
+    `).join("")}
+  `;
+  const saveBtn = document.getElementById("saveReusableBtn");
+  if (saveBtn) saveBtn.addEventListener("click", saveSelectedAsTemplate);
+  wrap.querySelectorAll("[data-insert-template]").forEach((btn) => {
+    btn.addEventListener("click", () => insertTemplate(btn.getAttribute("data-insert-template")));
+  });
+  wrap.querySelectorAll("[data-delete-template]").forEach((btn) => {
+    btn.addEventListener("click", () => deleteTemplate(btn.getAttribute("data-delete-template")));
+  });
+}
+
+function autoArrangeBlocks() {
+  if (!pageData || !Array.isArray(pageData.blocks)) return;
+  let currentRow = 1;
+  let currentCol = 1;
+  pageData.blocks = pageData.blocks.map((block, index) => {
+    const normalized = normalizeBlock(block, index);
+    if (normalized.fullWidth || normalized.type === "section" || normalized.type === "spacer") {
+      currentCol = 1;
+      const fullBlock = normalizeBlock({
+        ...normalized,
+        colStartDesktop: 1,
+        colSpanDesktop: 12,
+        rowStartDesktop: currentRow
+      }, index);
+      currentRow += Number(fullBlock.rowSpan || 1);
+      return fullBlock;
+    }
+    const span = Number(normalized.colSpanDesktop || 12);
+    if (currentCol + span - 1 > 12) {
+      currentRow += 1;
+      currentCol = 1;
+    }
+    const arranged = normalizeBlock({
+      ...normalized,
+      colStartDesktop: currentCol,
+      rowStartDesktop: currentRow
+    }, index);
+    currentCol += span;
+    if (currentCol > 12) {
+      currentCol = 1;
+      currentRow += Math.max(1, Number(arranged.rowSpan || 1));
+    }
+    return arranged;
+  });
+  renderLocalUi();
 }
 
     function getSelectedIndex() {
@@ -392,6 +682,7 @@
       <button class="tiny-btn" data-action="rowless" type="button">▭－</button>
       <button class="tiny-btn" data-action="rowmore" type="button">▭＋</button>
       <button class="tiny-btn" data-action="full" type="button">□</button>
+      <button class="tiny-btn" data-action="compact" type="button">⇵</button>
     </div>
   `;
 
@@ -407,6 +698,7 @@
       if (action === "rowless") changeSelectedRow(-1);
       if (action === "rowmore") changeSelectedRow(1);
       if (action === "full") toggleSelectedFullWidth();
+      if (action === "compact") autoArrangeBlocks();
     });
   });
 }
@@ -447,6 +739,24 @@ function renderInspector() {
           <label>Kutulu</label>
           <input id="iSurface" type="number" min="0" max="1" value="${block.surface === false ? 0 : 1}">
         </div>
+        <div>
+          <label>Tam Genişlik</label>
+          <input id="iFullWidth" type="number" min="0" max="1" value="${block.fullWidth ? 1 : 0}">
+        </div>
+        <div>
+          <label>Görünür</label>
+          <input id="iVisible" type="number" min="0" max="1" value="${block.visible === false ? 0 : 1}">
+        </div>
+      </div>
+      <div class="mini-grid" style="margin-top:10px">
+        <div>
+          <label>HTML ID</label>
+          <input id="iHtmlId" type="text" value="${escapeHtml(block.htmlId || "")}">
+        </div>
+        <div>
+          <label>CSS Sınıfı</label>
+          <input id="iCssClass" type="text" value="${escapeHtml(block.cssClass || "")}">
+        </div>
       </div>
     </div>
   `;
@@ -471,14 +781,48 @@ function renderInspector() {
     iSurface.addEventListener("input", applySurface);
     iSurface.addEventListener("change", applySurface);
   }
+
+  const iFullWidth = document.getElementById("iFullWidth");
+  if (iFullWidth) {
+    const applyFull = () => updateSelected({ fullWidth: Number(iFullWidth.value || 0) === 1 });
+    iFullWidth.addEventListener("input", applyFull);
+    iFullWidth.addEventListener("change", applyFull);
+  }
+
+  const iVisible = document.getElementById("iVisible");
+  if (iVisible) {
+    const applyVisible = () => updateSelected({ visible: Number(iVisible.value || 0) === 1 });
+    iVisible.addEventListener("input", applyVisible);
+    iVisible.addEventListener("change", applyVisible);
+  }
+
+  const iHtmlId = document.getElementById("iHtmlId");
+  if (iHtmlId) {
+    const applyHtmlId = () => updateSelected({ htmlId: iHtmlId.value || "" });
+    iHtmlId.addEventListener("input", applyHtmlId);
+    iHtmlId.addEventListener("change", applyHtmlId);
+  }
+
+  const iCssClass = document.getElementById("iCssClass");
+  if (iCssClass) {
+    const applyCssClass = () => updateSelected({ cssClass: iCssClass.value || "" });
+    iCssClass.addEventListener("input", applyCssClass);
+    iCssClass.addEventListener("change", applyCssClass);
+  }
 }
     function renderBlockFields(block, index) {
       if (block.type === "hero") {
         return `
           <label>Başlık</label>
-          <input data-index="${index}" data-key="title" value="${escapeHtml(block.title)}">
+          <input data-index="${index}" data-key="title" value="${escapeHtml(block.title || "")}">
           <label>Açıklama</label>
-          <textarea data-index="${index}" data-key="text">${escapeHtml(block.text)}</textarea>
+          <textarea data-index="${index}" data-key="text">${escapeHtml(block.text || "")}</textarea>
+          <label>Birincil Buton Metni</label>
+          <input data-index="${index}" data-key="primaryText" value="${escapeHtml(block.primaryText || "")}">
+          ${renderActionEditor("primary", block, index, "Birincil Buton Eylemi")}
+          <label>İkincil Buton Metni</label>
+          <input data-index="${index}" data-key="secondaryText" value="${escapeHtml(block.secondaryText || "")}">
+          ${renderActionEditor("secondary", block, index, "İkincil Buton Eylemi")}
         `;
       }
 
@@ -495,19 +839,66 @@ function renderInspector() {
         return `
           <label>Buton</label>
           <input data-index="${index}" data-key="text" value="${escapeHtml(block.text || "")}">
-          <label>Eylem</label>
-          <select data-index="${index}" data-key="actionType">
-            <option value="url"${block.actionType === "url" ? " selected" : ""}>URL</option>
-            <option value="anchor"${block.actionType === "anchor" ? " selected" : ""}>Anchor</option>
-            <option value="email"${block.actionType === "email" ? " selected" : ""}>E-posta</option>
-            <option value="phone"${block.actionType === "phone" ? " selected" : ""}>Telefon</option>
-            <option value="whatsapp"${block.actionType === "whatsapp" ? " selected" : ""}>WhatsApp</option>
-            <option value="download"${block.actionType === "download" ? " selected" : ""}>Dosya</option>
-            <option value="none"${block.actionType === "none" ? " selected" : ""}>Yok</option>
+          ${renderActionEditor("", block, index, "Buton Eylemi")}
+          <label>Stil</label>
+          <select data-index="${index}" data-key="style">
+            <option value="primary"${block.style === "primary" ? " selected" : ""}>Primary</option>
+            <option value="secondary"${block.style === "secondary" ? " selected" : ""}>Secondary</option>
+            <option value="ghost"${block.style === "ghost" ? " selected" : ""}>Ghost</option>
           </select>
-          <label>Değer</label>
-          <input data-index="${index}" data-key="actionValue" value="${escapeHtml(block.actionValue || "")}">
-          <label><input data-index="${index}" data-key="actionNewTab" data-bool="1" type="checkbox"${block.actionNewTab ? " checked" : ""}> Yeni sekme</label>
+        `;
+      }
+
+      if (block.type === "section") {
+        return `
+          <label>Başlık</label>
+          <input data-index="${index}" data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Açıklama</label>
+          <textarea data-index="${index}" data-key="text">${escapeHtml(block.text || "")}</textarea>
+        `;
+      }
+
+      if (block.type === "features") {
+        return `
+          <label>Başlık</label>
+          <input data-index="${index}" data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Açıklama</label>
+          <textarea data-index="${index}" data-key="text">${escapeHtml(block.text || "")}</textarea>
+          <label>Maddeler (satır satır)</label>
+          <textarea data-index="${index}" data-key="items">${escapeHtml(block.items || "")}</textarea>
+        `;
+      }
+
+      if (block.type === "cards") {
+        return `
+          <label>Başlık</label>
+          <input data-index="${index}" data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Açıklama</label>
+          <textarea data-index="${index}" data-key="text">${escapeHtml(block.text || "")}</textarea>
+          <label>Kartlar (Başlık|Açıklama)</label>
+          <textarea data-index="${index}" data-key="items">${escapeHtml(block.items || "")}</textarea>
+        `;
+      }
+
+      if (block.type === "stats") {
+        return `
+          <label>Başlık</label>
+          <input data-index="${index}" data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Açıklama</label>
+          <textarea data-index="${index}" data-key="text">${escapeHtml(block.text || "")}</textarea>
+          <label>İstatistikler (Değer|Açıklama)</label>
+          <textarea data-index="${index}" data-key="items">${escapeHtml(block.items || "")}</textarea>
+        `;
+      }
+
+      if (block.type === "faq") {
+        return `
+          <label>Başlık</label>
+          <input data-index="${index}" data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Açıklama</label>
+          <textarea data-index="${index}" data-key="text">${escapeHtml(block.text || "")}</textarea>
+          <label>SSS (Soru|Cevap)</label>
+          <textarea data-index="${index}" data-key="items">${escapeHtml(block.items || "")}</textarea>
         `;
       }
 
@@ -564,6 +955,7 @@ function renderInspector() {
               <div class="block-actions">
                 <button class="block-mini" type="button" data-up="${index}">↑</button>
                 <button class="block-mini" type="button" data-down="${index}">↓</button>
+                <button class="block-mini" type="button" data-copy="${index}">⎘</button>
                 <button class="block-mini danger" type="button" data-remove="${index}">×</button>
               </div>
             </div>
@@ -604,6 +996,19 @@ function renderInspector() {
         });
       });
 
+      blockList.querySelectorAll("[data-copy]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const index = Number(btn.getAttribute("data-copy"));
+          const source = pageData.blocks[index];
+          if (!source) return;
+          const clone = normalizeBlock({ ...JSON.parse(JSON.stringify(source)), id: "b-" + Math.random().toString(36).slice(2) + Date.now() }, index + 1);
+          pageData.blocks.splice(index + 1, 0, clone);
+          selectedId = clone.id;
+          expandedIds.add(clone.id);
+          renderLocalUi();
+        });
+      });
+
       blockList.querySelectorAll("[data-remove]").forEach((btn) => {
         btn.addEventListener("click", () => {
           const index = Number(btn.getAttribute("data-remove"));
@@ -619,7 +1024,7 @@ function renderInspector() {
           const index = Number(field.getAttribute("data-index"));
           const key = field.getAttribute("data-key");
           let value = field.hasAttribute("data-bool") ? field.checked : field.value;
-          if (["height"].includes(key)) value = Number(value || 0);
+          if (["height","padding","radius","maxWidth","colStartDesktop","colSpanDesktop","rowStartDesktop","rowSpan","minHeight","innerMaxWidth"].includes(key)) value = Number(value || 0);
           pageData.blocks[index] = normalizeBlock({ ...pageData.blocks[index], [key]: value }, index);
           renderLocalUi();
         };
@@ -631,6 +1036,7 @@ function renderInspector() {
   function renderLocalUi() {
   if (!pageData) return;
   renderToolbar();
+  renderTemplateLibrary();
   renderInspector();
   renderBlockList();
   designerTitle.textContent = pageData.title || "Tasarım Düzenleyici";
@@ -667,6 +1073,22 @@ function renderInspector() {
   if (!previewReady || !previewFrame.contentWindow || !pageData) return;
   previewFrame.contentWindow.postMessage({ type: "vera:updatePage", page: pageData }, "*");
 }
+
+
+    async function loadPagesForActions() {
+      try {
+        const res = await fetch("/api/pages", { headers: { Accept: "application/json" }, credentials: "same-origin" });
+        const data = await res.json();
+        allPages = Array.isArray(data.pages) ? data.pages.map((page) => ({
+          id: String(page.id || ""),
+          title: String(page.title || ""),
+          slug: String(page.slug || ""),
+          isHome: !!page.isHome
+        })) : [];
+      } catch {
+        allPages = [];
+      }
+    }
 
     async function loadPageOnly() {
       if (!pageId) {
@@ -765,6 +1187,7 @@ function renderInspector() {
     });
 
     (async function init() {
+      await loadPagesForActions();
       const ok = await loadPageOnly();
       if (!ok) return;
       loading.style.display = "none";
