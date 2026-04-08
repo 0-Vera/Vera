@@ -218,9 +218,9 @@
     tableRows: ""
   };
 
-  if (type === "hero") return { ...base, title: "Başlık", text: "Açıklama", primaryText: "Buton", primaryLink: "#", secondaryText: "", secondaryLink: "", align: "center", padding: 32, radius: 20, fullWidth: true };
+  if (type === "hero") return { ...base, title: "Başlık", text: "Açıklama", primaryText: "Buton", primaryLink: "#", primaryActionType: "url", primaryActionValue: "#", primaryActionNewTab: false, secondaryText: "", secondaryLink: "", secondaryActionType: "url", secondaryActionValue: "", secondaryActionNewTab: false, align: "center", padding: 32, radius: 20, fullWidth: true };
   if (type === "text") return { ...base, title: "", text: "Metin", colStartDesktop: 1, colSpanDesktop: 6 };
-  if (type === "button") return { ...base, text: "Buton", link: "#", style: "primary", surface: false, colStartDesktop: 1, colSpanDesktop: 4 };
+  if (type === "button") return { ...base, text: "Buton", link: "#", actionType: "url", actionValue: "#", actionNewTab: false, style: "primary", surface: false, colStartDesktop: 1, colSpanDesktop: 4 };
   if (type === "image") return { ...base, src: "", alt: "", width: "100%", link: "", align: "center", colStartDesktop: 7, colSpanDesktop: 6 };
   if (type === "html") return { ...base, html: "<div>Özel HTML</div>" };
   if (type === "spacer") return { ...base, height: 32, background: "transparent", padding: 0, radius: 0, fullWidth: true, surface: false };
@@ -258,7 +258,52 @@
     contentWidthMode: block.contentWidthMode === "boxed" ? "boxed" : "full",
     innerMaxWidth: clamp(block.innerMaxWidth, 20, 100, 100),
     tableHeaders: String(block.tableHeaders || ""),
-    tableRows: String(block.tableRows || "")
+    tableRows: String(block.tableRows || ""),
+    actionType: ["none","url","anchor","email","phone","whatsapp","download"].includes(block.actionType) ? block.actionType : "url",
+    actionValue: String(block.actionValue || block.link || ""),
+    actionNewTab: !!block.actionNewTab,
+    primaryActionType: ["none","url","anchor","email","phone","whatsapp","download"].includes(block.primaryActionType) ? block.primaryActionType : "url",
+    primaryActionValue: String(block.primaryActionValue || block.primaryLink || ""),
+    primaryActionNewTab: !!block.primaryActionNewTab,
+    secondaryActionType: ["none","url","anchor","email","phone","whatsapp","download"].includes(block.secondaryActionType) ? block.secondaryActionType : "url",
+    secondaryActionValue: String(block.secondaryActionValue || block.secondaryLink || ""),
+    secondaryActionNewTab: !!block.secondaryActionNewTab
+  };
+
+  normalized.action = {
+    type: normalized.actionType,
+    url: normalized.actionType === "url" ? normalized.actionValue : "#",
+    anchor: normalized.actionType === "anchor" ? normalized.actionValue : "",
+    email: normalized.actionType === "email" ? normalized.actionValue : "",
+    phone: normalized.actionType === "phone" ? normalized.actionValue : "",
+    whatsapp: normalized.actionType === "whatsapp" ? normalized.actionValue : "",
+    downloadUrl: normalized.actionType === "download" ? normalized.actionValue : "",
+    pageId: "",
+    newTab: normalized.actionNewTab
+  };
+
+  normalized.primaryAction = {
+    type: normalized.primaryActionType,
+    url: normalized.primaryActionType === "url" ? normalized.primaryActionValue : "#",
+    anchor: normalized.primaryActionType === "anchor" ? normalized.primaryActionValue : "",
+    email: normalized.primaryActionType === "email" ? normalized.primaryActionValue : "",
+    phone: normalized.primaryActionType === "phone" ? normalized.primaryActionValue : "",
+    whatsapp: normalized.primaryActionType === "whatsapp" ? normalized.primaryActionValue : "",
+    downloadUrl: normalized.primaryActionType === "download" ? normalized.primaryActionValue : "",
+    pageId: "",
+    newTab: normalized.primaryActionNewTab
+  };
+
+  normalized.secondaryAction = {
+    type: normalized.secondaryActionType,
+    url: normalized.secondaryActionType === "url" ? normalized.secondaryActionValue : "#",
+    anchor: normalized.secondaryActionType === "anchor" ? normalized.secondaryActionValue : "",
+    email: normalized.secondaryActionType === "email" ? normalized.secondaryActionValue : "",
+    phone: normalized.secondaryActionType === "phone" ? normalized.secondaryActionValue : "",
+    whatsapp: normalized.secondaryActionType === "whatsapp" ? normalized.secondaryActionValue : "",
+    downloadUrl: normalized.secondaryActionType === "download" ? normalized.secondaryActionValue : "",
+    pageId: "",
+    newTab: normalized.secondaryActionNewTab
   };
 
   if (normalized.fullWidth) {
@@ -450,8 +495,19 @@ function renderInspector() {
         return `
           <label>Buton</label>
           <input data-index="${index}" data-key="text" value="${escapeHtml(block.text || "")}">
-          <label>Link</label>
-          <input data-index="${index}" data-key="link" value="${escapeHtml(block.link || "")}">
+          <label>Eylem</label>
+          <select data-index="${index}" data-key="actionType">
+            <option value="url"${block.actionType === "url" ? " selected" : ""}>URL</option>
+            <option value="anchor"${block.actionType === "anchor" ? " selected" : ""}>Anchor</option>
+            <option value="email"${block.actionType === "email" ? " selected" : ""}>E-posta</option>
+            <option value="phone"${block.actionType === "phone" ? " selected" : ""}>Telefon</option>
+            <option value="whatsapp"${block.actionType === "whatsapp" ? " selected" : ""}>WhatsApp</option>
+            <option value="download"${block.actionType === "download" ? " selected" : ""}>Dosya</option>
+            <option value="none"${block.actionType === "none" ? " selected" : ""}>Yok</option>
+          </select>
+          <label>Değer</label>
+          <input data-index="${index}" data-key="actionValue" value="${escapeHtml(block.actionValue || "")}">
+          <label><input data-index="${index}" data-key="actionNewTab" data-bool="1" type="checkbox"${block.actionNewTab ? " checked" : ""}> Yeni sekme</label>
         `;
       }
 
@@ -562,7 +618,7 @@ function renderInspector() {
         const apply = () => {
           const index = Number(field.getAttribute("data-index"));
           const key = field.getAttribute("data-key");
-          let value = field.value;
+          let value = field.hasAttribute("data-bool") ? field.checked : field.value;
           if (["height"].includes(key)) value = Number(value || 0);
           pageData.blocks[index] = normalizeBlock({ ...pageData.blocks[index], [key]: value }, index);
           renderLocalUi();
