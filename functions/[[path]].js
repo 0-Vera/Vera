@@ -128,6 +128,34 @@ function resolveMenuItems(items, pages = []) {
     .filter((item) => item.text);
 }
 
+
+function splitLines(value) {
+  return String(value || "")
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function parseCardItems(value) {
+  return splitLines(value).map((line) => {
+    const [title, ...rest] = line.split("|");
+    return {
+      title: String(title || "").trim(),
+      text: String(rest.join("|") || "").trim()
+    };
+  });
+}
+
+function parsePairItems(value) {
+  return splitLines(value).map((line) => {
+    const [title, ...rest] = line.split("|");
+    return {
+      title: String(title || "").trim(),
+      text: String(rest.join("|") || "").trim()
+    };
+  });
+}
+
 function renderMenuItems(items, currentPath = "/", pages = []) {
   return resolveMenuItems(items, pages)
     .map((item) => {
@@ -234,6 +262,82 @@ function renderBlock(block, pageOptions = {}, renderMeta = {}) {
         <div class="actions">
           ${block.primaryText ? `<a class="btn primary" href="${escapeHtml(primaryHref)}"${actionAttrs(block.primaryAction, primaryHref)}>${escapeHtml(block.primaryText)}</a>` : ""}
           ${block.secondaryText ? `<a class="btn" href="${escapeHtml(secondaryHref)}"${actionAttrs(block.secondaryAction, secondaryHref)}>${escapeHtml(block.secondaryText)}</a>` : ""}
+        </div>
+      </div>
+    `, pageOptions, renderMeta);
+  }
+
+  if (block.type === "section") {
+    return blockWrapper(block, `
+      <div class="section-intro">
+        ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
+        ${block.text ? `<p>${escapeHtml(block.text)}</p>` : ""}
+      </div>
+    `, pageOptions, renderMeta);
+  }
+
+  if (block.type === "features") {
+    const items = splitLines(block.items);
+    return blockWrapper(block, `
+      <div class="feature-list">
+        ${block.title ? `<h3>${escapeHtml(block.title)}</h3>` : ""}
+        ${block.text ? `<p>${escapeHtml(block.text)}</p>` : ""}
+        <ul>
+          ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+        </ul>
+      </div>
+    `, pageOptions, renderMeta);
+  }
+
+  if (block.type === "cards") {
+    const cards = parseCardItems(block.items);
+    return blockWrapper(block, `
+      <div class="cards-block">
+        ${block.title ? `<h3>${escapeHtml(block.title)}</h3>` : ""}
+        ${block.text ? `<p class="cards-intro">${escapeHtml(block.text)}</p>` : ""}
+        <div class="cards-grid">
+          ${cards.map((card) => `
+            <article class="info-card">
+              ${card.title ? `<h4>${escapeHtml(card.title)}</h4>` : ""}
+              ${card.text ? `<p>${escapeHtml(card.text)}</p>` : ""}
+            </article>
+          `).join("")}
+        </div>
+      </div>
+    `, pageOptions, renderMeta);
+  }
+
+  if (block.type === "stats") {
+    const items = parsePairItems(block.items);
+    return blockWrapper(block, `
+      <div class="stats-block">
+        ${block.title ? `<h3>${escapeHtml(block.title)}</h3>` : ""}
+        ${block.text ? `<p class="cards-intro">${escapeHtml(block.text)}</p>` : ""}
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px">
+          ${items.map((item) => `
+            <article class="info-card" style="text-align:center">
+              ${item.title ? `<strong style="display:block;font-size:28px;line-height:1.1;margin-bottom:8px">${escapeHtml(item.title)}</strong>` : ""}
+              ${item.text ? `<p>${escapeHtml(item.text)}</p>` : ""}
+            </article>
+          `).join("")}
+        </div>
+      </div>
+    `, pageOptions, renderMeta);
+  }
+
+  if (block.type === "faq") {
+    const items = parsePairItems(block.items);
+    return blockWrapper(block, `
+      <div class="faq-block">
+        ${block.title ? `<h3>${escapeHtml(block.title)}</h3>` : ""}
+        ${block.text ? `<p class="cards-intro">${escapeHtml(block.text)}</p>` : ""}
+        <div style="display:grid;gap:12px">
+          ${items.map((item) => `
+            <article class="info-card">
+              ${item.title ? `<h4>${escapeHtml(item.title)}</h4>` : ""}
+              ${item.text ? `<p>${escapeHtml(item.text)}</p>` : ""}
+            </article>
+          `).join("")}
         </div>
       </div>
     `, pageOptions, renderMeta);
@@ -368,6 +472,15 @@ function render404() {
 .table-wrap table{width:100%;border-collapse:collapse;background:#fff}
 .table-wrap th,.table-wrap td{border:1px solid var(--border-color);padding:10px 12px;text-align:left;font-size:14px}
 .table-wrap th{background:#f8fafc;font-weight:700}
+
+    .section-intro{display:grid;gap:10px}
+    .section-intro h2,.section-intro h3,.feature-list h3,.cards-block h3{margin:0;font-size:clamp(22px,3vw,34px)}
+    .section-intro p,.feature-list p,.cards-block p,.info-card p{margin:0;color:var(--muted-text);line-height:1.7}
+    .feature-list ul{margin:16px 0 0;padding-left:18px;display:grid;gap:10px}
+    .feature-list li{line-height:1.6}
+    .cards-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+    .info-card{border:1px solid var(--border-color);border-radius:16px;padding:18px;background:rgba(255,255,255,.7)}
+    .info-card h4{margin:0 0 8px;font-size:18px}
   </style>
 </head>
 <body>
@@ -562,6 +675,36 @@ function renderDesignerBridge(page, currentPath) {
               </div>
             </div>
           \`);
+        }
+
+        if (block.type === "section") {
+          return blockWrapper(block, '<div class="section-intro">' +
+            (block.title ? '<h2>' + escapeHtml(block.title) + '</h2>' : '') +
+            (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
+          '</div>', pageOptions, renderMeta);
+        }
+
+        if (block.type === "features") {
+          const items = splitLines(block.items);
+          return blockWrapper(block, '<div class="feature-list">' +
+            (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
+            (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
+            '<ul>' + items.map(function(item){ return '<li>' + escapeHtml(item) + '</li>'; }).join('') + '</ul>' +
+          '</div>', pageOptions, renderMeta);
+        }
+
+        if (block.type === "cards") {
+          const cards = parseCardItems(block.items);
+          return blockWrapper(block, '<div class="cards-block">' +
+            (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
+            (block.text ? '<p class="cards-intro">' + escapeHtml(block.text) + '</p>' : '') +
+            '<div class="cards-grid">' + cards.map(function(card){
+              return '<article class="info-card">' +
+                (card.title ? '<h4>' + escapeHtml(card.title) + '</h4>' : '') +
+                (card.text ? '<p>' + escapeHtml(card.text) + '</p>' : '') +
+              '</article>';
+            }).join('') + '</div>' +
+          '</div>', pageOptions, renderMeta);
         }
 
         if (block.type === "text") {
