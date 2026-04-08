@@ -340,11 +340,11 @@
           headers: { "Accept": "application/json" }
         });
         const data = await res.json();
-        if (!data.ok || !data.authenticated) return location.replace("/login");
+        if (!data.ok || !data.authenticated) return location.replace("/login/index.html");
         loading.classList.add("hidden");
         app.classList.remove("hidden");
       } catch {
-        location.replace("/login");
+        location.replace("/login/index.html");
       }
     }
 
@@ -431,7 +431,7 @@
           headers: { "Accept": "application/json" }
         });
       } catch {}
-      location.replace("/login");
+      location.replace("/login/index.html");
     }
 
     newPageBtn.addEventListener("click", () => fillForm(emptyPage()));
