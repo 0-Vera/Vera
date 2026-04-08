@@ -19,7 +19,14 @@
       --body-text: #0f172a;
       --border-color: #e2e8f0;
       --primary-color: #2563eb;
+      --secondary-color: #0f172a;
+      --surface-color: #ffffff;
+      --muted-text: #64748b;
+      --header-bg: #ffffff;
+      --footer-bg: #ffffff;
       --container-width: 1200px;
+      --card-radius: 18px;
+      --button-radius: 12px;
     }
 
     html { scroll-behavior: smooth; }
@@ -51,9 +58,22 @@
       left: 12px;
     }
 
+    .contact-bar { background: var(--secondary-color); color:#fff; font-size:13px; }
+
+    .contact-bar-inner,
+    .site-header {
+      width: 100%;
+    }
+
+    .contact-bar-inner {
+      max-width: var(--container-width);
+      margin: 0 auto;
+      padding: 9px 24px;
+    }
+
     .site-header {
       border-bottom: 1px solid var(--border-color);
-      background: rgba(255,255,255,.92);
+      background: var(--header-bg);
       backdrop-filter: blur(10px);
       position: sticky;
       top: 0;
@@ -111,7 +131,7 @@
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      border-radius: 12px;
+      border-radius: var(--button-radius);
       padding: 11px 16px;
       font-weight: 700;
       background: var(--primary-color);
@@ -147,6 +167,8 @@
       border: 1px solid var(--border-color);
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
       overflow-wrap: anywhere;
+      border-radius: var(--card-radius);
+      background: var(--surface-color);
     }
 
     .hero h1 {
@@ -173,7 +195,7 @@
       align-items: center;
       justify-content: center;
       text-decoration: none;
-      border-radius: 12px;
+      border-radius: var(--button-radius);
       padding: 12px 18px;
       font-weight: 700;
       border: 1px solid #cbd5e1;
@@ -208,7 +230,7 @@
 
     .image-block img {
       max-width: 100%;
-      border-radius: 12px;
+      border-radius: var(--button-radius);
       display: inline-block;
       height: auto;
     }
@@ -228,23 +250,33 @@
     .site-footer {
       margin-top: 28px;
       border-top: 1px solid var(--border-color);
-      background: #ffffff;
+      background: var(--footer-bg);
     }
 
     .site-footer-inner {
-      padding-top: 18px;
-      padding-bottom: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      padding-top: 24px;
+      padding-bottom: 24px;
+      display: grid;
       gap: 18px;
-      flex-wrap: wrap;
     }
 
-    .footer-muted {
-      color: #64748b;
-      font-size: 14px;
+    .footer-columns {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:18px;
     }
+
+    .footer-column h3 { margin:0 0 10px; font-size:18px; }
+    .footer-column p { margin:0 0 10px; color:var(--muted-text); white-space:pre-line; line-height:1.7; }
+    .footer-links { display:grid; gap:8px; }
+    .footer-links a, .footer-social a { text-decoration:none; color:var(--muted-text); font-size:14px; }
+    .footer-bottom { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; flex-wrap:wrap; padding-top:8px; border-top:1px solid var(--border-color); }
+    .footer-muted {
+      color: var(--muted-text);
+      font-size: 14px;
+      white-space: pre-line;
+    }
+    .footer-social { display:flex; gap:12px; flex-wrap:wrap; }
 
     .spacer-block {
       width: 100%;
@@ -262,10 +294,13 @@
     }
 
     @media (max-width: 900px) {
-      .site-header-inner,
-      .site-footer-inner {
+      .site-header-inner {
         flex-direction: column;
         align-items: flex-start;
+      }
+
+      .footer-columns {
+        grid-template-columns: 1fr;
       }
 
       .hero h1 {
@@ -279,6 +314,8 @@
   <a class="skip-link" href="#content">İçeriğe geç</a>
 
   <div id="beforeBodyHtml"></div>
+
+  <div id="contactBar" class="contact-bar hidden"><div id="contactBarInner" class="contact-bar-inner"></div></div>
 
   <header id="siteHeader" class="site-header" style="display:none;">
     <div class="site-header-inner">
@@ -294,8 +331,12 @@
 
   <footer id="siteFooter" class="site-footer" style="display:none;">
     <div class="site-footer-inner">
-      <div id="footerText" class="footer-muted"></div>
-      <div id="footerContact" class="footer-muted"></div>
+      <div id="footerColumns" class="footer-columns"></div>
+      <div class="footer-bottom">
+        <div id="footerText" class="footer-muted"></div>
+        <div id="footerContact" class="footer-muted"></div>
+        <div id="footerSocial" class="footer-social"></div>
+      </div>
     </div>
   </footer>
 
@@ -369,7 +410,15 @@
       document.documentElement.style.setProperty("--body-text", theme.bodyText || "#0f172a");
       document.documentElement.style.setProperty("--border-color", theme.borderColor || "#e2e8f0");
       document.documentElement.style.setProperty("--primary-color", theme.primaryColor || "#2563eb");
+      document.documentElement.style.setProperty("--secondary-color", theme.secondaryColor || "#0f172a");
+      document.documentElement.style.setProperty("--surface-color", theme.surfaceColor || "#ffffff");
+      document.documentElement.style.setProperty("--muted-text", theme.mutedText || "#64748b");
+      document.documentElement.style.setProperty("--header-bg", theme.headerBg || "#ffffff");
+      document.documentElement.style.setProperty("--footer-bg", theme.footerBg || "#ffffff");
       document.documentElement.style.setProperty("--container-width", (theme.containerWidth || 1200) + "px");
+      document.documentElement.style.setProperty("--card-radius", (theme.radius || 18) + "px");
+      document.documentElement.style.setProperty("--button-radius", (theme.buttonRadius || 12) + "px");
+      document.body.style.fontFamily = theme.fontFamily || "Arial, sans-serif";
     }
 
     function blockWrapper(block, innerHtml, extraClass = "") {
@@ -542,6 +591,12 @@ function renderMenuItems(items) {
     .join("");
 }
 
+    function ctaClassName(style) {
+      if (style === "secondary") return "top-cta top-cta-secondary";
+      if (style === "ghost") return "top-cta top-cta-ghost";
+      return "top-cta";
+    }
+
     function applySiteSettings(settings = {}, pageOptions = {}) {
       const showHeader = settings.showHeader !== false && pageOptions.showHeader !== false;
       const showFooter = settings.showFooter !== false && pageOptions.showFooter !== false;
@@ -551,9 +606,25 @@ function renderMenuItems(items) {
       const brand = document.getElementById("siteBrand");
       const nav = document.getElementById("siteNav");
       const cta = document.getElementById("topCta");
+      const contactBar = document.getElementById("contactBar");
+      const contactBarInner = document.getElementById("contactBarInner");
+      const footerColumns = document.getElementById("footerColumns");
+      const footerSocial = document.getElementById("footerSocial");
 
       header.style.display = showHeader ? "block" : "none";
       footer.style.display = showFooter ? "block" : "none";
+
+      if (settings.header?.showContactBar && settings.header?.contactBarText && showHeader) {
+        contactBar.classList.remove("hidden");
+        contactBarInner.textContent = settings.header.contactBarText;
+      } else {
+        contactBar.classList.add("hidden");
+        contactBarInner.textContent = "";
+      }
+
+      header.style.position = settings.header?.sticky === false ? "relative" : "sticky";
+      header.style.top = settings.header?.sticky === false ? "" : "0";
+      header.style.background = settings.header?.transparent ? "transparent" : "var(--header-bg)";
 
       brand.textContent = settings.logoText || settings.siteName || "Vera";
       brand.href = normalizeLink(settings.logoLink, "/");
@@ -562,9 +633,9 @@ function renderMenuItems(items) {
       if (settings.showTopCta && settings.topCtaText) {
         const ctaHref = resolveActionHref(settings.topCtaAction, settings.topCtaLink || "#");
         cta.style.display = "inline-flex";
+        cta.className = ctaClassName(settings.header?.ctaStyle || settings.topCtaStyle || "primary");
         cta.textContent = settings.topCtaText;
         cta.href = ctaHref;
-
         if (actionAttrs(settings.topCtaAction, ctaHref)) {
           cta.target = "_blank";
           cta.rel = "noopener noreferrer";
@@ -576,10 +647,33 @@ function renderMenuItems(items) {
         cta.style.display = "none";
       }
 
-      document.getElementById("footerText").textContent = settings.footerText || "";
+      document.getElementById("footerText").textContent = settings.footer?.bottomText || settings.footerText || "";
 
-      const contactParts = [settings.contactEmail, settings.contactPhone].filter(Boolean);
+      const contactParts = settings.footer?.showContactInfo === false
+        ? []
+        : [settings.contactEmail, settings.contactPhone, settings.contactAddress].filter(Boolean);
       document.getElementById("footerContact").textContent = contactParts.join(" • ");
+
+      footerColumns.innerHTML = Array.isArray(settings.footer?.columns)
+        ? settings.footer.columns.map(function(col) {
+            const links = Array.isArray(col.links) ? col.links : [];
+            return `<section class="footer-column">
+              ${col.title ? `<h3>${escapeHtml(col.title)}</h3>` : ""}
+              ${col.text ? `<p>${escapeHtml(col.text)}</p>` : ""}
+              ${links.length ? `<div class="footer-links">${links.map(function(link) {
+                const href = resolveActionHref(link.action, link.action?.url || "#");
+                return `<a href="${escapeHtml(href)}"${actionAttrs(link.action, href)}>${escapeHtml(link.text || "Link")}</a>`;
+              }).join("")}</div>` : ""}
+            </section>`;
+          }).join("")
+        : "";
+
+      footerSocial.innerHTML = Array.isArray(settings.footer?.socialLinks)
+        ? settings.footer.socialLinks.map(function(item) {
+            const href = resolveActionHref(item.action, item.action?.url || "#");
+            return `<a href="${escapeHtml(href)}"${actionAttrs(item.action, href)}>${escapeHtml(item.label || "Sosyal")}</a>`;
+          }).join("")
+        : "";
 
       document.body.className = pageOptions.customBodyClass || "";
     }
