@@ -5,25 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vera Admin - Site Ayarları</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f8fafc;color:#0f172a}
-    .loading{min-height:100vh;display:flex;align-items:center;justify-content:center;color:#64748b}.hidden{display:none!important}
-    .layout{min-height:100vh;display:grid;grid-template-columns:260px 1fr}.sidebar{background:#0f172a;color:#e2e8f0;padding:22px 18px}.brand h1{margin:0 0 6px;font-size:24px}.brand p{margin:0;color:#94a3b8;font-size:13px}
-    .nav-title{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;margin:22px 0 10px}.nav-link,.nav-btn{display:block;width:100%;text-align:left;text-decoration:none;border:0;background:transparent;color:#e2e8f0;padding:12px 14px;border-radius:12px;cursor:pointer;font-size:14px;margin-bottom:8px}.nav-link:hover,.nav-btn:hover,.nav-link.active{background:rgba(255,255,255,.08)}
-    .main{display:flex;flex-direction:column}.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}.topbar-left h2{margin:0 0 4px;font-size:20px}.topbar-left p{margin:0;color:#64748b;font-size:13px}
-    .content{padding:22px;display:grid;gap:18px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:22px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
-    .card h3{margin:0 0 12px}.card p{margin:0 0 18px;color:#64748b;line-height:1.7}label{display:block;margin-bottom:6px;font-size:14px;color:#475569}
-    input,textarea,select{width:100%;border:1px solid #cbd5e1;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:14px;color:#0f172a;background:#fff}textarea{min-height:100px;resize:vertical}
-    .btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer;font-size:14px}.btn-primary{background:#2563eb;color:#fff}.btn-secondary{background:#e2e8f0;color:#0f172a}.btn-danger{background:#dc2626;color:#fff}
-    .menu-item{border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin-bottom:12px;background:#fff}.menu-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.status{display:none;margin-top:8px;padding:12px;border-radius:12px;font-size:14px}.status.show{display:block}.status.ok{background:#dcfce7;color:#166534}.status.error{background:#fee2e2;color:#991b1b}
-    .menu-help{margin:-4px 0 12px;color:#64748b;font-size:12px}
-    @media(max-width:1100px){.layout{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f8fafc; color: #0f172a; }
+    .hidden { display: none !important; }
+    .loading { min-height: 100vh; display:flex; align-items:center; justify-content:center; color:#64748b; }
+    .layout { min-height: 100vh; display:grid; grid-template-columns: 260px 1fr; }
+    .sidebar { background:#0f172a; color:#e2e8f0; padding:22px 18px; }
+    .brand h1 { margin:0 0 6px; font-size:24px; }
+    .brand p { margin:0; color:#94a3b8; font-size:13px; }
+    .nav-title { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#94a3b8; margin:22px 0 10px; }
+    .nav-link,.nav-btn { display:block; width:100%; text-align:left; text-decoration:none; border:0; background:transparent; color:#e2e8f0; padding:12px 14px; border-radius:12px; cursor:pointer; font-size:14px; margin-bottom:8px; }
+    .nav-link:hover,.nav-btn:hover,.nav-link.active { background:rgba(255,255,255,.08); }
+    .main { display:flex; flex-direction:column; min-width:0; }
+    .topbar { background:#fff; border-bottom:1px solid #e2e8f0; padding:16px 22px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .topbar-left h2 { margin:0 0 4px; font-size:20px; }
+    .topbar-left p { margin:0; color:#64748b; font-size:13px; }
+    .content { padding:22px; display:grid; gap:18px; }
+    .tabs { display:flex; flex-wrap:wrap; gap:10px; }
+    .tab-btn { border:1px solid #cbd5e1; background:#fff; color:#0f172a; border-radius:999px; padding:10px 14px; font-weight:700; cursor:pointer; }
+    .tab-btn.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+    .panel { display:none; gap:18px; }
+    .panel.active { display:grid; }
+    .grid-2 { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:18px; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+    .card { background:#fff; border:1px solid #e2e8f0; border-radius:18px; padding:22px; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+    .card h3 { margin:0 0 12px; }
+    .card p { margin:0 0 18px; color:#64748b; line-height:1.7; }
+    label { display:block; margin-bottom:6px; font-size:14px; color:#475569; font-weight:600; }
+    input, textarea, select { width:100%; border:1px solid #cbd5e1; border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:14px; color:#0f172a; background:#fff; }
+    textarea { min-height:92px; resize:vertical; }
+    .btn { border:0; border-radius:12px; padding:11px 16px; font-weight:700; cursor:pointer; font-size:14px; }
+    .btn-primary { background:#2563eb; color:#fff; }
+    .btn-secondary { background:#e2e8f0; color:#0f172a; }
+    .btn-danger { background:#dc2626; color:#fff; }
+    .btn-ghost { background:#fff; color:#0f172a; border:1px solid #cbd5e1; }
+    .row-actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .stack { display:grid; gap:12px; }
+    .list-item { border:1px solid #e2e8f0; border-radius:16px; padding:14px; background:#fff; }
+    .list-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; }
+    .list-title { font-size:14px; font-weight:700; }
+    .muted { color:#64748b; font-size:13px; }
+    .divider { height:1px; background:#e2e8f0; margin:14px 0; }
+    .status { display:none; margin-top:8px; padding:12px; border-radius:12px; font-size:14px; }
+    .status.show { display:block; }
+    .status.ok { background:#dcfce7; color:#166534; }
+    .status.error { background:#fee2e2; color:#991b1b; }
+    .inline-toggle { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .action-box { border:1px dashed #cbd5e1; border-radius:14px; padding:12px; background:#f8fafc; }
+    .preview-box { border:1px solid #e2e8f0; border-radius:16px; padding:16px; background:#fff; display:grid; gap:12px; }
+    .preview-header { border:1px solid #e2e8f0; border-radius:14px; padding:10px 14px; display:flex; gap:12px; align-items:center; justify-content:space-between; }
+    .preview-logo { font-weight:800; font-size:22px; }
+    .preview-nav { display:flex; gap:10px; flex-wrap:wrap; color:#475569; }
+    .preview-pill { padding:7px 10px; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:700; }
+    .preview-footer { border:1px solid #e2e8f0; border-radius:14px; padding:14px; display:grid; gap:12px; }
+    .footer-grid { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; }
+    .footer-col { background:#f8fafc; border-radius:12px; padding:12px; }
+    .save-bar { position:sticky; bottom:18px; display:flex; justify-content:flex-end; z-index:5; }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns:1fr; }
+      .grid-2, .grid-3, .footer-grid { grid-template-columns:1fr; }
+      .topbar { flex-direction:column; align-items:flex-start; }
+    }
   </style>
 </head>
 <body>
   <div id="loading" class="loading">Oturum kontrol ediliyor...</div>
+
   <div id="app" class="layout hidden">
     <aside class="sidebar">
-      <div class="brand"><h1>Vera Admin</h1><p>Site ayarları</p></div>
+      <div class="brand"><h1>Vera Admin</h1><p>Site ayarları ve tema</p></div>
       <div class="nav-title">Menü</div>
       <a class="nav-link" href="/admin/index.html">Dashboard</a>
       <a class="nav-link" href="/admin/pages.html">Sayfalar</a>
@@ -31,378 +81,874 @@
       <div class="nav-title">Oturum</div>
       <button id="logoutBtnSide" class="nav-btn" type="button">Çıkış Yap</button>
     </aside>
+
     <main class="main">
       <header class="topbar">
         <div class="topbar-left">
           <h2>Site Ayarları</h2>
-          <p>Global menü, logo, footer ve iletişim alanları</p>
+          <p>Header, footer, menü, tema ve özel kod alanlarını yönet.</p>
         </div>
-        <button id="logoutBtnTop" class="btn btn-danger" type="button">Çıkış Yap</button>
+        <div class="row-actions">
+          <button id="logoutBtnTop" class="btn btn-danger" type="button">Çıkış Yap</button>
+        </div>
       </header>
+
       <section class="content">
-        <div class="grid">
-          <div class="card">
-            <h3>Genel</h3>
-            <label for="siteName">Site Adı</label><input id="siteName" type="text">
-            <label for="logoText">Logo Metni</label><input id="logoText" type="text">
-            <label for="logoLink">Logo Linki</label><input id="logoLink" type="text">
-            <label for="contactEmail">E-posta</label><input id="contactEmail" type="text">
-            <label for="contactPhone">Telefon</label><input id="contactPhone" type="text">
-            <label for="footerText">Footer Yazısı</label><input id="footerText" type="text">
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="general" type="button">Genel</button>
+          <button class="tab-btn" data-tab="header" type="button">Header</button>
+          <button class="tab-btn" data-tab="footer" type="button">Footer</button>
+          <button class="tab-btn" data-tab="theme" type="button">Tema</button>
+          <button class="tab-btn" data-tab="custom" type="button">Özel Kod</button>
+          <button class="tab-btn" data-tab="preview" type="button">Önizleme</button>
+        </div>
+
+        <div id="panel-general" class="panel active">
+          <div class="grid-2">
+            <div class="card">
+              <h3>Genel Bilgiler</h3>
+              <label for="siteName">Site Adı</label><input id="siteName" type="text">
+              <label for="logoText">Logo Metni</label><input id="logoText" type="text">
+              <label for="logoLink">Logo Linki</label><input id="logoLink" type="text">
+              <label for="contactEmail">E-posta</label><input id="contactEmail" type="text">
+              <label for="contactPhone">Telefon</label><input id="contactPhone" type="text">
+              <label for="contactAddress">Adres / Açıklama</label><textarea id="contactAddress"></textarea>
+            </div>
+            <div class="card">
+              <h3>Genel Görünürlük</h3>
+              <label for="showHeader">Header Göster</label>
+              <select id="showHeader"><option value="true">Evet</option><option value="false">Hayır</option></select>
+              <label for="showFooter">Footer Göster</label>
+              <select id="showFooter"><option value="true">Evet</option><option value="false">Hayır</option></select>
+              <label for="showTopCta">Üst CTA Göster</label>
+              <select id="showTopCta"><option value="true">Evet</option><option value="false">Hayır</option></select>
+              <label for="topCtaText">Üst CTA Metni</label><input id="topCtaText" type="text">
+              <label for="topCtaStyle">Üst CTA Stili</label>
+              <select id="topCtaStyle">
+                <option value="primary">Primary</option>
+                <option value="secondary">Secondary</option>
+                <option value="ghost">Ghost</option>
+              </select>
+              <div id="topCtaActionWrap" class="action-box"></div>
+            </div>
           </div>
+
           <div class="card">
-            <h3>Görünüm</h3>
-            <label for="showHeader">Header Göster</label>
-            <select id="showHeader"><option value="true">Evet</option><option value="false">Hayır</option></select>
-            <label for="showFooter">Footer Göster</label>
-            <select id="showFooter"><option value="true">Evet</option><option value="false">Hayır</option></select>
-            <label for="showTopCta">Üst CTA Göster</label>
-            <select id="showTopCta"><option value="true">Evet</option><option value="false">Hayır</option></select>
-            <label for="topCtaText">Üst CTA Metni</label><input id="topCtaText" type="text">
-            <label for="topCtaLink">Üst CTA Linki</label><input id="topCtaLink" type="text">
+            <div class="list-head">
+              <div>
+                <div class="list-title">Menü Öğeleri</div>
+                <div class="muted">Her menü öğesi için gelişmiş eylem tanımlayabilirsin.</div>
+              </div>
+              <button id="addMenuBtn" class="btn btn-secondary" type="button">Menü Öğesi Ekle</button>
+            </div>
+            <div id="menuWrap" class="stack"></div>
           </div>
         </div>
-        <div class="card">
-          <h3>Menü Öğeleri</h3>
-          <button id="addMenuBtn" class="btn btn-secondary" type="button">Menü Öğesi Ekle</button>
-          <div id="menuWrap" style="margin-top:14px"></div>
-          <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
-          <div id="statusBox" class="status"></div>
+
+        <div id="panel-header" class="panel">
+          <div class="grid-2">
+            <div class="card">
+              <h3>Header Davranışı</h3>
+              <label for="headerSticky">Sticky Header</label>
+              <select id="headerSticky"><option value="true">Evet</option><option value="false">Hayır</option></select>
+              <label for="headerTransparent">Şeffaf Header</label>
+              <select id="headerTransparent"><option value="false">Hayır</option><option value="true">Evet</option></select>
+              <label for="showContactBar">Üst Bilgi Şeridi</label>
+              <select id="showContactBar"><option value="false">Hayır</option><option value="true">Evet</option></select>
+              <label for="contactBarText">Bilgi Şeridi Metni</label>
+              <input id="contactBarText" type="text" placeholder="Örn: Haftaiçi 09:00 - 18:00 hizmet veriyoruz">
+            </div>
+            <div class="card">
+              <h3>Header CTA</h3>
+              <p>Sağ üstte görünen aksiyon butonu.</p>
+              <label for="topCtaTextHeader">Buton Metni</label><input id="topCtaTextHeader" type="text">
+              <label for="topCtaStyleHeader">Buton Stili</label>
+              <select id="topCtaStyleHeader">
+                <option value="primary">Primary</option>
+                <option value="secondary">Secondary</option>
+                <option value="ghost">Ghost</option>
+              </select>
+              <div id="topCtaActionWrapHeader" class="action-box"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-footer" class="panel">
+          <div class="grid-2">
+            <div class="card">
+              <h3>Footer Genel</h3>
+              <label for="footerBottomText">Alt Yazı</label><input id="footerBottomText" type="text">
+              <label for="footerShowContactInfo">İletişim Bilgilerini Göster</label>
+              <select id="footerShowContactInfo"><option value="true">Evet</option><option value="false">Hayır</option></select>
+            </div>
+            <div class="card">
+              <div class="list-head">
+                <div>
+                  <div class="list-title">Sosyal Linkler</div>
+                  <div class="muted">Footer alt satırında küçük linkler olarak görünür.</div>
+                </div>
+                <button id="addSocialBtn" class="btn btn-secondary" type="button">Sosyal Link Ekle</button>
+              </div>
+              <div id="socialWrap" class="stack"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="list-head">
+              <div>
+                <div class="list-title">Footer Kolonları</div>
+                <div class="muted">Footer içinde başlık, metin ve link grupları oluştur.</div>
+              </div>
+              <button id="addFooterColumnBtn" class="btn btn-secondary" type="button">Kolon Ekle</button>
+            </div>
+            <div id="footerColumnsWrap" class="stack"></div>
+          </div>
+        </div>
+
+        <div id="panel-theme" class="panel">
+          <div class="grid-3">
+            <div class="card">
+              <h3>Renkler</h3>
+              <label for="themeBodyBg">Body Arka Plan</label><input id="themeBodyBg" type="color">
+              <label for="themeBodyText">Body Yazı</label><input id="themeBodyText" type="color">
+              <label for="themeBorderColor">Border</label><input id="themeBorderColor" type="color">
+              <label for="themePrimaryColor">Primary</label><input id="themePrimaryColor" type="color">
+            </div>
+            <div class="card">
+              <h3>Yardımcı Renkler</h3>
+              <label for="themeSecondaryColor">Secondary</label><input id="themeSecondaryColor" type="color">
+              <label for="themeSurfaceColor">Surface</label><input id="themeSurfaceColor" type="color">
+              <label for="themeMutedText">Muted Text</label><input id="themeMutedText" type="color">
+              <label for="themeHeaderBg">Header</label><input id="themeHeaderBg" type="color">
+              <label for="themeFooterBg">Footer</label><input id="themeFooterBg" type="color">
+            </div>
+            <div class="card">
+              <h3>Ölçek</h3>
+              <label for="themeContainerWidth">Container Genişliği</label><input id="themeContainerWidth" type="number" min="480" max="2400">
+              <label for="themeRadius">Kart Radius</label><input id="themeRadius" type="number" min="0" max="48">
+              <label for="themeButtonRadius">Buton Radius</label><input id="themeButtonRadius" type="number" min="0" max="48">
+              <label for="themeFontFamily">Font Family</label><input id="themeFontFamily" type="text">
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-custom" class="panel">
+          <div class="grid-2">
+            <div class="card">
+              <h3>Head Kodu</h3>
+              <label for="customHeadHtml">Head içine eklenecek kod</label>
+              <textarea id="customHeadHtml" placeholder="<script>...</script>"></textarea>
+            </div>
+            <div class="card">
+              <h3>Body Kodu</h3>
+              <label for="customBeforeBodyHtml">Body başlangıcı</label>
+              <textarea id="customBeforeBodyHtml"></textarea>
+              <label for="customAfterBodyHtml">Body sonu</label>
+              <textarea id="customAfterBodyHtml"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div id="panel-preview" class="panel">
+          <div class="card">
+            <h3>Yerleşim Önizlemesi</h3>
+            <p>Bu kutu, global ayarların yaklaşık görünümünü gösterir. Canlı sayfa ile birebir değil ama genel iskeleti hızlı görmek için kullanılır.</p>
+            <div id="previewBox" class="preview-box"></div>
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <div style="display:grid; gap:10px; min-width:min(100%, 420px);">
+            <button id="saveBtn" class="btn btn-primary" type="button">Tüm Ayarları Kaydet</button>
+            <div id="statusBox" class="status"></div>
+          </div>
         </div>
       </section>
     </main>
   </div>
 
   <script>
-    let siteSettings = {
-      siteName: 'Vera',
-      logoText: 'Vera',
-      logoLink: '/',
-      contactEmail: '',
-      contactPhone: '',
-      footerText: '© Vera',
-      showHeader: true,
-      showFooter: true,
-      showTopCta: true,
-      topCtaText: 'İletişim',
-      topCtaLink: '/iletisim',
-      topCtaAction: { type: 'url', url: '/iletisim', pageId: '', anchor: '', email: '', phone: '', whatsapp: '', downloadUrl: '', newTab: false },
-      menuItems: []
-    };
-
+    const ACTION_TYPES = ["url", "page", "anchor", "email", "phone", "whatsapp", "download", "none"];
     let availablePages = [];
+    let siteSettings = null;
 
-    function uid() {
-      return 'm-' + Math.random().toString(36).slice(2) + Date.now();
+    function uid(prefix = "i") {
+      return prefix + "-" + Math.random().toString(36).slice(2) + Date.now();
     }
 
     function escapeHtml(v) {
-      return String(v || '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+      return String(v || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
     }
 
     function showStatus(message, type) {
-      statusBox.className = 'status show ' + type;
+      statusBox.className = "status show " + type;
       statusBox.textContent = message;
-    }
-
-    function normalizeMenuItem(item = {}) {
-      return {
-        id: String(item.id || uid()),
-        text: String(item.text || '').trim(),
-        targetType: item.targetType === 'page' ? 'page' : 'link',
-        link: String(item.link || '').trim(),
-        pageId: String(item.pageId || '').trim(),
-        action: {
-          type: ['url','page','anchor','email','phone','whatsapp','download','none'].includes(item?.action?.type) ? item.action.type : (item.targetType === 'page' ? 'page' : 'url'),
-          url: String(item?.action?.url || item.link || '').trim(),
-          pageId: String(item?.action?.pageId || item.pageId || '').trim(),
-          anchor: String(item?.action?.anchor || '').trim(),
-          email: String(item?.action?.email || '').trim(),
-          phone: String(item?.action?.phone || '').trim(),
-          whatsapp: String(item?.action?.whatsapp || '').trim(),
-          downloadUrl: String(item?.action?.downloadUrl || '').trim(),
-          newTab: !!item?.action?.newTab
-        }
-      };
-    }
-
-    function readForm() {
-      siteSettings = {
-        siteName: siteName.value.trim() || 'Vera',
-        logoText: logoText.value.trim() || 'Vera',
-        logoLink: logoLink.value.trim() || '/',
-        contactEmail: contactEmail.value.trim(),
-        contactPhone: contactPhone.value.trim(),
-        footerText: footerText.value.trim() || '© Vera',
-        showHeader: showHeader.value === 'true',
-        showFooter: showFooter.value === 'true',
-        showTopCta: showTopCta.value === 'true',
-        topCtaText: topCtaText.value.trim(),
-        topCtaLink: topCtaLink.value.trim(),
-        topCtaAction: siteSettings.topCtaAction || { type: 'url', url: topCtaLink.value.trim(), pageId: '', anchor: '', email: '', phone: '', whatsapp: '', downloadUrl: '', newTab: false },
-        menuItems: Array.isArray(siteSettings.menuItems)
-          ? siteSettings.menuItems.map(normalizeMenuItem)
-          : []
-      };
-    }
-
-    function fillForm() {
-      siteName.value = siteSettings.siteName || '';
-      logoText.value = siteSettings.logoText || '';
-      logoLink.value = siteSettings.logoLink || '/';
-      contactEmail.value = siteSettings.contactEmail || '';
-      contactPhone.value = siteSettings.contactPhone || '';
-      footerText.value = siteSettings.footerText || '';
-      showHeader.value = String(siteSettings.showHeader !== false);
-      showFooter.value = String(siteSettings.showFooter !== false);
-      showTopCta.value = String(siteSettings.showTopCta !== false);
-      topCtaText.value = siteSettings.topCtaText || '';
-      topCtaLink.value = siteSettings.topCtaLink || '';
-      if (!Array.isArray(siteSettings.menuItems)) siteSettings.menuItems = [];
-      siteSettings.menuItems = siteSettings.menuItems.map(normalizeMenuItem);
-      renderMenuItems();
     }
 
     function pageOptionsHtml(selectedPageId) {
       let html = '<option value="">Sayfa seç</option>';
-
       availablePages.forEach(function(page) {
-        const selected = String(page.id) === String(selectedPageId) ? ' selected' : '';
-        const title = escapeHtml(page.title || 'İsimsiz Sayfa');
-        const slug = page.isHome ? '/' : '/' + String(page.slug || '').replace(/^\/+/, '');
-        const status = page.status === 'published' ? 'Yayında' : 'Taslak';
+        const selected = String(page.id) === String(selectedPageId || "") ? ' selected' : '';
+        const title = escapeHtml(page.title || "İsimsiz Sayfa");
+        const slug = page.isHome ? "/" : "/" + String(page.slug || "").replace(/^\/+/, "");
+        const status = page.status === "published" ? "Yayında" : "Taslak";
         html += '<option value="' + escapeHtml(page.id) + '"' + selected + '>' + title + ' (' + escapeHtml(slug) + ' - ' + escapeHtml(status) + ')</option>';
       });
-
       return html;
     }
 
-    function createMenuItemHtml(item, index) {
-      const isPage = item.targetType === 'page';
-
-      const actionType = item.action?.type || (isPage ? 'page' : 'url');
-      const actionValue =
-        actionType === 'anchor' ? (item.action?.anchor || '') :
-        actionType === 'email' ? (item.action?.email || '') :
-        actionType === 'phone' ? (item.action?.phone || '') :
-        actionType === 'whatsapp' ? (item.action?.whatsapp || '') :
-        actionType === 'download' ? (item.action?.downloadUrl || '') :
-        (item.action?.url || item.link || '');
-
-      return ''
-        + '<div class="menu-head">'
-        + '  <strong>Menü Öğesi ' + (index + 1) + '</strong>'
-        + '  <button class="btn btn-danger remove-menu" type="button">Sil</button>'
-        + '</div>'
-
-        + '<label>Metin</label>'
-        + '<input data-key="text" value="' + escapeHtml(item.text) + '">'
-
-        + '<label>Yönlendirme Türü</label>'
-        + '<select data-key="targetType">'
-        + '  <option value="link"' + (item.targetType === 'link' ? ' selected' : '') + '>Özel Eylem</option>'
-        + '  <option value="page"' + (item.targetType === 'page' ? ' selected' : '') + '>Sayfa Seç</option>'
-        + '</select>'
-
-        + '<label>Eylem Tipi</label>'
-        + '<select data-key="actionType"' + (isPage ? ' disabled' : '') + '>'
-        + '  <option value="url"' + (actionType === 'url' ? ' selected' : '') + '>URL</option>'
-        + '  <option value="anchor"' + (actionType === 'anchor' ? ' selected' : '') + '>Anchor</option>'
-        + '  <option value="email"' + (actionType === 'email' ? ' selected' : '') + '>E-posta</option>'
-        + '  <option value="phone"' + (actionType === 'phone' ? ' selected' : '') + '>Telefon</option>'
-        + '  <option value="whatsapp"' + (actionType === 'whatsapp' ? ' selected' : '') + '>WhatsApp</option>'
-        + '  <option value="download"' + (actionType === 'download' ? ' selected' : '') + '>Dosya</option>'
-        + '  <option value="none"' + (actionType === 'none' ? ' selected' : '') + '>Yok</option>'
-        + '</select>'
-
-        + '<div class="menu-help">Sayfa seçersen bağlantı otomatik gelir. Özel eylem seçersen aşağıdaki değer kullanılır.</div>'
-
-        + '<label>Değer</label>'
-        + '<input data-key="actionValue" placeholder="/iletisim veya #bolum veya mail@adres.com" value="' + escapeHtml(actionValue) + '"' + (isPage ? ' disabled' : '') + '>'
-
-        + '<label><input data-key="actionNewTab" data-bool="1" type="checkbox"' + (item.action?.newTab ? ' checked' : '') + (isPage ? ' disabled' : '') + '> Yeni sekme</label>'
-
-        + '<label>Sayfa</label>'
-        + '<select data-key="pageId"' + (isPage ? '' : ' disabled') + '>'
-        + pageOptionsHtml(item.pageId)
-        + '</select>';
+    function defaultAction(url = "#") {
+      return { type: "url", url, pageId: "", anchor: "", email: "", phone: "", whatsapp: "", downloadUrl: "", newTab: false };
     }
 
-    function renderMenuItems() {
-      menuWrap.innerHTML = '';
+    function defaultSettings() {
+      return {
+        siteName: "Vera",
+        logoText: "Vera",
+        logoLink: "/",
+        contactEmail: "",
+        contactPhone: "",
+        contactAddress: "",
+        footerText: "© Vera",
+        showHeader: true,
+        showFooter: true,
+        showTopCta: true,
+        topCtaText: "İletişim",
+        topCtaLink: "/iletisim",
+        topCtaStyle: "primary",
+        topCtaAction: defaultAction("/iletisim"),
+        menuItems: [],
+        header: { sticky: true, transparent: false, showContactBar: false, contactBarText: "", ctaStyle: "primary" },
+        footer: { showContactInfo: true, bottomText: "© Vera", columns: [], socialLinks: [] },
+        theme: {
+          bodyBg: "#f8fafc",
+          bodyText: "#0f172a",
+          borderColor: "#e2e8f0",
+          primaryColor: "#2563eb",
+          secondaryColor: "#0f172a",
+          surfaceColor: "#ffffff",
+          mutedText: "#64748b",
+          headerBg: "#ffffff",
+          footerBg: "#ffffff",
+          containerWidth: 1200,
+          fontFamily: "Arial, sans-serif",
+          radius: 18,
+          buttonRadius: 12
+        },
+        custom: { headHtml: "", beforeBodyHtml: "", afterBodyHtml: "" }
+      };
+    }
 
-      if (!siteSettings.menuItems.length) {
-        menuWrap.innerHTML = '<p style="color:#64748b">Henüz menü öğesi yok.</p>';
+    function normalizeAction(action = {}, fallbackUrl = "#") {
+      const type = ACTION_TYPES.includes(action?.type) ? action.type : "url";
+      return {
+        type,
+        url: String(action?.url || fallbackUrl || "").trim() || "#",
+        pageId: String(action?.pageId || "").trim(),
+        anchor: String(action?.anchor || "").trim(),
+        email: String(action?.email || "").trim(),
+        phone: String(action?.phone || "").trim(),
+        whatsapp: String(action?.whatsapp || "").trim(),
+        downloadUrl: String(action?.downloadUrl || "").trim(),
+        newTab: !!action?.newTab
+      };
+    }
+
+    function normalizeMenuItem(item = {}) {
+      return {
+        id: String(item.id || uid("menu")),
+        text: String(item.text || "").trim(),
+        targetType: item.targetType === "page" ? "page" : "link",
+        link: String(item.link || "").trim(),
+        pageId: String(item.pageId || "").trim(),
+        action: normalizeAction(item.action, item.link || "#")
+      };
+    }
+
+    function normalizeFooterLink(item = {}) {
+      return {
+        id: String(item.id || uid("flink")),
+        text: String(item.text || "").trim(),
+        action: normalizeAction(item.action, item.link || "#")
+      };
+    }
+
+    function normalizeFooterColumn(item = {}) {
+      return {
+        id: String(item.id || uid("fcol")),
+        title: String(item.title || "").trim(),
+        text: String(item.text || "").trim(),
+        links: Array.isArray(item.links) ? item.links.map(normalizeFooterLink) : []
+      };
+    }
+
+    function normalizeSocial(item = {}) {
+      return {
+        id: String(item.id || uid("social")),
+        label: String(item.label || item.text || "").trim(),
+        action: normalizeAction(item.action, item.url || item.link || "#")
+      };
+    }
+
+    function normalizeSettings(raw = {}) {
+      const base = defaultSettings();
+      const merged = Object.assign({}, base, raw || {});
+      merged.header = Object.assign({}, base.header, raw?.header || {});
+      merged.footer = Object.assign({}, base.footer, raw?.footer || {});
+      merged.theme = Object.assign({}, base.theme, raw?.theme || {});
+      merged.custom = Object.assign({}, base.custom, raw?.custom || {});
+      merged.menuItems = Array.isArray(raw?.menuItems) ? raw.menuItems.map(normalizeMenuItem) : [];
+      merged.footer.columns = Array.isArray(raw?.footer?.columns) ? raw.footer.columns.map(normalizeFooterColumn) : [];
+      merged.footer.socialLinks = Array.isArray(raw?.footer?.socialLinks) ? raw.footer.socialLinks.map(normalizeSocial) : [];
+      merged.topCtaAction = normalizeAction(raw?.topCtaAction, raw?.topCtaLink || base.topCtaLink);
+      if (!merged.footer.columns.length) {
+        merged.footer.columns = [
+          { id: uid("fcol"), title: "Kurumsal", text: "", links: [{ id: uid("flink"), text: "Ana Sayfa", action: defaultAction("/") }] }
+        ];
+      }
+      return merged;
+    }
+
+    function createActionEditorHtml(action, key) {
+      const safe = normalizeAction(action);
+      return `
+        <label>Eylem Türü</label>
+        <select data-action-key="${key}" data-field="type" class="action-input">
+          ${ACTION_TYPES.map(type => `<option value="${type}"${safe.type === type ? ' selected' : ''}>${type}</option>`).join('')}
+        </select>
+        <div class="grid-2">
+          <div>
+            <label>URL</label>
+            <input data-action-key="${key}" data-field="url" class="action-input" type="text" value="${escapeHtml(safe.url)}">
+          </div>
+          <div>
+            <label>Sayfa</label>
+            <select data-action-key="${key}" data-field="pageId" class="action-input">${pageOptionsHtml(safe.pageId)}</select>
+          </div>
+        </div>
+        <div class="grid-3">
+          <div>
+            <label>Anchor</label>
+            <input data-action-key="${key}" data-field="anchor" class="action-input" type="text" value="${escapeHtml(safe.anchor)}">
+          </div>
+          <div>
+            <label>E-posta</label>
+            <input data-action-key="${key}" data-field="email" class="action-input" type="text" value="${escapeHtml(safe.email)}">
+          </div>
+          <div>
+            <label>Telefon</label>
+            <input data-action-key="${key}" data-field="phone" class="action-input" type="text" value="${escapeHtml(safe.phone)}">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <label>WhatsApp</label>
+            <input data-action-key="${key}" data-field="whatsapp" class="action-input" type="text" value="${escapeHtml(safe.whatsapp)}">
+          </div>
+          <div>
+            <label>Dosya Linki</label>
+            <input data-action-key="${key}" data-field="downloadUrl" class="action-input" type="text" value="${escapeHtml(safe.downloadUrl)}">
+          </div>
+        </div>
+        <label>Yeni sekmede aç</label>
+        <select data-action-key="${key}" data-field="newTab" class="action-input">
+          <option value="false"${safe.newTab ? '' : ' selected'}>Hayır</option>
+          <option value="true"${safe.newTab ? ' selected' : ''}>Evet</option>
+        </select>
+      `;
+    }
+
+    function setActionByKey(key, nextAction) {
+      if (key === "topCta") {
+        siteSettings.topCtaAction = normalizeAction(nextAction, siteSettings.topCtaLink || "#");
         return;
       }
+      const parts = String(key).split(":");
+      if (parts[0] === "menu") {
+        const item = siteSettings.menuItems.find(entry => entry.id === parts[1]);
+        if (item) item.action = normalizeAction(nextAction, item.link || "#");
+        return;
+      }
+      if (parts[0] === "social") {
+        const item = siteSettings.footer.socialLinks.find(entry => entry.id === parts[1]);
+        if (item) item.action = normalizeAction(nextAction);
+        return;
+      }
+      if (parts[0] === "footerlink") {
+        const col = siteSettings.footer.columns.find(entry => entry.id === parts[1]);
+        const link = col?.links?.find(entry => entry.id === parts[2]);
+        if (link) link.action = normalizeAction(nextAction);
+      }
+    }
 
-      siteSettings.menuItems.forEach(function(item, index) {
-        const safeItem = normalizeMenuItem(item);
-        siteSettings.menuItems[index] = safeItem;
+    function getActionByKey(key) {
+      if (key === "topCta") return siteSettings.topCtaAction;
+      const parts = String(key).split(":");
+      if (parts[0] === "menu") {
+        return siteSettings.menuItems.find(entry => entry.id === parts[1])?.action || defaultAction("#");
+      }
+      if (parts[0] === "social") {
+        return siteSettings.footer.socialLinks.find(entry => entry.id === parts[1])?.action || defaultAction("#");
+      }
+      if (parts[0] === "footerlink") {
+        const col = siteSettings.footer.columns.find(entry => entry.id === parts[1]);
+        return col?.links?.find(entry => entry.id === parts[2])?.action || defaultAction("#");
+      }
+      return defaultAction("#");
+    }
 
-        const el = document.createElement('div');
-        el.className = 'menu-item';
-        el.innerHTML = createMenuItemHtml(safeItem, index);
+    function renderActionEditors() {
+      const topCtaHtml = createActionEditorHtml(siteSettings.topCtaAction, "topCta");
+      topCtaActionWrap.innerHTML = topCtaHtml;
+      topCtaActionWrapHeader.innerHTML = topCtaHtml;
+      bindActionInputs();
+    }
 
-        el.querySelector('.remove-menu').addEventListener('click', function() {
-          siteSettings.menuItems.splice(index, 1);
-          renderMenuItems();
-        });
-
-        el.querySelectorAll('[data-key]').forEach(function(field) {
-          function applyValue() {
-            const key = field.getAttribute('data-key');
-            const value = field.value;
-
-            if (!siteSettings.menuItems[index]) return;
-
-            siteSettings.menuItems[index][key] = value;
-
-            if (key === 'targetType') {
-              if (value === 'page') {
-                siteSettings.menuItems[index].link = '';
-              } else {
-                siteSettings.menuItems[index].pageId = '';
-              }
-              renderMenuItems();
-              return;
-            }
-
-            if (key === 'pageId') {
-              siteSettings.menuItems[index].pageId = value;
-              if (siteSettings.menuItems[index].targetType === 'page') {
-                siteSettings.menuItems[index].link = '';
-              }
-            }
-
-            if (key === 'link') {
-              siteSettings.menuItems[index].link = value;
-            }
-
-            if (key === 'text') {
-              siteSettings.menuItems[index].text = value;
-            }
-          }
-
-          field.addEventListener('input', applyValue);
-          field.addEventListener('change', applyValue);
-        });
-
-        menuWrap.appendChild(el);
+    function bindActionInputs() {
+      document.querySelectorAll(".action-input").forEach(function(input) {
+        input.addEventListener("input", handleActionInput);
+        input.addEventListener("change", handleActionInput);
       });
     }
 
-    async function checkSession() {
-      try {
-        const res = await fetch('/api/verify', {
-          method: 'GET',
-          credentials: 'same-origin',
-          headers: { Accept: 'application/json' }
+    function handleActionInput(event) {
+      const key = event.target.getAttribute("data-action-key");
+      const field = event.target.getAttribute("data-field");
+      const current = Object.assign({}, getActionByKey(key));
+      current[field] = field === "newTab" ? event.target.value === "true" : event.target.value;
+      setActionByKey(key, current);
+      if (key === "topCta") {
+        renderActionEditors();
+      }
+      renderPreview();
+    }
+
+    function renderMenuItems() {
+      menuWrap.innerHTML = siteSettings.menuItems.map(function(item, index) {
+        const actionKey = "menu:" + item.id;
+        return `
+          <div class="list-item">
+            <div class="list-head">
+              <div>
+                <div class="list-title">Menü Öğesi ${index + 1}</div>
+                <div class="muted">${escapeHtml(item.text || "İsimsiz öğe")}</div>
+              </div>
+              <button class="btn btn-danger" type="button" data-remove-menu="${escapeHtml(item.id)}">Sil</button>
+            </div>
+            <label>Metin</label>
+            <input type="text" value="${escapeHtml(item.text)}" data-menu-id="${escapeHtml(item.id)}" data-field="text" class="menu-input">
+            <label>Uyumluluk Link Alanı</label>
+            <input type="text" value="${escapeHtml(item.link)}" data-menu-id="${escapeHtml(item.id)}" data-field="link" class="menu-input">
+            <div class="action-box">${createActionEditorHtml(item.action, actionKey)}</div>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".menu-input").forEach(function(input) {
+        input.addEventListener("input", function() {
+          const item = siteSettings.menuItems.find(entry => entry.id === input.dataset.menuId);
+          if (!item) return;
+          item[input.dataset.field] = input.value;
+          renderPreview();
         });
-        const data = await res.json();
-        if (!data.ok || !data.authenticated) {
-          location.replace('/login');
+      });
+
+      document.querySelectorAll("[data-remove-menu]").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          siteSettings.menuItems = siteSettings.menuItems.filter(entry => entry.id !== btn.getAttribute("data-remove-menu"));
+          renderMenuItems();
+          renderPreview();
+        });
+      });
+
+      bindActionInputs();
+    }
+
+    function renderFooterColumns() {
+      footerColumnsWrap.innerHTML = siteSettings.footer.columns.map(function(col, colIndex) {
+        return `
+          <div class="list-item">
+            <div class="list-head">
+              <div>
+                <div class="list-title">Footer Kolonu ${colIndex + 1}</div>
+                <div class="muted">${escapeHtml(col.title || "Başlıksız kolon")}</div>
+              </div>
+              <div class="row-actions">
+                <button class="btn btn-secondary" type="button" data-add-footer-link="${escapeHtml(col.id)}">Link Ekle</button>
+                <button class="btn btn-danger" type="button" data-remove-footer-column="${escapeHtml(col.id)}">Sil</button>
+              </div>
+            </div>
+            <label>Başlık</label>
+            <input type="text" value="${escapeHtml(col.title)}" data-footer-col="${escapeHtml(col.id)}" data-field="title" class="footer-col-input">
+            <label>Metin</label>
+            <textarea data-footer-col="${escapeHtml(col.id)}" data-field="text" class="footer-col-input">${escapeHtml(col.text)}</textarea>
+            <div class="stack">
+              ${col.links.map(function(link, linkIndex) {
+                const actionKey = "footerlink:" + col.id + ":" + link.id;
+                return `
+                  <div class="action-box">
+                    <div class="list-head">
+                      <div class="list-title">Link ${linkIndex + 1}</div>
+                      <button class="btn btn-danger" type="button" data-remove-footer-link="${escapeHtml(col.id)}" data-link-id="${escapeHtml(link.id)}">Sil</button>
+                    </div>
+                    <label>Metin</label>
+                    <input type="text" value="${escapeHtml(link.text)}" data-footer-col-link="${escapeHtml(col.id)}" data-link-id="${escapeHtml(link.id)}" class="footer-link-text">
+                    ${createActionEditorHtml(link.action, actionKey)}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".footer-col-input").forEach(function(input) {
+        input.addEventListener("input", function() {
+          const col = siteSettings.footer.columns.find(entry => entry.id === input.dataset.footerCol);
+          if (!col) return;
+          col[input.dataset.field] = input.value;
+          renderPreview();
+        });
+      });
+
+      document.querySelectorAll(".footer-link-text").forEach(function(input) {
+        input.addEventListener("input", function() {
+          const col = siteSettings.footer.columns.find(entry => entry.id === input.dataset.footerColLink);
+          const link = col?.links?.find(entry => entry.id === input.dataset.linkId);
+          if (!link) return;
+          link.text = input.value;
+          renderPreview();
+        });
+      });
+
+      document.querySelectorAll("[data-add-footer-link]").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          const col = siteSettings.footer.columns.find(entry => entry.id === btn.getAttribute("data-add-footer-link"));
+          if (!col) return;
+          col.links.push({ id: uid("flink"), text: "Yeni Link", action: defaultAction("#") });
+          renderFooterColumns();
+          renderPreview();
+        });
+      });
+
+      document.querySelectorAll("[data-remove-footer-column]").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          siteSettings.footer.columns = siteSettings.footer.columns.filter(entry => entry.id !== btn.getAttribute("data-remove-footer-column"));
+          renderFooterColumns();
+          renderPreview();
+        });
+      });
+
+      document.querySelectorAll("[data-remove-footer-link]").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          const col = siteSettings.footer.columns.find(entry => entry.id === btn.getAttribute("data-remove-footer-link"));
+          if (!col) return;
+          col.links = col.links.filter(entry => entry.id !== btn.getAttribute("data-link-id"));
+          renderFooterColumns();
+          renderPreview();
+        });
+      });
+
+      bindActionInputs();
+    }
+
+    function renderSocialLinks() {
+      socialWrap.innerHTML = siteSettings.footer.socialLinks.map(function(item, index) {
+        const actionKey = "social:" + item.id;
+        return `
+          <div class="list-item">
+            <div class="list-head">
+              <div>
+                <div class="list-title">Sosyal Link ${index + 1}</div>
+                <div class="muted">${escapeHtml(item.label || "Başlıksız")}</div>
+              </div>
+              <button class="btn btn-danger" type="button" data-remove-social="${escapeHtml(item.id)}">Sil</button>
+            </div>
+            <label>Etiket</label>
+            <input type="text" value="${escapeHtml(item.label)}" data-social-id="${escapeHtml(item.id)}" class="social-label-input">
+            <div class="action-box">${createActionEditorHtml(item.action, actionKey)}</div>
+          </div>
+        `;
+      }).join("");
+
+      document.querySelectorAll(".social-label-input").forEach(function(input) {
+        input.addEventListener("input", function() {
+          const item = siteSettings.footer.socialLinks.find(entry => entry.id === input.dataset.socialId);
+          if (!item) return;
+          item.label = input.value;
+          renderPreview();
+        });
+      });
+
+      document.querySelectorAll("[data-remove-social]").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          siteSettings.footer.socialLinks = siteSettings.footer.socialLinks.filter(entry => entry.id !== btn.getAttribute("data-remove-social"));
+          renderSocialLinks();
+          renderPreview();
+        });
+      });
+
+      bindActionInputs();
+    }
+
+    function bindTabs() {
+      document.querySelectorAll(".tab-btn").forEach(function(btn) {
+        btn.addEventListener("click", function() {
+          document.querySelectorAll(".tab-btn").forEach(entry => entry.classList.remove("active"));
+          document.querySelectorAll(".panel").forEach(entry => entry.classList.remove("active"));
+          btn.classList.add("active");
+          const tab = btn.getAttribute("data-tab");
+          document.getElementById("panel-" + tab).classList.add("active");
+          if (tab === "preview") renderPreview();
+        });
+      });
+    }
+
+    function readGeneralFields() {
+      siteSettings.siteName = siteName.value.trim() || "Vera";
+      siteSettings.logoText = logoText.value.trim() || siteSettings.siteName;
+      siteSettings.logoLink = logoLink.value.trim() || "/";
+      siteSettings.contactEmail = contactEmail.value.trim();
+      siteSettings.contactPhone = contactPhone.value.trim();
+      siteSettings.contactAddress = contactAddress.value.trim();
+      siteSettings.showHeader = showHeader.value === "true";
+      siteSettings.showFooter = showFooter.value === "true";
+      siteSettings.showTopCta = showTopCta.value === "true";
+      siteSettings.topCtaText = topCtaText.value.trim();
+      siteSettings.topCtaLink = siteSettings.topCtaAction?.url || topCtaLinkFallback();
+      siteSettings.topCtaStyle = topCtaStyle.value;
+      siteSettings.header.sticky = headerSticky.value === "true";
+      siteSettings.header.transparent = headerTransparent.value === "true";
+      siteSettings.header.showContactBar = showContactBar.value === "true";
+      siteSettings.header.contactBarText = contactBarText.value.trim();
+      siteSettings.header.ctaStyle = topCtaStyleHeader.value;
+      siteSettings.topCtaStyle = topCtaStyleHeader.value;
+      siteSettings.footer.bottomText = footerBottomText.value.trim() || "© Vera";
+      siteSettings.footerText = siteSettings.footer.bottomText;
+      siteSettings.footer.showContactInfo = footerShowContactInfo.value === "true";
+      siteSettings.theme.bodyBg = themeBodyBg.value;
+      siteSettings.theme.bodyText = themeBodyText.value;
+      siteSettings.theme.borderColor = themeBorderColor.value;
+      siteSettings.theme.primaryColor = themePrimaryColor.value;
+      siteSettings.theme.secondaryColor = themeSecondaryColor.value;
+      siteSettings.theme.surfaceColor = themeSurfaceColor.value;
+      siteSettings.theme.mutedText = themeMutedText.value;
+      siteSettings.theme.headerBg = themeHeaderBg.value;
+      siteSettings.theme.footerBg = themeFooterBg.value;
+      siteSettings.theme.containerWidth = Number(themeContainerWidth.value || 1200);
+      siteSettings.theme.radius = Number(themeRadius.value || 18);
+      siteSettings.theme.buttonRadius = Number(themeButtonRadius.value || 12);
+      siteSettings.theme.fontFamily = themeFontFamily.value.trim() || "Arial, sans-serif";
+      siteSettings.custom.headHtml = customHeadHtml.value;
+      siteSettings.custom.beforeBodyHtml = customBeforeBodyHtml.value;
+      siteSettings.custom.afterBodyHtml = customAfterBodyHtml.value;
+    }
+
+    function topCtaLinkFallback() {
+      if (siteSettings.topCtaAction?.type === "url") return siteSettings.topCtaAction.url || "#";
+      return "#";
+    }
+
+    function fillForm() {
+      siteName.value = siteSettings.siteName || "";
+      logoText.value = siteSettings.logoText || "";
+      logoLink.value = siteSettings.logoLink || "/";
+      contactEmail.value = siteSettings.contactEmail || "";
+      contactPhone.value = siteSettings.contactPhone || "";
+      contactAddress.value = siteSettings.contactAddress || "";
+      showHeader.value = String(siteSettings.showHeader !== false);
+      showFooter.value = String(siteSettings.showFooter !== false);
+      showTopCta.value = String(siteSettings.showTopCta !== false);
+      topCtaText.value = siteSettings.topCtaText || "";
+      topCtaStyle.value = siteSettings.topCtaStyle || siteSettings.header.ctaStyle || "primary";
+      headerSticky.value = String(siteSettings.header.sticky !== false);
+      headerTransparent.value = String(!!siteSettings.header.transparent);
+      showContactBar.value = String(!!siteSettings.header.showContactBar);
+      contactBarText.value = siteSettings.header.contactBarText || "";
+      topCtaTextHeader.value = siteSettings.topCtaText || "";
+      topCtaStyleHeader.value = siteSettings.header.ctaStyle || siteSettings.topCtaStyle || "primary";
+      footerBottomText.value = siteSettings.footer.bottomText || siteSettings.footerText || "";
+      footerShowContactInfo.value = String(siteSettings.footer.showContactInfo !== false);
+      themeBodyBg.value = siteSettings.theme.bodyBg;
+      themeBodyText.value = siteSettings.theme.bodyText;
+      themeBorderColor.value = siteSettings.theme.borderColor;
+      themePrimaryColor.value = siteSettings.theme.primaryColor;
+      themeSecondaryColor.value = siteSettings.theme.secondaryColor;
+      themeSurfaceColor.value = siteSettings.theme.surfaceColor;
+      themeMutedText.value = siteSettings.theme.mutedText;
+      themeHeaderBg.value = siteSettings.theme.headerBg;
+      themeFooterBg.value = siteSettings.theme.footerBg;
+      themeContainerWidth.value = siteSettings.theme.containerWidth;
+      themeRadius.value = siteSettings.theme.radius;
+      themeButtonRadius.value = siteSettings.theme.buttonRadius;
+      themeFontFamily.value = siteSettings.theme.fontFamily;
+      customHeadHtml.value = siteSettings.custom.headHtml || "";
+      customBeforeBodyHtml.value = siteSettings.custom.beforeBodyHtml || "";
+      customAfterBodyHtml.value = siteSettings.custom.afterBodyHtml || "";
+      renderActionEditors();
+      renderMenuItems();
+      renderFooterColumns();
+      renderSocialLinks();
+      renderPreview();
+    }
+
+    function resolvePreviewHref(action = {}) {
+      const safe = normalizeAction(action);
+      if (safe.type === "page") {
+        const page = availablePages.find(entry => entry.id === safe.pageId);
+        if (!page) return "#";
+        return page.isHome ? "/" : "/" + String(page.slug || "").replace(/^\/+/, "");
+      }
+      if (safe.type === "anchor") return "#" + String(safe.anchor || "").replace(/^#+/, "");
+      if (safe.type === "email") return safe.email ? "mailto:" + safe.email : "#";
+      if (safe.type === "phone") return safe.phone ? "tel:" + safe.phone : "#";
+      if (safe.type === "whatsapp") {
+        const digits = String(safe.whatsapp || "").replace(/[^\d]/g, "");
+        return digits ? "https://wa.me/" + digits : "#";
+      }
+      if (safe.type === "download") return safe.downloadUrl || "#";
+      if (safe.type === "none") return "#";
+      return safe.url || "#";
+    }
+
+    function ctaStylePreview(style) {
+      if (style === "secondary") {
+        return "background:" + siteSettings.theme.secondaryColor + ";color:#fff;";
+      }
+      if (style === "ghost") {
+        return "background:transparent;border:1px solid " + siteSettings.theme.borderColor + ";color:" + siteSettings.theme.bodyText + ";";
+      }
+      return "background:" + siteSettings.theme.primaryColor + ";color:#fff;";
+    }
+
+    function renderPreview() {
+      readGeneralFields();
+      previewBox.style.background = siteSettings.theme.bodyBg;
+      previewBox.style.color = siteSettings.theme.bodyText;
+      previewBox.style.fontFamily = siteSettings.theme.fontFamily;
+      previewBox.innerHTML = `
+        ${siteSettings.header.showContactBar && siteSettings.header.contactBarText ? `<div class="preview-pill">${escapeHtml(siteSettings.header.contactBarText)}</div>` : ""}
+        <div class="preview-header" style="background:${escapeHtml(siteSettings.theme.headerBg)}; border-radius:${Number(siteSettings.theme.radius)}px;">
+          <div class="preview-logo">${escapeHtml(siteSettings.logoText || siteSettings.siteName)}</div>
+          <div class="preview-nav">
+            ${(siteSettings.menuItems || []).map(item => `<span>${escapeHtml(item.text || "Menü")}</span>`).join("")}
+          </div>
+          ${siteSettings.showTopCta && siteSettings.topCtaText ? `<span class="preview-pill" style="${ctaStylePreview(siteSettings.header.ctaStyle)} border-radius:${Number(siteSettings.theme.buttonRadius)}px;">${escapeHtml(siteSettings.topCtaText)}</span>` : ""}
+        </div>
+        <div class="preview-footer" style="background:${escapeHtml(siteSettings.theme.footerBg)}; border-radius:${Number(siteSettings.theme.radius)}px;">
+          <div class="footer-grid">
+            ${(siteSettings.footer.columns || []).map(col => `
+              <div class="footer-col">
+                <strong>${escapeHtml(col.title || "Kolon")}</strong>
+                ${col.text ? `<div class="muted" style="margin-top:8px">${escapeHtml(col.text)}</div>` : ""}
+                ${(col.links || []).length ? `<div class="stack" style="margin-top:10px">${col.links.map(link => `<span class="muted">${escapeHtml(link.text || "Link")} → ${escapeHtml(resolvePreviewHref(link.action))}</span>`).join("")}</div>` : ""}
+              </div>
+            `).join("")}
+          </div>
+          <div class="muted">${escapeHtml(siteSettings.footer.bottomText || "")}</div>
+          ${siteSettings.footer.socialLinks.length ? `<div class="row-actions">${siteSettings.footer.socialLinks.map(item => `<span class="preview-pill">${escapeHtml(item.label)}</span>`).join("")}</div>` : ""}
+        </div>
+      `;
+    }
+
+    async function loadData() {
+      try {
+        const [verifyRes, settingsRes, pagesRes] = await Promise.all([
+          fetch("/api/verify", { method: "GET", credentials: "same-origin", headers: { "Accept": "application/json" } }),
+          fetch("/api/site-settings", { method: "GET", credentials: "same-origin", headers: { "Accept": "application/json" } }),
+          fetch("/api/pages", { method: "GET", credentials: "same-origin", headers: { "Accept": "application/json" } })
+        ]);
+
+        const verifyData = await verifyRes.json();
+        if (!verifyData.ok || !verifyData.authenticated) {
+          location.replace("/login");
           return;
         }
-        loading.classList.add('hidden');
-        app.classList.remove('hidden');
-      } catch {
-        location.replace('/login');
-      }
-    }
 
-    async function loadPages() {
-      try {
-        const res = await fetch('/api/pages', {
-          method: 'GET',
-          credentials: 'same-origin',
-          headers: { Accept: 'application/json' }
-        });
-        const data = await res.json();
-        availablePages = Array.isArray(data.pages) ? data.pages : [];
-      } catch {
-        availablePages = [];
-      }
-    }
+        const settingsData = await settingsRes.json();
+        const pagesData = await pagesRes.json();
 
-    async function loadSettings() {
-      try {
-        const res = await fetch('/api/site-settings', {
-          headers: { Accept: 'application/json' }
-        });
-        const data = await res.json();
-        siteSettings = data.settings || siteSettings;
-        if (!Array.isArray(siteSettings.menuItems)) siteSettings.menuItems = [];
+        availablePages = Array.isArray(pagesData.pages) ? pagesData.pages : [];
+        siteSettings = normalizeSettings(settingsData.settings || {});
         fillForm();
-      } catch {
-        showStatus('Ayarlar yüklenemedi.', 'error');
+
+        loading.classList.add("hidden");
+        app.classList.remove("hidden");
+      } catch (err) {
+        loading.textContent = "Yüklenemedi.";
       }
     }
 
     async function saveSettings() {
-      readForm();
-
       try {
-        const res = await fetch('/api/site-settings', {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
+        readGeneralFields();
+        const res = await fetch("/api/site-settings", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
           body: JSON.stringify(siteSettings)
         });
-
         const data = await res.json();
-
         if (!data.ok) {
-          return showStatus(data.error || 'Kayıt başarısız.', 'error');
+          showStatus(data.error || "Kaydetme başarısız.", "error");
+          return;
         }
-
-        siteSettings = data.settings || siteSettings;
-        if (!Array.isArray(siteSettings.menuItems)) siteSettings.menuItems = [];
+        siteSettings = normalizeSettings(data.settings || siteSettings);
         fillForm();
-        showStatus('Ayarlar kaydedildi.', 'ok');
-      } catch {
-        showStatus('İstek sırasında hata oluştu.', 'error');
+        showStatus("Site ayarları kaydedildi.", "ok");
+      } catch (err) {
+        showStatus("Kaydetme sırasında hata oluştu.", "error");
       }
     }
 
     async function logout() {
       try {
-        await fetch('/api/logout', {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: { Accept: 'application/json' }
-        });
-      } catch {}
-      location.replace('/login');
+        await fetch("/api/logout", { method: "POST", credentials: "same-origin" });
+      } finally {
+        location.replace("/login");
+      }
     }
 
-    addMenuBtn.addEventListener('click', function() {
-      siteSettings.menuItems.push({
-        id: uid(),
-        text: 'Menü',
-        targetType: 'link',
-        link: '#',
-        pageId: ''
-      });
+    saveBtn.addEventListener("click", saveSettings);
+    logoutBtnSide.addEventListener("click", logout);
+    logoutBtnTop.addEventListener("click", logout);
+
+    addMenuBtn.addEventListener("click", function() {
+      siteSettings.menuItems.push({ id: uid("menu"), text: "Yeni Menü", link: "#", action: defaultAction("#") });
       renderMenuItems();
+      renderPreview();
     });
 
-    saveBtn.addEventListener('click', saveSettings);
-    logoutBtnTop.addEventListener('click', logout);
-    logoutBtnSide.addEventListener('click', logout);
+    addFooterColumnBtn.addEventListener("click", function() {
+      siteSettings.footer.columns.push({ id: uid("fcol"), title: "Yeni Kolon", text: "", links: [] });
+      renderFooterColumns();
+      renderPreview();
+    });
 
-    (async function init() {
-      await checkSession();
-      await loadPages();
-      await loadSettings();
-    })();
+    addSocialBtn.addEventListener("click", function() {
+      siteSettings.footer.socialLinks.push({ id: uid("social"), label: "Yeni Sosyal", action: defaultAction("https://") });
+      renderSocialLinks();
+      renderPreview();
+    });
+
+    [siteName, logoText, logoLink, contactEmail, contactPhone, contactAddress, showHeader, showFooter, showTopCta, topCtaText, topCtaStyle, headerSticky, headerTransparent, showContactBar, contactBarText, topCtaTextHeader, topCtaStyleHeader, footerBottomText, footerShowContactInfo, themeBodyBg, themeBodyText, themeBorderColor, themePrimaryColor, themeSecondaryColor, themeSurfaceColor, themeMutedText, themeHeaderBg, themeFooterBg, themeContainerWidth, themeRadius, themeButtonRadius, themeFontFamily, customHeadHtml, customBeforeBodyHtml, customAfterBodyHtml]
+      .forEach(function(input) {
+        input.addEventListener("input", function() {
+          if (input === topCtaTextHeader) topCtaText.value = input.value;
+          if (input === topCtaText) topCtaTextHeader.value = input.value;
+          if (input === topCtaStyleHeader) topCtaStyle.value = input.value;
+          if (input === topCtaStyle) topCtaStyleHeader.value = input.value;
+          renderPreview();
+        });
+        input.addEventListener("change", renderPreview);
+      });
+
+    bindTabs();
+    loadData();
   </script>
 </body>
 </html>
