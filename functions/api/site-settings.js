@@ -25,18 +25,6 @@ async function checkSession(request, env) {
   return !!raw;
 }
 
-function ensureSameOrigin(request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return true;
-
-  try {
-    const requestUrl = new URL(request.url);
-    return origin === requestUrl.origin;
-  } catch {
-    return false;
-  }
-}
-
 function normalizeText(value, fallback = "") {
   const v = String(value || "").trim();
   return v || fallback;
@@ -70,6 +58,33 @@ function normalizeLink(value, fallback = "#") {
   return fallback;
 }
 
+function normalizeAction(action = {}, fallbackLink = "#") {
+  const type = [
+    "none",
+    "url",
+    "page",
+    "anchor",
+    "email",
+    "phone",
+    "whatsapp",
+    "download"
+  ].includes(action?.type)
+    ? action.type
+    : "url";
+
+  return {
+    type,
+    url: normalizeLink(action?.url, normalizeLink(fallbackLink, "#")),
+    pageId: normalizeText(action?.pageId),
+    anchor: normalizeText(action?.anchor),
+    email: normalizeText(action?.email),
+    phone: normalizeText(action?.phone),
+    whatsapp: normalizeText(action?.whatsapp),
+    downloadUrl: normalizeLink(action?.downloadUrl, ""),
+    newTab: normalizeBool(action?.newTab, false)
+  };
+}
+
 function defaultSettings() {
   return {
     siteName: "Vera",
@@ -83,27 +98,25 @@ function defaultSettings() {
     showTopCta: true,
     topCtaText: "İletişim",
     topCtaLink: "/iletisim",
+    topCtaAction: { type: "url", url: "/iletisim", pageId: "", anchor: "", email: "", phone: "", whatsapp: "", downloadUrl: "", newTab: false },
     menuItems: [
       {
         id: crypto.randomUUID(),
         text: "Ana Sayfa",
         targetType: "link",
         link: "/",
-        pageId: ""
+        pageId: "",
+        action: { type: "url", url: "/", pageId: "", anchor: "", email: "", phone: "", whatsapp: "", downloadUrl: "", newTab: false }
       },
       {
         id: crypto.randomUUID(),
         text: "Admin",
         targetType: "link",
         link: "/admin",
-        pageId: ""
+        pageId: "",
+        action: { type: "url", url: "/admin", pageId: "", anchor: "", email: "", phone: "", whatsapp: "", downloadUrl: "", newTab: false }
       }
-    ],
-    custom: {
-      headHtml: "",
-      beforeBodyHtml: "",
-      afterBodyHtml: ""
-    }
+    ]
   };
 }
 
@@ -145,6 +158,7 @@ function normalizeMenuItems(items, pages = []) {
       const targetType = item?.targetType === "page" ? "page" : "link";
       const rawPageId = normalizeText(item?.pageId);
       const page = rawPageId ? pages.find((entry) => entry.id === rawPageId) : null;
+      const action = normalizeAction(item?.action, item?.link);
 
       if (!text) return null;
 
@@ -156,7 +170,18 @@ function normalizeMenuItems(items, pages = []) {
           text,
           targetType: "page",
           pageId: page.id,
-          link: resolvePageLink(page)
+          link: resolvePageLink(page),
+          action: {
+            ...action,
+            type: "page",
+            pageId: page.id,
+            url: resolvePageLink(page),
+            anchor: "",
+            email: "",
+            phone: "",
+            whatsapp: "",
+            downloadUrl: ""
+          }
         };
       }
 
@@ -165,7 +190,8 @@ function normalizeMenuItems(items, pages = []) {
         text,
         targetType: "link",
         pageId: "",
-        link: normalizeLink(item?.link, "#")
+        link: normalizeLink(item?.link, "#"),
+        action: action
       };
     })
     .filter(Boolean);
@@ -173,69 +199,34 @@ function normalizeMenuItems(items, pages = []) {
   return out.length ? out : fallback;
 }
 
-function normalizeCustom(custom = {}, fallback = {}) {
-  return {
-    headHtml: String(custom.headHtml ?? fallback.headHtml ?? ""),
-    beforeBodyHtml: String(custom.beforeBodyHtml ?? fallback.beforeBodyHtml ?? ""),
-    afterBodyHtml: String(custom.afterBodyHtml ?? fallback.afterBodyHtml ?? "")
-  };
-}
+function normalizePayload(body = {}, pages = []) {
+  const base = defaultSettings();
 
-function normalizePayload(body = {}, pages = [], base = defaultSettings()) {
   return {
     siteName: normalizeText(body.siteName, base.siteName),
     logoText: normalizeText(body.logoText, base.logoText),
     logoLink: normalizeLink(body.logoLink, base.logoLink),
-    contactEmail: normalizeText(body.contactEmail, base.contactEmail),
-    contactPhone: normalizeText(body.contactPhone, base.contactPhone),
+    contactEmail: normalizeText(body.contactEmail),
+    contactPhone: normalizeText(body.contactPhone),
     footerText: normalizeText(body.footerText, base.footerText),
     showHeader: normalizeBool(body.showHeader, base.showHeader),
     showFooter: normalizeBool(body.showFooter, base.showFooter),
     showTopCta: normalizeBool(body.showTopCta, base.showTopCta),
     topCtaText: normalizeText(body.topCtaText, base.topCtaText),
     topCtaLink: normalizeLink(body.topCtaLink, base.topCtaLink),
-    menuItems: normalizeMenuItems(body.menuItems, pages),
-    custom: normalizeCustom(body.custom, base.custom)
+    topCtaAction: normalizeAction(body.topCtaAction, body.topCtaLink || base.topCtaLink),
+    menuItems: normalizeMenuItems(body.menuItems, pages)
   };
 }
 
-function toPublicSettings(settings = {}) {
-  return {
-    siteName: settings.siteName,
-    logoText: settings.logoText,
-    logoLink: settings.logoLink,
-    contactEmail: settings.contactEmail,
-    contactPhone: settings.contactPhone,
-    footerText: settings.footerText,
-    showHeader: settings.showHeader,
-    showFooter: settings.showFooter,
-    showTopCta: settings.showTopCta,
-    topCtaText: settings.topCtaText,
-    topCtaLink: settings.topCtaLink,
-    menuItems: Array.isArray(settings.menuItems) ? settings.menuItems : [],
-    custom: normalizeCustom(settings.custom)
-  };
-}
-
-export async function onRequestGet({ request, env }) {
+export async function onRequestGet({ env }) {
   const pages = await readPages(env);
-  const defaults = defaultSettings();
   const raw = await env.AUTH_KV.get("site:settings", { type: "json" });
-  const settings = raw ? normalizePayload(raw, pages, { ...defaults, ...raw, custom: normalizeCustom(raw.custom, defaults.custom) }) : defaults;
-  const authorized = await checkSession(request, env);
-
-  if (authorized) {
-    return json({ ok: true, settings });
-  }
-
-  return json({ ok: true, settings: toPublicSettings(settings) });
+  const settings = raw ? normalizePayload(raw, pages) : defaultSettings();
+  return json({ ok: true, settings });
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!ensureSameOrigin(request)) {
-    return json({ ok: false, error: "Geçersiz istek kaynağı" }, 403);
-  }
-
   const authorized = await checkSession(request, env);
   if (!authorized) {
     return json({ ok: false, error: "Yetkisiz" }, 401);
@@ -249,22 +240,8 @@ export async function onRequestPost({ request, env }) {
   }
 
   const pages = await readPages(env);
-  const defaults = defaultSettings();
-  const existingRaw = await env.AUTH_KV.get("site:settings", { type: "json" });
-  const existing = existingRaw
-    ? normalizePayload(existingRaw, pages, { ...defaults, ...existingRaw, custom: normalizeCustom(existingRaw.custom, defaults.custom) })
-    : defaults;
+  const settings = normalizePayload(body, pages);
 
-  const merged = {
-    ...existing,
-    ...body,
-    custom: {
-      ...existing.custom,
-      ...(body.custom || {})
-    }
-  };
-
-  const settings = normalizePayload(merged, pages, existing);
   await env.AUTH_KV.put("site:settings", JSON.stringify(settings));
 
   return json({ ok: true, settings });
