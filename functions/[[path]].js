@@ -180,14 +180,16 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
   const className = ["block-inner", block.cssClass || ""].filter(Boolean).join(" ");
   const htmlId = block.htmlId ? `id="${escapeHtml(block.htmlId)}"` : "";
 
+  const totalCols = Math.max(1, Math.min(MAX_GRID_COLUMNS, Number(pageOptions.gridColumns || 12)));
+
   const desktopStart = block.fullWidth ? 1 : Number(block.colStartDesktop || 1);
-  const desktopSpan = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
+  const desktopSpan = block.fullWidth ? totalCols : Number(block.colSpanDesktop || totalCols);
 
   const tabletStart = block.fullWidth ? 1 : Number(block.colStartTablet || 1);
-  const tabletSpan = block.fullWidth ? 12 : Number(block.colSpanTablet || 12);
+  const tabletSpan = block.fullWidth ? totalCols : Number(block.colSpanTablet || totalCols);
 
   const mobileStart = block.fullWidth ? 1 : Number(block.colStartMobile || 1);
-  const mobileSpan = block.fullWidth ? 12 : Number(block.colSpanMobile || 12);
+  const mobileSpan = block.fullWidth ? totalCols : Number(block.colSpanMobile || totalCols);
 
   const rowStart = Number(block.rowStartDesktop || 1);
   const rowSpan = Number(block.rowSpan || 1);
@@ -419,8 +421,9 @@ function renderBlock(block, pageOptions = {}, renderMeta = {}) {
     const rowStart = Number(block.rowStartDesktop || 1);
     const rowSpan = Number(block.rowSpan || 1);
     const manualRow = block.layoutMode === "free" || rowStart > 1;
+    const totalCols = Math.max(1, Math.min(MAX_GRID_COLUMNS, Number(pageOptions.gridColumns || 12)));
     return `
-      <div ${designerAttrs} style="grid-column:1 / span 12;${manualRow ? `grid-row:${rowStart} / span ${rowSpan};` : ""}height:${Number(block.height || 32)}px"></div>
+      <div ${designerAttrs} style="grid-column:1 / span ${totalCols};grid-row:${Number(block.rowStartDesktop || 1)} / span ${Number(block.rowSpan || 1)};height:${Number(block.height || 32)}px"></div>
     `;
   }
 
@@ -611,8 +614,9 @@ function renderDesignerBridge(page, currentPath) {
         const className = ["block-inner", block.cssClass || ""].filter(Boolean).join(" ");
         const htmlId = block.htmlId ? 'id="' + escapeHtml(block.htmlId) + '"' : "";
 
+        const totalCols = Math.max(1, Math.min(${MAX_GRID_COLUMNS}, Number(CURRENT_PAGE.pageOptions?.gridColumns || 12)));
         const desktopStart = block.fullWidth ? 1 : Number(block.colStartDesktop || 1);
-        const desktopSpan = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
+        const desktopSpan = block.fullWidth ? totalCols : Number(block.colSpanDesktop || totalCols);
 
         const rowStart = Number(block.rowStartDesktop || 1);
         const rowSpan = Number(block.rowSpan || 1);
@@ -775,7 +779,8 @@ function renderDesignerBridge(page, currentPath) {
         }
 
         if (block.type === "spacer") {
-          return '<div data-block-id="' + escapeHtml(block.id || "") + '" data-block-type="' + escapeHtml(block.type || "") + '" style="grid-column:1 / span 12;' + ((block.layoutMode === 'free' || Number(block.rowStartDesktop || 1) > 1) ? ('grid-row:' + Number(block.rowStartDesktop || 1) + ' / span ' + Number(block.rowSpan || 1) + ';') : '') + 'height:' + Number(block.height || 32) + 'px"></div>';
+                    const totalCols = Math.max(1, Math.min(${MAX_GRID_COLUMNS}, Number(CURRENT_PAGE.pageOptions?.gridColumns || 12)));
+          return '<div data-block-id="' + escapeHtml(block.id || "") + '" data-block-type="' + escapeHtml(block.type || "") + '" style="grid-column:1 / span ' + totalCols + ';grid-row:' + Number(block.rowStartDesktop || 1) + ' / span ' + Number(block.rowSpan || 1) + ';height:' + Number(block.height || 32) + 'px"></div>';
         }
 
         return "";
