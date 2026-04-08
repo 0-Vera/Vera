@@ -66,10 +66,10 @@
       try{
         const res=await fetch('/api/verify',{method:'GET',credentials:'same-origin',headers:{Accept:'application/json'}});
         const data=await res.json();
-        if(!data.ok||!data.authenticated){location.replace('/login');return;}
+        if(!data.ok||!data.authenticated){location.replace('/login/index.html');return;}
         loading.classList.add('hidden');
         app.classList.remove('hidden');
-      }catch{location.replace('/login');}
+      }catch{location.replace('/login/index.html');}
     }
     async function loadStats(){
       try{
@@ -85,7 +85,7 @@
     }
     async function logout(){
       try{await fetch('/api/logout',{method:'POST',credentials:'same-origin',headers:{Accept:'application/json'}});}catch{}
-      location.replace('/login');
+      location.replace('/login/index.html');
     }
     logoutBtnTop.addEventListener('click',logout);
     logoutBtnSide.addEventListener('click',logout);
