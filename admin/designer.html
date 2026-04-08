@@ -588,6 +588,10 @@
       .stage-main{padding:10px}
       .preview-topbar{padding:0 10px}
     }
+.stage-main{
+  overflow:auto;
+}
+
 .preview-shell{
   transform-origin: top center;
   transition: transform .15s ease;
@@ -1798,8 +1802,6 @@ function applyPreviewZoom(value) {
 
   if (shell) {
     shell.style.transform = `scale(${scale})`;
-    shell.style.width = `${100 / scale}%`;
-    shell.style.margin = "0 auto";
   }
 
   if (label) {
