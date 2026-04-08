@@ -1,3 +1,4 @@
+const MAX_GRID_COLUMNS = 24;
 function escapeHtml(value) {
   return String(value || "")
     .replace(/&/g, "&amp;")
@@ -210,22 +211,23 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
       : "";
 
   return `
-    <section
-      class="block-shell"
-      ${designerAttrs}
-      style="
-        --col-start-desktop:${desktopStart};
-        --col-span-desktop:${desktopSpan};
-        --col-start-tablet:${tabletStart};
-        --col-span-tablet:${tabletSpan};
-        --col-start-mobile:${mobileStart};
-        --col-span-mobile:${mobileSpan};
-        --row-start-desktop:${rowStart};
-        --row-span:${rowSpan};
-        grid-column: var(--col-start-desktop) / span var(--col-span-desktop);
-        ${'${hasManualRow ? `grid-row: var(--row-start-desktop) / span var(--row-span);` : ""}'}
-        justify-content:${justify};
-      "
+  <section
+    class="block-shell"
+    ${designerAttrs}
+    style="
+      --col-start-desktop:${desktopStart};
+      --col-span-desktop:${desktopSpan};
+      --col-start-tablet:${tabletStart};
+      --col-span-tablet:${tabletSpan};
+      --col-start-mobile:${mobileStart};
+      --col-span-mobile:${mobileSpan};
+      --row-start-desktop:${rowStart};
+      --row-span:${rowSpan};
+      grid-column: var(--col-start-desktop) / span var(--col-span-desktop);
+      ${hasManualRow ? `grid-row: var(--row-start-desktop) / span var(--row-span);` : ""}
+      justify-content:${justify};
+    "
+  >
     >
       <div
         ${htmlId}
@@ -269,45 +271,56 @@ function renderBlock(block, pageOptions = {}, renderMeta = {}) {
     `, pageOptions, renderMeta);
   }
 
-  if (block.type === "section") {
-    return blockWrapper(block, `
-      <div class="section-intro">
-        ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
-        ${block.text ? `<p>${escapeHtml(block.text)}</p>` : ""}
-      </div>
-    `, pageOptions, renderMeta);
-  }
+if (block.type === "section") {
+  return blockWrapper(block,
+    '<div class="section-intro">' +
+      (block.title ? '<h2>' + escapeHtml(block.title) + '</h2>' : '') +
+      (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
+    '</div>'
+  );
+}
 
-  if (block.type === "features") {
-    const items = splitLines(block.items);
-    return blockWrapper(block, `
-      <div class="feature-list">
-        ${block.title ? `<h3>${escapeHtml(block.title)}</h3>` : ""}
-        ${block.text ? `<p>${escapeHtml(block.text)}</p>` : ""}
-        <ul>
-          ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
-        </ul>
-      </div>
-    `, pageOptions, renderMeta);
-  }
+if (block.type === "features") {
+  const items = String(block.items || "")
+    .split(/\r?\n/)
+    .map(function(item){ return item.trim(); })
+    .filter(Boolean);
 
-  if (block.type === "cards") {
-    const cards = parseCardItems(block.items);
-    return blockWrapper(block, `
-      <div class="cards-block">
-        ${block.title ? `<h3>${escapeHtml(block.title)}</h3>` : ""}
-        ${block.text ? `<p class="cards-intro">${escapeHtml(block.text)}</p>` : ""}
-        <div class="cards-grid">
-          ${cards.map((card) => `
-            <article class="info-card">
-              ${card.title ? `<h4>${escapeHtml(card.title)}</h4>` : ""}
-              ${card.text ? `<p>${escapeHtml(card.text)}</p>` : ""}
-            </article>
-          `).join("")}
-        </div>
-      </div>
-    `, pageOptions, renderMeta);
-  }
+  return blockWrapper(block,
+    '<div class="feature-list">' +
+      (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
+      (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
+      '<ul>' + items.map(function(item){ return '<li>' + escapeHtml(item) + '</li>'; }).join('') + '</ul>' +
+    '</div>'
+  );
+}
+
+if (block.type === "cards") {
+  const cards = String(block.items || "")
+    .split(/\r?\n/)
+    .map(function(line){ return line.trim(); })
+    .filter(Boolean)
+    .map(function(line){
+      const parts = line.split("|");
+      return {
+        title: String(parts[0] || "").trim(),
+        text: String(parts.slice(1).join("|") || "").trim()
+      };
+    });
+
+  return blockWrapper(block,
+    '<div class="cards-block">' +
+      (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
+      (block.text ? '<p class="cards-intro">' + escapeHtml(block.text) + '</p>' : '') +
+      '<div class="cards-grid">' + cards.map(function(card){
+        return '<article class="info-card">' +
+          (card.title ? '<h4>' + escapeHtml(card.title) + '</h4>' : '') +
+          (card.text ? '<p>' + escapeHtml(card.text) + '</p>' : '') +
+        '</article>';
+      }).join('') + '</div>' +
+    '</div>'
+  );
+}
 
   if (block.type === "stats") {
     const items = parsePairItems(block.items);
