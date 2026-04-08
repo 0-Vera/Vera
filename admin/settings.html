@@ -86,6 +86,7 @@
       showTopCta: true,
       topCtaText: 'İletişim',
       topCtaLink: '/iletisim',
+      topCtaAction: { type: 'url', url: '/iletisim', pageId: '', anchor: '', email: '', phone: '', whatsapp: '', downloadUrl: '', newTab: false },
       menuItems: []
     };
 
@@ -114,7 +115,18 @@
         text: String(item.text || '').trim(),
         targetType: item.targetType === 'page' ? 'page' : 'link',
         link: String(item.link || '').trim(),
-        pageId: String(item.pageId || '').trim()
+        pageId: String(item.pageId || '').trim(),
+        action: {
+          type: ['url','page','anchor','email','phone','whatsapp','download','none'].includes(item?.action?.type) ? item.action.type : (item.targetType === 'page' ? 'page' : 'url'),
+          url: String(item?.action?.url || item.link || '').trim(),
+          pageId: String(item?.action?.pageId || item.pageId || '').trim(),
+          anchor: String(item?.action?.anchor || '').trim(),
+          email: String(item?.action?.email || '').trim(),
+          phone: String(item?.action?.phone || '').trim(),
+          whatsapp: String(item?.action?.whatsapp || '').trim(),
+          downloadUrl: String(item?.action?.downloadUrl || '').trim(),
+          newTab: !!item?.action?.newTab
+        }
       };
     }
 
@@ -131,6 +143,7 @@
         showTopCta: showTopCta.value === 'true',
         topCtaText: topCtaText.value.trim(),
         topCtaLink: topCtaLink.value.trim(),
+        topCtaAction: siteSettings.topCtaAction || { type: 'url', url: topCtaLink.value.trim(), pageId: '', anchor: '', email: '', phone: '', whatsapp: '', downloadUrl: '', newTab: false },
         menuItems: Array.isArray(siteSettings.menuItems)
           ? siteSettings.menuItems.map(normalizeMenuItem)
           : []
@@ -171,6 +184,15 @@
     function createMenuItemHtml(item, index) {
       const isPage = item.targetType === 'page';
 
+      const actionType = item.action?.type || (isPage ? 'page' : 'url');
+      const actionValue =
+        actionType === 'anchor' ? (item.action?.anchor || '') :
+        actionType === 'email' ? (item.action?.email || '') :
+        actionType === 'phone' ? (item.action?.phone || '') :
+        actionType === 'whatsapp' ? (item.action?.whatsapp || '') :
+        actionType === 'download' ? (item.action?.downloadUrl || '') :
+        (item.action?.url || item.link || '');
+
       return ''
         + '<div class="menu-head">'
         + '  <strong>Menü Öğesi ' + (index + 1) + '</strong>'
@@ -182,14 +204,27 @@
 
         + '<label>Yönlendirme Türü</label>'
         + '<select data-key="targetType">'
-        + '  <option value="link"' + (item.targetType === 'link' ? ' selected' : '') + '>Manuel Link</option>'
+        + '  <option value="link"' + (item.targetType === 'link' ? ' selected' : '') + '>Özel Eylem</option>'
         + '  <option value="page"' + (item.targetType === 'page' ? ' selected' : '') + '>Sayfa Seç</option>'
         + '</select>'
 
-        + '<div class="menu-help">Manuel link seçersen aşağıdaki link alanı kullanılır. Sayfa seçersen sayfa bağlantısı otomatik alınır.</div>'
+        + '<label>Eylem Tipi</label>'
+        + '<select data-key="actionType"' + (isPage ? ' disabled' : '') + '>'
+        + '  <option value="url"' + (actionType === 'url' ? ' selected' : '') + '>URL</option>'
+        + '  <option value="anchor"' + (actionType === 'anchor' ? ' selected' : '') + '>Anchor</option>'
+        + '  <option value="email"' + (actionType === 'email' ? ' selected' : '') + '>E-posta</option>'
+        + '  <option value="phone"' + (actionType === 'phone' ? ' selected' : '') + '>Telefon</option>'
+        + '  <option value="whatsapp"' + (actionType === 'whatsapp' ? ' selected' : '') + '>WhatsApp</option>'
+        + '  <option value="download"' + (actionType === 'download' ? ' selected' : '') + '>Dosya</option>'
+        + '  <option value="none"' + (actionType === 'none' ? ' selected' : '') + '>Yok</option>'
+        + '</select>'
 
-        + '<label>Link</label>'
-        + '<input data-key="link" placeholder="/iletisim veya https://ornek.com" value="' + escapeHtml(item.link) + '"' + (isPage ? ' disabled' : '') + '>'
+        + '<div class="menu-help">Sayfa seçersen bağlantı otomatik gelir. Özel eylem seçersen aşağıdaki değer kullanılır.</div>'
+
+        + '<label>Değer</label>'
+        + '<input data-key="actionValue" placeholder="/iletisim veya #bolum veya mail@adres.com" value="' + escapeHtml(actionValue) + '"' + (isPage ? ' disabled' : '') + '>'
+
+        + '<label><input data-key="actionNewTab" data-bool="1" type="checkbox"' + (item.action?.newTab ? ' checked' : '') + (isPage ? ' disabled' : '') + '> Yeni sekme</label>'
 
         + '<label>Sayfa</label>'
         + '<select data-key="pageId"' + (isPage ? '' : ' disabled') + '>'
@@ -270,13 +305,13 @@
         });
         const data = await res.json();
         if (!data.ok || !data.authenticated) {
-          location.replace('/login/index.html');
+          location.replace('/login');
           return;
         }
         loading.classList.add('hidden');
         app.classList.remove('hidden');
       } catch {
-        location.replace('/login/index.html');
+        location.replace('/login');
       }
     }
 
@@ -345,7 +380,7 @@
           headers: { Accept: 'application/json' }
         });
       } catch {}
-      location.replace('/login/index.html');
+      location.replace('/login');
     }
 
     addMenuBtn.addEventListener('click', function() {
