@@ -78,7 +78,7 @@ function renderMenuItems(items, currentPath = "/") {
     .join("");
 }
 
-function blockWrapper(block, innerHtml, pageOptions = {}) {
+function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
   const align = ["left", "center", "right"].includes(block.align) ? block.align : "left";
   const justify = align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start";
   const className = ["block-inner", block.cssClass || ""].filter(Boolean).join(" ");
@@ -102,9 +102,15 @@ function blockWrapper(block, innerHtml, pageOptions = {}) {
       ? `max-width:${innerMaxWidth}%;margin:${align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0"};`
       : "";
 
+  const designerAttrs =
+    renderMeta.isDesigner
+      ? ` data-block-id="${escapeHtml(block.id || "")}" data-block-type="${escapeHtml(block.type || "")}"`
+      : "";
+
   return `
     <section
       class="block-shell"
+      ${designerAttrs}
       style="
         --col-start-desktop:${desktopStart};
         --col-span-desktop:${desktopSpan};
@@ -140,7 +146,7 @@ function blockWrapper(block, innerHtml, pageOptions = {}) {
   `;
 }
 
-function renderBlock(block, pageOptions = {}) {
+function renderBlock(block, pageOptions = {}, renderMeta = {}) {
   if (!block || block.visible === false) return "";
 
   if (block.type === "hero") {
@@ -153,7 +159,7 @@ function renderBlock(block, pageOptions = {}) {
           ${block.secondaryText ? `<a class="btn" href="${escapeHtml(normalizeLink(block.secondaryLink, "#"))}">${escapeHtml(block.secondaryText)}</a>` : ""}
         </div>
       </div>
-    `, pageOptions);
+    `, pageOptions, renderMeta);
   }
 
   if (block.type === "text") {
@@ -162,7 +168,7 @@ function renderBlock(block, pageOptions = {}) {
         ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
         <p>${escapeHtml(block.text)}</p>
       </div>
-    `, pageOptions);
+    `, pageOptions, renderMeta);
   }
 
   if (block.type === "button") {
@@ -170,7 +176,7 @@ function renderBlock(block, pageOptions = {}) {
       <div class="button-block ${block.align || "left"}">
         <a class="btn ${block.style === "primary" ? "primary" : ""}" href="${escapeHtml(normalizeLink(block.link, "#"))}">${escapeHtml(block.text)}</a>
       </div>
-    `, pageOptions);
+    `, pageOptions, renderMeta);
   }
 
   if (block.type === "image") {
@@ -184,16 +190,20 @@ function renderBlock(block, pageOptions = {}) {
       <div class="image-block">
         ${safeLink ? `<a href="${escapeHtml(safeLink)}">${imageHtml}</a>` : imageHtml}
       </div>
-    `, pageOptions);
+    `, pageOptions, renderMeta);
   }
 
   if (block.type === "html") {
-    return blockWrapper(block, `<div class="html-block">${block.html || ""}</div>`, pageOptions);
+    return blockWrapper(block, `<div class="html-block">${block.html || ""}</div>`, pageOptions, renderMeta);
   }
 
   if (block.type === "spacer") {
+    const designerAttrs =
+      renderMeta.isDesigner
+        ? ` data-block-id="${escapeHtml(block.id || "")}" data-block-type="${escapeHtml(block.type || "")}"`
+        : "";
     return `
-      <div style="grid-column:1 / span 12;height:${Number(block.height || 32)}px"></div>
+      <div ${designerAttrs} style="grid-column:1 / span 12;height:${Number(block.height || 32)}px"></div>
     `;
   }
 
@@ -254,7 +264,143 @@ function render404() {
 </html>`;
 }
 
-function renderPage({ siteSettings, page, currentPath }) {
+function renderDesignerBridge(page, currentPath) {
+  const blocksJson = JSON.stringify(
+    Array.isArray(page.blocks)
+      ? page.blocks.map((block) => ({
+          id: block.id || "",
+          type: block.type || ""
+        }))
+      : []
+  );
+
+  return `
+  <style>
+    [data-block-id]{
+      position:relative;
+      transition:outline-color .12s ease, box-shadow .12s ease;
+    }
+    body.vera-designer-mode [data-block-id]{
+      cursor:pointer;
+    }
+    body.vera-designer-mode [data-block-id]:hover{
+      outline:1px dashed rgba(37,99,235,.55);
+      outline-offset:2px;
+    }
+    body.vera-designer-mode [data-block-id].vera-selected-block{
+      outline:2px solid #2563eb;
+      outline-offset:2px;
+      box-shadow:0 0 0 4px rgba(37,99,235,.10);
+    }
+  </style>
+  <script>
+    (function(){
+      const BLOCKS = ${blocksJson};
+      const PAGE_INFO = {
+        title: ${JSON.stringify(page.title || "")},
+        slug: ${JSON.stringify(currentPath || "/")},
+        isHome: ${JSON.stringify(!!page.isHome)}
+      };
+
+      function send(message){
+        try{
+          if(window.parent && window.parent !== window){
+            window.parent.postMessage(message, "*");
+          }
+        }catch(e){}
+      }
+
+      function getNodeById(id){
+        return document.querySelector('[data-block-id="' + CSS.escape(String(id || "")) + '"]');
+      }
+
+      function highlight(id){
+        document.querySelectorAll("[data-block-id]").forEach(function(node){
+          node.classList.remove("vera-selected-block");
+        });
+        const node = getNodeById(id);
+        if(node){
+          node.classList.add("vera-selected-block");
+          node.scrollIntoView({block:"nearest", inline:"nearest"});
+        }
+      }
+
+      function collectRects(){
+        return BLOCKS.map(function(block){
+          const node = getNodeById(block.id);
+          if(!node) return { id:block.id, type:block.type, rect:null };
+          const r = node.getBoundingClientRect();
+          return {
+            id:block.id,
+            type:block.type,
+            rect:{
+              x:r.x,
+              y:r.y,
+              width:r.width,
+              height:r.height,
+              top:r.top,
+              left:r.left
+            }
+          };
+        });
+      }
+
+      document.addEventListener("click", function(e){
+        const node = e.target.closest("[data-block-id]");
+        if(!node) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const id = node.getAttribute("data-block-id");
+        highlight(id);
+        send({ type:"vera:blockSelected", blockId:id });
+      }, true);
+
+      window.addEventListener("message", function(event){
+        const data = event.data || {};
+        if(data.type === "vera:selectBlock"){
+          highlight(data.blockId);
+        }
+        if(data.type === "vera:requestSnapshot"){
+          send({
+            type:"vera:snapshot",
+            blocks: collectRects(),
+            page: PAGE_INFO,
+            height: document.documentElement.scrollHeight
+          });
+        }
+      });
+
+      window.addEventListener("load", function(){
+        document.body.classList.add("vera-designer-mode");
+        send({
+          type:"vera:ready",
+          blocks: BLOCKS,
+          page: PAGE_INFO,
+          height: document.documentElement.scrollHeight
+        });
+        setTimeout(function(){
+          send({
+            type:"vera:snapshot",
+            blocks: collectRects(),
+            page: PAGE_INFO,
+            height: document.documentElement.scrollHeight
+          });
+        }, 120);
+      });
+
+      window.addEventListener("resize", function(){
+        send({
+          type:"vera:snapshot",
+          blocks: collectRects(),
+          page: PAGE_INFO,
+          height: document.documentElement.scrollHeight
+        });
+      });
+    })();
+  </script>`;
+}
+
+function renderPage({ siteSettings, page, currentPath, isDesigner }) {
   const theme = page.theme || {
     bodyBg: "#f8fafc",
     bodyText: "#0f172a",
@@ -276,7 +422,7 @@ function renderPage({ siteSettings, page, currentPath }) {
 
   const contentHtml = isCodeMode
     ? `${code.html || ""}`
-    : blocks.map((block) => renderBlock(block, pageOptions)).join("") + (overrides.html || "");
+    : blocks.map((block) => renderBlock(block, pageOptions, { isDesigner })).join("") + (overrides.html || "");
 
   return `<!DOCTYPE html>
 <html lang="tr">
@@ -289,7 +435,7 @@ function renderPage({ siteSettings, page, currentPath }) {
   <meta property="og:title" content="${escapeHtml(title)}" />
   <meta property="og:description" content="${escapeHtml(description)}" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="robots" content="index,follow" />
+  <meta name="robots" content="${isDesigner ? "noindex,nofollow" : "index,follow"}" />
   <link rel="canonical" href="${escapeHtml(canonicalUrl)}" />
   <style>
     *{box-sizing:border-box}
@@ -376,6 +522,7 @@ function renderPage({ siteSettings, page, currentPath }) {
     ${isCodeMode ? code.css || "" : ""}
   </style>
   ${siteSettings.custom?.headHtml || ""}
+  ${isDesigner ? renderDesignerBridge(page, currentPath) : ""}
 </head>
 <body class="${escapeHtml(pageOptions.customBodyClass || "")}">
   <a class="skip-link" href="#content">İçeriğe geç</a>
@@ -433,6 +580,7 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const pathname = url.pathname;
+  const isDesigner = url.searchParams.get("vera_designer") === "1";
 
   if (
     pathname.startsWith("/api/") ||
@@ -496,6 +644,10 @@ export async function onRequest(context) {
     return html(render404(), 404);
   }
 
+  if (contentRaw?.theme && !page.theme) {
+    page.theme = contentRaw.theme;
+  }
+
   const canonicalPath = pathname || "/";
-  return html(renderPage({ siteSettings, page, currentPath: canonicalPath }));
+  return html(renderPage({ siteSettings, page, currentPath: canonicalPath, isDesigner }));
 }
