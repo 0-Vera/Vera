@@ -25,6 +25,18 @@ async function checkSession(request, env) {
   return !!raw;
 }
 
+function ensureSameOrigin(request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  try {
+    const requestUrl = new URL(request.url);
+    return origin === requestUrl.origin;
+  } catch {
+    return false;
+  }
+}
+
 function uid() {
   return crypto.randomUUID();
 }
@@ -57,6 +69,27 @@ function normalizeCode(code = {}) {
     html: String(code.html || ""),
     css: String(code.css || ""),
     js: String(code.js || "")
+  };
+}
+
+function normalizeTheme(theme = {}) {
+  function pickColor(value, fallback) {
+    const v = String(value || "").trim();
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v : fallback;
+  }
+
+  function pickNumber(value, min, max, fallback) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.min(max, Math.max(min, n));
+  }
+
+  return {
+    bodyBg: pickColor(theme.bodyBg, "#f8fafc"),
+    bodyText: pickColor(theme.bodyText, "#0f172a"),
+    borderColor: pickColor(theme.borderColor, "#e2e8f0"),
+    primaryColor: pickColor(theme.primaryColor, "#2563eb"),
+    containerWidth: pickNumber(theme.containerWidth, 640, 2400, 1200)
   };
 }
 
@@ -152,6 +185,7 @@ function normalizePage(page = {}, index = 0) {
     metaDescription: normalizeText(page.metaDescription),
     editorMode: ["blocks", "code"].includes(page.editorMode) ? page.editorMode : "blocks",
     pageOptions: normalizePageOptions(page.pageOptions || {}),
+    theme: normalizeTheme(page.theme || {}),
     blocks: Array.isArray(page.blocks) ? page.blocks.map((block, blockIndex) => normalizeBlock(block, blockIndex)) : [],
     overrides: {
       html: String(page.overrides?.html || ""),
@@ -160,7 +194,7 @@ function normalizePage(page = {}, index = 0) {
     },
     code: normalizeCode(page.code || {}),
     createdAt: normalizeText(page.createdAt, new Date().toISOString()),
-    updatedAt: new Date().toISOString()
+    updatedAt: normalizeText(page.updatedAt, new Date().toISOString())
   };
 }
 
@@ -188,9 +222,9 @@ function defaultPages() {
       slug: "",
       status: "published",
       isHome: true,
-      editorMode: "blocks",
       metaTitle: "Vera",
       metaDescription: "Hoş geldiniz.",
+      editorMode: "blocks",
       pageOptions: {
         showHeader: true,
         showFooter: true,
@@ -199,6 +233,13 @@ function defaultPages() {
         pagePaddingX: 24,
         sectionGap: 18,
         gridColumns: 12
+      },
+      theme: {
+        bodyBg: "#f8fafc",
+        bodyText: "#0f172a",
+        borderColor: "#e2e8f0",
+        primaryColor: "#2563eb",
+        containerWidth: 1200
       },
       blocks: [
         {
@@ -233,9 +274,9 @@ function defaultPages() {
           contentWidthMode: "full",
           innerMaxWidth: 100,
           surface: true,
-rowStartDesktop: 1,
-tableHeaders: "",
-tableRows: "",
+          rowStartDesktop: 1,
+          tableHeaders: "",
+          tableRows: ""
         }
       ]
     }, 0)
@@ -257,30 +298,44 @@ async function savePages(env, pages) {
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
-  const id = url.searchParams.get("id");
-  const slug = url.searchParams.get("slug");
+  const id = normalizeText(url.searchParams.get("id"));
+  const slugParam = url.searchParams.get("slug");
+  const authorized = await checkSession(request, env);
   const pages = await readPages(env);
 
   if (id) {
+    if (!authorized) return json({ ok: false, error: "Yetkisiz" }, 401);
     const page = pages.find((item) => item.id === id);
     if (!page) return json({ ok: false, error: "Sayfa bulunamadı" }, 404);
     return json({ ok: true, page });
   }
 
-  if (slug !== null) {
-    const normalizedSlug = slugify(slug, "");
-    const page = normalizedSlug
-      ? pages.find((item) => item.slug === normalizedSlug)
-      : pages.find((item) => item.isHome);
+  if (slugParam !== null) {
+    const normalizedSlug = slugify(slugParam, "");
+    let page;
+
+    if (normalizedSlug) {
+      page = pages.find((item) => item.slug === normalizedSlug && (authorized || item.status === "published"));
+    } else {
+      page = pages.find((item) => item.isHome && (authorized || item.status === "published"));
+    }
 
     if (!page) return json({ ok: false, error: "Sayfa bulunamadı" }, 404);
     return json({ ok: true, page });
+  }
+
+  if (!authorized) {
+    return json({ ok: false, error: "Yetkisiz" }, 401);
   }
 
   return json({ ok: true, pages });
 }
 
 export async function onRequestPost({ request, env }) {
+  if (!ensureSameOrigin(request)) {
+    return json({ ok: false, error: "Geçersiz istek kaynağı" }, 403);
+  }
+
   const authorized = await checkSession(request, env);
   if (!authorized) return json({ ok: false, error: "Yetkisiz" }, 401);
 
@@ -319,7 +374,7 @@ export async function onRequestPost({ request, env }) {
       updatedAt: new Date().toISOString()
     };
   } else {
-    nextPages = [...pages, page];
+    nextPages = [...pages, { ...page, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }];
   }
 
   const saved = await savePages(env, nextPages);
