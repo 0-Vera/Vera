@@ -63,8 +63,7 @@
       background:#eff6ff;
     }
 
-    .edit-shell{display:grid;grid-template-columns:minmax(320px, 440px) minmax(0, 1fr);gap:14px;align-items:start}
-    .edit-panel,.info-panel{min-width:0}
+    .edit-panel{min-width:0}
 
     .toggle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
     .mode-wrap{display:none}
@@ -73,35 +72,11 @@
     .minimal-section{margin-top:10px;padding-top:10px;border-top:1px solid #eef2f7}
     .minimal-section-title{font-size:12px;font-weight:700;margin:0 0 8px;color:#334155}
 
-    .designer-entry{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-
-    .designer-box{
-      border:1px solid #e2e8f0;
-      border-radius:14px;
-      padding:14px;
-      background:#fff;
-    }
-
-    .designer-box strong{
-      display:block;
-      margin-bottom:6px;
-      font-size:14px;
-    }
-
-    .designer-box p{
-      margin:0 0 10px;
-      font-size:12px;
-      color:#64748b;
-    }
-
     @media(max-width:1100px){
       .layout{grid-template-columns:1fr}
       .sidebar{border-right:0;border-bottom:1px solid rgba(255,255,255,.06)}
-      .edit-shell{grid-template-columns:1fr}
+      .toggle-grid{grid-template-columns:1fr}
+      .page-tabs-toolbar{align-items:flex-start}
     }
   </style>
 </head>
@@ -134,116 +109,99 @@
             <div class="toolbar">
               <button id="newPageBtn" class="btn btn-primary" type="button">Yeni Sayfa</button>
               <button id="refreshBtn" class="btn btn-secondary" type="button">Yenile</button>
+              <button id="openDesignerBtn" class="btn btn-primary" type="button">Tasarım Ekranını Aç</button>
             </div>
             <div id="pageTabs" class="page-tabs-list"></div>
           </div>
         </div>
 
-        <div class="edit-shell">
-          <div class="edit-panel card">
-            <h3>Sayfa Düzenle</h3>
+        <div class="card edit-panel">
+          <h3>Sayfayı Düzenle</h3>
 
-            <label for="pageTitle">Başlık</label>
-            <input id="pageTitle" type="text">
+          <label for="pageTitle">Başlık</label>
+          <input id="pageTitle" type="text">
 
-            <label for="pageSlug">Slug</label>
-            <input id="pageSlug" type="text" placeholder="ornek-sayfa">
+          <label for="pageSlug">Slug</label>
+          <input id="pageSlug" type="text" placeholder="ornek-sayfa">
 
+          <div class="toggle-grid">
+            <div>
+              <label for="pageStatus">Durum</label>
+              <select id="pageStatus"><option value="draft">Taslak</option><option value="published">Yayında</option></select>
+            </div>
+            <div>
+              <label for="pageIsHome">Ana Sayfa</label>
+              <select id="pageIsHome"><option value="false">Hayır</option><option value="true">Evet</option></select>
+            </div>
+            <div>
+              <label for="editorMode">Editör</label>
+              <select id="editorMode"><option value="blocks">Blok</option><option value="code">Kod</option></select>
+            </div>
+            <div>
+              <label for="showHeader">Header</label>
+              <select id="showHeader"><option value="true">Göster</option><option value="false">Gizle</option></select>
+            </div>
+            <div>
+              <label for="showFooter">Footer</label>
+              <select id="showFooter"><option value="true">Göster</option><option value="false">Gizle</option></select>
+            </div>
+          </div>
+
+          <div class="minimal-section">
+            <div class="minimal-section-title">SEO</div>
+            <label for="metaTitle">Meta Title</label>
+            <input id="metaTitle" type="text">
+            <label for="metaDescription">Meta Description</label>
+            <textarea id="metaDescription"></textarea>
+          </div>
+
+          <div class="minimal-section">
+            <div class="minimal-section-title">Yerleşim</div>
             <div class="toggle-grid">
               <div>
-                <label for="pageStatus">Durum</label>
-                <select id="pageStatus"><option value="draft">Taslak</option><option value="published">Yayında</option></select>
+                <label for="contentWidth">İçerik Genişliği</label>
+                <input id="contentWidth" type="number" min="480" max="2400">
               </div>
               <div>
-                <label for="pageIsHome">Ana Sayfa</label>
-                <select id="pageIsHome"><option value="false">Hayır</option><option value="true">Evet</option></select>
+                <label for="pagePaddingX">Yan Boşluk</label>
+                <input id="pagePaddingX" type="number" min="0" max="120">
               </div>
               <div>
-                <label for="editorMode">Editör</label>
-                <select id="editorMode"><option value="blocks">Blok</option><option value="code">Kod</option></select>
+                <label for="sectionGap">Blok Aralığı</label>
+                <input id="sectionGap" type="number" min="0" max="120">
               </div>
               <div>
-                <label for="showHeader">Header</label>
-                <select id="showHeader"><option value="true">Göster</option><option value="false">Gizle</option></select>
-              </div>
-              <div>
-                <label for="showFooter">Footer</label>
-                <select id="showFooter"><option value="true">Göster</option><option value="false">Gizle</option></select>
-              </div>
-            </div>
-
-            <div class="minimal-section">
-              <div class="minimal-section-title">SEO</div>
-              <label for="metaTitle">Meta Title</label>
-              <input id="metaTitle" type="text">
-              <label for="metaDescription">Meta Description</label>
-              <textarea id="metaDescription"></textarea>
-            </div>
-
-            <div class="minimal-section">
-              <div class="minimal-section-title">Yerleşim</div>
-              <div class="toggle-grid">
-                <div>
-                  <label for="contentWidth">İçerik Genişliği</label>
-                  <input id="contentWidth" type="number" min="480" max="2400">
-                </div>
-                <div>
-                  <label for="pagePaddingX">Yan Boşluk</label>
-                  <input id="pagePaddingX" type="number" min="0" max="120">
-                </div>
-                <div>
-                  <label for="sectionGap">Blok Aralığı</label>
-                  <input id="sectionGap" type="number" min="0" max="120">
-                </div>
-                <div>
-                  <label for="gridColumns">Grid Kolon</label>
-                  <input id="gridColumns" type="number" min="1" max="12">
-                </div>
-              </div>
-            </div>
-
-            <div class="minimal-section">
-              <div class="minimal-section-title">Gelişmiş</div>
-              <label for="customBodyClass">Body Class</label>
-              <input id="customBodyClass" type="text">
-            </div>
-
-            <div id="codeModeWrap" class="mode-wrap">
-              <div class="minimal-section">
-                <div class="minimal-section-title">Kod Editörü</div>
-                <label for="codeHtml">HTML</label>
-                <textarea id="codeHtml" class="code-area"></textarea>
-                <label for="codeCss">CSS</label>
-                <textarea id="codeCss" class="code-area"></textarea>
-                <label for="codeJs">JS</label>
-                <textarea id="codeJs" class="code-area"></textarea>
-              </div>
-            </div>
-
-            <div class="toolbar" style="margin-top:12px">
-              <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
-              <button id="deleteBtn" class="btn btn-danger" type="button">Sil</button>
-              <button id="openBtn" class="btn btn-secondary" type="button">Aç</button>
-            </div>
-
-            <div id="statusBox" class="status"></div>
-          </div>
-
-          <div class="info-panel card">
-            <h3>Tasarım Düzenleyici</h3>
-            <div class="designer-entry">
-              <div class="designer-box">
-                <strong>Ayrı tasarım ekranı</strong>
-                <p>Gerçek header, footer ve sayfa yerleşimi ile çalışır. Yayındaki görünümü olabildiğince birebir gösterir.</p>
-                <button id="openDesignerBtn" class="btn btn-primary" type="button">Tasarım Ekranını Aç</button>
-              </div>
-
-              <div class="designer-box">
-                <strong>Not</strong>
-                <p>Tasarım ekranı ayrı bir sayfada açılır. Böylece alan daralmaz ve sayfa gerçek görünümüyle düzenlenebilir.</p>
+                <label for="gridColumns">Grid Kolon</label>
+                <input id="gridColumns" type="number" min="1" max="12">
               </div>
             </div>
           </div>
+
+          <div class="minimal-section">
+            <div class="minimal-section-title">Gelişmiş</div>
+            <label for="customBodyClass">Body Class</label>
+            <input id="customBodyClass" type="text">
+          </div>
+
+          <div id="codeModeWrap" class="mode-wrap">
+            <div class="minimal-section">
+              <div class="minimal-section-title">Kod Editörü</div>
+              <label for="codeHtml">HTML</label>
+              <textarea id="codeHtml" class="code-area"></textarea>
+              <label for="codeCss">CSS</label>
+              <textarea id="codeCss" class="code-area"></textarea>
+              <label for="codeJs">JS</label>
+              <textarea id="codeJs" class="code-area"></textarea>
+            </div>
+          </div>
+
+          <div class="toolbar" style="margin-top:12px">
+            <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
+            <button id="deleteBtn" class="btn btn-danger" type="button">Sil</button>
+            <button id="openBtn" class="btn btn-secondary" type="button">Aç</button>
+          </div>
+
+          <div id="statusBox" class="status"></div>
         </div>
       </section>
     </main>
@@ -265,14 +223,6 @@
         .replace(/[çğıöşü]/g, (m) => map[m] || m)
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
-    }
-
-    function escapeHtml(value) {
-      return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
     }
 
     function showStatus(message, type) {
