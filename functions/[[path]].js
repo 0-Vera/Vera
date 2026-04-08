@@ -151,80 +151,101 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
     </section>
   `;
 }
-function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
-  const align = ["left", "center", "right"].includes(block.align) ? block.align : "left";
-  const justify = align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start";
-  const className = ["block-inner", block.cssClass || ""].filter(Boolean).join(" ");
-  const htmlId = block.htmlId ? `id="${escapeHtml(block.htmlId)}"` : "";
+function renderBlock(block, pageOptions = {}, renderMeta = {}) {
+  if (!block || block.visible === false) return "";
 
-  const desktopStart = block.fullWidth ? 1 : Number(block.colStartDesktop || 1);
-  const desktopSpan = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
-
-  const tabletStart = block.fullWidth ? 1 : Number(block.colStartTablet || 1);
-  const tabletSpan = block.fullWidth ? 12 : Number(block.colSpanTablet || 12);
-
-  const mobileStart = block.fullWidth ? 1 : Number(block.colStartMobile || 1);
-  const mobileSpan = block.fullWidth ? 12 : Number(block.colSpanMobile || 12);
-
-  const rowStart = Number(block.rowStartDesktop || 1);
-  const rowSpan = Number(block.rowSpan || 1);
-  const minHeight = Number(block.minHeight || 0);
-  const innerMaxWidth = Number(block.innerMaxWidth || 100);
-
-  const useSurface = block.surface !== false && block.type !== "spacer";
-
-  const innerStyle =
-    block.contentWidthMode === "boxed"
-      ? `max-width:${innerMaxWidth}%;margin:${align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0"};`
-      : "";
-
-  const designerAttrs =
-    renderMeta.isDesigner
-      ? ` data-block-id="${escapeHtml(block.id || "")}" data-block-type="${escapeHtml(block.type || "")}"`
-      : "";
-
-  return `
-    <section
-      class="block-shell"
-      ${designerAttrs}
-      style="
-        --col-start-desktop:${desktopStart};
-        --col-span-desktop:${desktopSpan};
-        --col-start-tablet:${tabletStart};
-        --col-span-tablet:${tabletSpan};
-        --col-start-mobile:${mobileStart};
-        --col-span-mobile:${mobileSpan};
-        --row-start-desktop:${rowStart};
-        --row-span:${rowSpan};
-        grid-column: var(--col-start-desktop) / span var(--col-span-desktop);
-        grid-row: var(--row-start-desktop) / span var(--row-span);
-        justify-content:${justify};
-      "
-    >
-      <div
-        ${htmlId}
-        class="${className}"
-        style="
-          width:100%;
-          max-width:${Number(block.maxWidth || 100)}%;
-          background:${useSurface ? (block.background || "#ffffff") : "transparent"};
-          color:${block.color || "#0f172a"};
-          padding:${useSurface ? Number(block.padding || 24) + "px" : "0"};
-          border-radius:${useSurface ? Number(block.radius || 18) + "px" : "0"};
-          text-align:${align};
-          min-height:${minHeight}px;
-          border:${useSurface ? "1px solid var(--border-color)" : "0"};
-          box-shadow:${useSurface ? "0 1px 2px rgba(15,23,42,.05)" : "none"};
-        "
-      >
-        <div style="${innerStyle}">
-          ${innerHtml}
+  if (block.type === "hero") {
+    return blockWrapper(block, `
+      <div class="hero">
+        <h1>${escapeHtml(block.title)}</h1>
+        <p>${escapeHtml(block.text)}</p>
+        <div class="actions">
+          ${block.primaryText ? `<a class="btn primary" href="${escapeHtml(normalizeLink(block.primaryLink, "#"))}">${escapeHtml(block.primaryText)}</a>` : ""}
+          ${block.secondaryText ? `<a class="btn" href="${escapeHtml(normalizeLink(block.secondaryLink, "#"))}">${escapeHtml(block.secondaryText)}</a>` : ""}
         </div>
       </div>
-    </section>
-  `;
-}
+    `, pageOptions, renderMeta);
+  }
 
+  if (block.type === "text") {
+    return blockWrapper(block, `
+      <div class="text-block">
+        ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
+        <p>${escapeHtml(block.text)}</p>
+      </div>
+    `, pageOptions, renderMeta);
+  }
+
+  if (block.type === "button") {
+    return blockWrapper(block, `
+      <div class="button-block ${block.align || "left"}">
+        <a class="btn ${block.style === "primary" ? "primary" : ""}" href="${escapeHtml(normalizeLink(block.link, "#"))}">${escapeHtml(block.text)}</a>
+      </div>
+    `, pageOptions, renderMeta);
+  }
+
+  if (block.type === "image") {
+    const safeSrc = normalizeImageSrc(block.src);
+    const safeLink = normalizeLink(block.link, "");
+    const imageHtml = safeSrc
+      ? `<img src="${escapeHtml(safeSrc)}" alt="${escapeHtml(block.alt || "")}" loading="lazy" decoding="async" style="max-width:${escapeHtml(block.width || "100%")};width:100%;height:auto;">`
+      : `<p>Görsel URL girilmedi.</p>`;
+
+    return blockWrapper(block, `
+      <div class="image-block">
+        ${safeLink ? `<a href="${escapeHtml(safeLink)}">${imageHtml}</a>` : imageHtml}
+      </div>
+    `, pageOptions, renderMeta);
+  }
+
+  if (block.type === "table") {
+    const headers = String(block.tableHeaders || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    const rows = String(block.tableRows || "")
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => line.split("|").map((cell) => cell.trim()));
+
+    const tableHead = headers.length
+      ? `<thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr></thead>`
+      : "";
+
+    const tableBody = rows.length
+      ? `<tbody>${rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")}</tbody>`
+      : `<tbody><tr><td>Tablo verisi yok.</td></tr></tbody>`;
+
+    return blockWrapper(block, `
+      <div class="table-block">
+        <div class="table-wrap">
+          <table>
+            ${tableHead}
+            ${tableBody}
+          </table>
+        </div>
+      </div>
+    `, pageOptions, renderMeta);
+  }
+
+  if (block.type === "html") {
+    return blockWrapper(block, `<div class="html-block">${block.html || ""}</div>`, pageOptions, renderMeta);
+  }
+
+  if (block.type === "spacer") {
+    const designerAttrs =
+      renderMeta.isDesigner
+        ? ` data-block-id="${escapeHtml(block.id || "")}" data-block-type="${escapeHtml(block.type || "")}"`
+        : "";
+    return `
+      <div ${designerAttrs} style="grid-column:1 / span 12;grid-row:${Number(block.rowStartDesktop || 1)} / span ${Number(block.rowSpan || 1)};height:${Number(block.height || 32)}px"></div>
+    `;
+  }
+
+  return "";
+}
 function render404() {
   return `<!DOCTYPE html>
 <html lang="tr">
