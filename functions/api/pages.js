@@ -25,18 +25,6 @@ async function checkSession(request, env) {
   return !!raw;
 }
 
-function ensureSameOrigin(request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return true;
-
-  try {
-    const requestUrl = new URL(request.url);
-    return origin === requestUrl.origin;
-  } catch {
-    return false;
-  }
-}
-
 function uid() {
   return crypto.randomUUID();
 }
@@ -72,24 +60,40 @@ function normalizeCode(code = {}) {
   };
 }
 
-function normalizeTheme(theme = {}) {
-  function pickColor(value, fallback) {
-    const v = String(value || "").trim();
-    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v) ? v : fallback;
-  }
+function normalizeLink(value, fallback = "#") {
+  const raw = String(value || "").trim();
+  if (!raw) return fallback;
+  if (raw.startsWith("#")) return raw;
+  if (raw.startsWith("/")) return raw;
+  if (raw.startsWith("./") || raw.startsWith("../")) return raw;
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(raw)) return raw;
+  return fallback;
+}
 
-  function pickNumber(value, min, max, fallback) {
-    const n = Number(value);
-    if (!Number.isFinite(n)) return fallback;
-    return Math.min(max, Math.max(min, n));
-  }
+function normalizeAction(action = {}, fallbackLink = "#") {
+  const type = [
+    "none",
+    "url",
+    "page",
+    "anchor",
+    "email",
+    "phone",
+    "whatsapp",
+    "download"
+  ].includes(action?.type)
+    ? action.type
+    : "url";
 
   return {
-    bodyBg: pickColor(theme.bodyBg, "#f8fafc"),
-    bodyText: pickColor(theme.bodyText, "#0f172a"),
-    borderColor: pickColor(theme.borderColor, "#e2e8f0"),
-    primaryColor: pickColor(theme.primaryColor, "#2563eb"),
-    containerWidth: pickNumber(theme.containerWidth, 640, 2400, 1200)
+    type,
+    url: normalizeLink(action?.url, normalizeLink(fallbackLink, "#")),
+    pageId: normalizeText(action?.pageId),
+    anchor: normalizeText(action?.anchor),
+    email: normalizeText(action?.email),
+    phone: normalizeText(action?.phone),
+    whatsapp: normalizeText(action?.whatsapp),
+    downloadUrl: normalizeLink(action?.downloadUrl, ""),
+    newTab: normalizeBool(action?.newTab, false)
   };
 }
 
@@ -158,8 +162,42 @@ function normalizeBlock(block = {}, blockIndex = 0) {
     innerMaxWidth: clampNumber(block?.innerMaxWidth, 20, 100, 100),
 
     tableHeaders: normalizeText(block?.tableHeaders),
-    tableRows: normalizeText(block?.tableRows)
+    tableRows: normalizeText(block?.tableRows),
+    action: normalizeAction(block?.action, block?.link),
+    primaryAction: normalizeAction(block?.primaryAction, block?.primaryLink),
+    secondaryAction: normalizeAction(block?.secondaryAction, block?.secondaryLink)
   };
+
+  if (normalized.type === "button") {
+    normalized.link = normalizeLink(block?.link, "#");
+    normalized.style = ["primary", "secondary"].includes(block?.style) ? block.style : "primary";
+    normalized.text = normalizeText(block?.text, "Buton");
+  }
+
+  if (normalized.type === "hero") {
+    normalized.title = normalizeText(block?.title, "Başlık");
+    normalized.text = normalizeText(block?.text, "Açıklama");
+    normalized.primaryText = normalizeText(block?.primaryText);
+    normalized.primaryLink = normalizeLink(block?.primaryLink, "#");
+    normalized.secondaryText = normalizeText(block?.secondaryText);
+    normalized.secondaryLink = normalizeLink(block?.secondaryLink, "");
+  }
+
+  if (normalized.type === "image") {
+    normalized.src = normalizeText(block?.src);
+    normalized.alt = normalizeText(block?.alt);
+    normalized.width = normalizeText(block?.width, "100%");
+    normalized.link = normalizeLink(block?.link, "");
+  }
+
+  if (normalized.type === "html") {
+    normalized.html = String(block?.html || "");
+  }
+
+  if (normalized.type === "spacer") {
+    normalized.height = clampNumber(block?.height, 0, 400, 32);
+    normalized.surface = false;
+  }
 
   if (normalized.fullWidth) {
     normalized.colStartDesktop = 1;
@@ -185,7 +223,6 @@ function normalizePage(page = {}, index = 0) {
     metaDescription: normalizeText(page.metaDescription),
     editorMode: ["blocks", "code"].includes(page.editorMode) ? page.editorMode : "blocks",
     pageOptions: normalizePageOptions(page.pageOptions || {}),
-    theme: normalizeTheme(page.theme || {}),
     blocks: Array.isArray(page.blocks) ? page.blocks.map((block, blockIndex) => normalizeBlock(block, blockIndex)) : [],
     overrides: {
       html: String(page.overrides?.html || ""),
@@ -194,7 +231,7 @@ function normalizePage(page = {}, index = 0) {
     },
     code: normalizeCode(page.code || {}),
     createdAt: normalizeText(page.createdAt, new Date().toISOString()),
-    updatedAt: normalizeText(page.updatedAt, new Date().toISOString())
+    updatedAt: new Date().toISOString()
   };
 }
 
@@ -222,9 +259,9 @@ function defaultPages() {
       slug: "",
       status: "published",
       isHome: true,
+      editorMode: "blocks",
       metaTitle: "Vera",
       metaDescription: "Hoş geldiniz.",
-      editorMode: "blocks",
       pageOptions: {
         showHeader: true,
         showFooter: true,
@@ -233,13 +270,6 @@ function defaultPages() {
         pagePaddingX: 24,
         sectionGap: 18,
         gridColumns: 12
-      },
-      theme: {
-        bodyBg: "#f8fafc",
-        bodyText: "#0f172a",
-        borderColor: "#e2e8f0",
-        primaryColor: "#2563eb",
-        containerWidth: 1200
       },
       blocks: [
         {
@@ -251,8 +281,10 @@ function defaultPages() {
           text: "Hoş geldiniz.",
           primaryText: "Admin",
           primaryLink: "/admin",
+          primaryAction: { type: "url", url: "/admin", pageId: "", anchor: "", email: "", phone: "", whatsapp: "", downloadUrl: "", newTab: false },
           secondaryText: "Giriş",
           secondaryLink: "/login",
+          secondaryAction: { type: "url", url: "/login", pageId: "", anchor: "", email: "", phone: "", whatsapp: "", downloadUrl: "", newTab: false },
           background: "#ffffff",
           color: "#0f172a",
           padding: 32,
@@ -274,9 +306,9 @@ function defaultPages() {
           contentWidthMode: "full",
           innerMaxWidth: 100,
           surface: true,
-          rowStartDesktop: 1,
-          tableHeaders: "",
-          tableRows: ""
+rowStartDesktop: 1,
+tableHeaders: "",
+tableRows: "",
         }
       ]
     }, 0)
@@ -298,10 +330,10 @@ async function savePages(env, pages) {
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
-  const id = normalizeText(url.searchParams.get("id"));
-  const slugParam = url.searchParams.get("slug");
-  const authorized = await checkSession(request, env);
+  const id = url.searchParams.get("id");
+  const slug = url.searchParams.get("slug");
   const pages = await readPages(env);
+  const authorized = await checkSession(request, env);
 
   if (id) {
     if (!authorized) return json({ ok: false, error: "Yetkisiz" }, 401);
@@ -310,32 +342,21 @@ export async function onRequestGet({ request, env }) {
     return json({ ok: true, page });
   }
 
-  if (slugParam !== null) {
-    const normalizedSlug = slugify(slugParam, "");
-    let page;
-
-    if (normalizedSlug) {
-      page = pages.find((item) => item.slug === normalizedSlug && (authorized || item.status === "published"));
-    } else {
-      page = pages.find((item) => item.isHome && (authorized || item.status === "published"));
-    }
+  if (slug !== null) {
+    const normalizedSlug = slugify(slug, "");
+    const page = normalizedSlug
+      ? pages.find((item) => item.slug === normalizedSlug && item.status === "published")
+      : pages.find((item) => item.isHome && item.status === "published");
 
     if (!page) return json({ ok: false, error: "Sayfa bulunamadı" }, 404);
     return json({ ok: true, page });
   }
 
-  if (!authorized) {
-    return json({ ok: false, error: "Yetkisiz" }, 401);
-  }
-
+  if (!authorized) return json({ ok: false, error: "Yetkisiz" }, 401);
   return json({ ok: true, pages });
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!ensureSameOrigin(request)) {
-    return json({ ok: false, error: "Geçersiz istek kaynağı" }, 403);
-  }
-
   const authorized = await checkSession(request, env);
   if (!authorized) return json({ ok: false, error: "Yetkisiz" }, 401);
 
@@ -374,7 +395,7 @@ export async function onRequestPost({ request, env }) {
       updatedAt: new Date().toISOString()
     };
   } else {
-    nextPages = [...pages, { ...page, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }];
+    nextPages = [...pages, page];
   }
 
   const saved = await savePages(env, nextPages);
