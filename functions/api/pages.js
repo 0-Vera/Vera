@@ -109,6 +109,7 @@ function normalizeBlock(block = {}, blockIndex = 0) {
     htmlId: normalizeText(block?.htmlId),
     layoutMode: block?.layoutMode === "free" ? "free" : "grid",
     fullWidth: normalizeBool(block?.fullWidth, false),
+    surface: normalizeBool(block?.surface, true),
 
     colStartDesktop: desktop.start,
     colSpanDesktop: desktop.span,
@@ -117,10 +118,14 @@ function normalizeBlock(block = {}, blockIndex = 0) {
     colStartMobile: mobile.start,
     colSpanMobile: mobile.span,
 
+    rowStartDesktop: clampNumber(block?.rowStartDesktop, 1, 500, 1),
     rowSpan: clampNumber(block?.rowSpan, 1, 12, 1),
     minHeight: clampNumber(block?.minHeight, 0, 2000, 0),
     contentWidthMode: block?.contentWidthMode === "boxed" ? "boxed" : "full",
-    innerMaxWidth: clampNumber(block?.innerMaxWidth, 20, 100, 100)
+    innerMaxWidth: clampNumber(block?.innerMaxWidth, 20, 100, 100),
+
+    tableHeaders: normalizeText(block?.tableHeaders),
+    tableRows: normalizeText(block?.tableRows)
   };
 
   if (normalized.fullWidth) {
@@ -226,7 +231,11 @@ function defaultPages() {
           rowSpan: 1,
           minHeight: 0,
           contentWidthMode: "full",
-          innerMaxWidth: 100
+          innerMaxWidth: 100,
+          surface: true,
+rowStartDesktop: 1,
+tableHeaders: "",
+tableRows: "",
         }
       ]
     }, 0)
