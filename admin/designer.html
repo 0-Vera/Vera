@@ -588,14 +588,6 @@
       .stage-main{padding:10px}
       .preview-topbar{padding:0 10px}
     }
-.stage-main{
-  overflow:auto;
-}
-
-.preview-shell{
-  transform-origin: top center;
-  transition: transform .15s ease;
-}
   </style>
 </head>
 <body>
@@ -656,11 +648,6 @@
           <span class="chip soft" id="pagePathChip">/</span>
           <span class="chip" id="pageModeChip">blocks</span>
           <span class="chip" id="previewMatchChip">Orijinal görünümle uyumlu önizleme</span>
-          <label class="chip" style="gap:8px">
-  <span>Zoom</span>
-  <input id="previewZoom" type="range" min="40" max="100" value="100" step="5" style="width:120px">
-  <span id="previewZoomLabel">%100</span>
-</label>
         </div>
         <div class="stage-head-right">
           <span class="chip">Preview iframe korunuyor</span>
@@ -1793,21 +1780,7 @@
       app.style.display = "grid";
       renderLocalUi();
       loadPreview();
-      applyPreviewZoom(100);
     })();
-function applyPreviewZoom(value) {
-  const scale = Number(value) / 100;
-  const shell = document.querySelector(".preview-shell");
-  const label = document.getElementById("previewZoomLabel");
-
-  if (shell) {
-    shell.style.transform = `scale(${scale})`;
-  }
-
-  if (label) {
-    label.textContent = "%" + value;
-  }
-}
   </script>
 </body>
 </html>
