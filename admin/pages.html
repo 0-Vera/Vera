@@ -172,7 +172,7 @@
               </div>
               <div>
                 <label for="gridColumns">Grid Kolon</label>
-                <input id="gridColumns" type="number" min="1" max="12">
+                <input id="gridColumns" type="number" min="1" max="24">
               </div>
             </div>
           </div>
@@ -277,7 +277,7 @@
           contentWidth: Number(contentWidth.value || 1200),
           pagePaddingX: Number(pagePaddingX.value || 24),
           sectionGap: Number(sectionGap.value || 18),
-          gridColumns: Number(gridColumns.value || 12)
+          gridColumns: Math.max(1, Math.min(24, Number(gridColumns.value || 12)))
         },
         blocks: [],
         overrides: { html: "", css: "", js: "" },
