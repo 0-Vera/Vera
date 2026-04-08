@@ -126,6 +126,7 @@
           <button class="tiny-btn" data-add="image" type="button">Görsel</button>
           <button class="tiny-btn" data-add="html" type="button">HTML</button>
           <button class="tiny-btn" data-add="spacer" type="button">Boşluk</button>
+          <button class="tiny-btn" data-add="table" type="button">Tablo</button>
         </div>
       </div>
 
@@ -185,84 +186,92 @@
       return { start: safeStart, span: safeSpan };
     }
 
-    function newBlock(type, order = 0) {
-      const base = {
-        id: "b-" + Math.random().toString(36).slice(2) + Date.now(),
-        order,
-        type,
-        visible: true,
-        background: "#ffffff",
-        color: "#0f172a",
-        padding: 24,
-        radius: 18,
-        align: "left",
-        maxWidth: 100,
-        cssClass: "",
-        htmlId: "",
-        layoutMode: "grid",
-        fullWidth: false,
-        colStartDesktop: 1,
-        colSpanDesktop: 12,
-        colStartTablet: 1,
-        colSpanTablet: 12,
-        colStartMobile: 1,
-        colSpanMobile: 12,
-        rowSpan: 1,
-        minHeight: 0,
-        contentWidthMode: "full",
-        innerMaxWidth: 100
-      };
+  function newBlock(type, order = 0) {
+  const base = {
+    id: "b-" + Math.random().toString(36).slice(2) + Date.now(),
+    order,
+    type,
+    visible: true,
+    background: "#ffffff",
+    color: "#0f172a",
+    padding: 24,
+    radius: 18,
+    align: "left",
+    maxWidth: 100,
+    cssClass: "",
+    htmlId: "",
+    layoutMode: "grid",
+    fullWidth: false,
+    surface: true,
+    colStartDesktop: 1,
+    colSpanDesktop: 12,
+    colStartTablet: 1,
+    colSpanTablet: 12,
+    colStartMobile: 1,
+    colSpanMobile: 12,
+    rowStartDesktop: 1,
+    rowSpan: 1,
+    minHeight: 0,
+    contentWidthMode: "full",
+    innerMaxWidth: 100,
+    tableHeaders: "",
+    tableRows: ""
+  };
 
-      if (type === "hero") return { ...base, title: "Başlık", text: "Açıklama", primaryText: "Buton", primaryLink: "#", secondaryText: "", secondaryLink: "", align: "center", padding: 32, radius: 20, fullWidth: true };
-      if (type === "text") return { ...base, title: "", text: "Metin", colStartDesktop: 1, colSpanDesktop: 6 };
-      if (type === "button") return { ...base, text: "Buton", link: "#", style: "primary", colStartDesktop: 1, colSpanDesktop: 4 };
-      if (type === "image") return { ...base, src: "", alt: "", width: "100%", link: "", align: "center", colStartDesktop: 7, colSpanDesktop: 6 };
-      if (type === "html") return { ...base, html: "<div>Özel HTML</div>" };
-      if (type === "spacer") return { ...base, height: 32, background: "transparent", padding: 0, radius: 0, fullWidth: true };
-      return base;
-    }
+  if (type === "hero") return { ...base, title: "Başlık", text: "Açıklama", primaryText: "Buton", primaryLink: "#", secondaryText: "", secondaryLink: "", align: "center", padding: 32, radius: 20, fullWidth: true };
+  if (type === "text") return { ...base, title: "", text: "Metin", colStartDesktop: 1, colSpanDesktop: 6 };
+  if (type === "button") return { ...base, text: "Buton", link: "#", style: "primary", surface: false, colStartDesktop: 1, colSpanDesktop: 4 };
+  if (type === "image") return { ...base, src: "", alt: "", width: "100%", link: "", align: "center", colStartDesktop: 7, colSpanDesktop: 6 };
+  if (type === "html") return { ...base, html: "<div>Özel HTML</div>" };
+  if (type === "spacer") return { ...base, height: 32, background: "transparent", padding: 0, radius: 0, fullWidth: true, surface: false };
+  if (type === "table") return { ...base, tableHeaders: "Sütun 1,Sütun 2", tableRows: "Değer 1|Değer 2\nDeğer 3|Değer 4", colStartDesktop: 1, colSpanDesktop: 12 };
+  return base;
+}
+   function normalizeBlock(block = {}, index = 0) {
+  const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, 12);
+  const tablet = normalizeStartSpan(block.colStartTablet, block.colSpanTablet, 12);
+  const mobile = normalizeStartSpan(block.colStartMobile, block.colSpanMobile, 12);
 
-    function normalizeBlock(block = {}, index = 0) {
-      const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, 12);
-      const tablet = normalizeStartSpan(block.colStartTablet, block.colSpanTablet, 12);
-      const mobile = normalizeStartSpan(block.colStartMobile, block.colSpanMobile, 12);
+  const normalized = {
+    ...block,
+    order: Number.isFinite(Number(block.order)) ? Number(block.order) : index,
+    visible: block.visible !== false,
+    background: String(block.background || "#ffffff"),
+    color: String(block.color || "#0f172a"),
+    padding: clamp(block.padding, 0, 240, 24),
+    radius: clamp(block.radius, 0, 80, 18),
+    align: ["left", "center", "right"].includes(block.align) ? block.align : "left",
+    maxWidth: clamp(block.maxWidth, 30, 100, 100),
+    cssClass: String(block.cssClass || ""),
+    htmlId: String(block.htmlId || ""),
+    fullWidth: !!block.fullWidth,
+    surface: block.surface !== false,
+    colStartDesktop: desktop.start,
+    colSpanDesktop: desktop.span,
+    colStartTablet: tablet.start,
+    colSpanTablet: tablet.span,
+    colStartMobile: mobile.start,
+    colSpanMobile: mobile.span,
+    rowStartDesktop: clamp(block.rowStartDesktop, 1, 500, 1),
+    rowSpan: clamp(block.rowSpan, 1, 12, 1),
+    minHeight: clamp(block.minHeight, 0, 2000, 0),
+    contentWidthMode: block.contentWidthMode === "boxed" ? "boxed" : "full",
+    innerMaxWidth: clamp(block.innerMaxWidth, 20, 100, 100),
+    tableHeaders: String(block.tableHeaders || ""),
+    tableRows: String(block.tableRows || "")
+  };
 
-      const normalized = {
-        ...block,
-        order: Number.isFinite(Number(block.order)) ? Number(block.order) : index,
-        visible: block.visible !== false,
-        background: String(block.background || "#ffffff"),
-        color: String(block.color || "#0f172a"),
-        padding: clamp(block.padding, 0, 240, 24),
-        radius: clamp(block.radius, 0, 80, 18),
-        align: ["left", "center", "right"].includes(block.align) ? block.align : "left",
-        maxWidth: clamp(block.maxWidth, 30, 100, 100),
-        cssClass: String(block.cssClass || ""),
-        htmlId: String(block.htmlId || ""),
-        fullWidth: !!block.fullWidth,
-        colStartDesktop: desktop.start,
-        colSpanDesktop: desktop.span,
-        colStartTablet: tablet.start,
-        colSpanTablet: tablet.span,
-        colStartMobile: mobile.start,
-        colSpanMobile: mobile.span,
-        rowSpan: clamp(block.rowSpan, 1, 12, 1),
-        minHeight: clamp(block.minHeight, 0, 2000, 0),
-        contentWidthMode: block.contentWidthMode === "boxed" ? "boxed" : "full",
-        innerMaxWidth: clamp(block.innerMaxWidth, 20, 100, 100)
-      };
+  if (normalized.fullWidth) {
+    normalized.colStartDesktop = 1;
+    normalized.colSpanDesktop = 12;
+    normalized.colStartTablet = 1;
+    normalized.colSpanTablet = 12;
+    normalized.colStartMobile = 1;
+    normalized.colSpanMobile = 12;
+  }
 
-      if (normalized.fullWidth) {
-        normalized.colStartDesktop = 1;
-        normalized.colSpanDesktop = 12;
-        normalized.colStartTablet = 1;
-        normalized.colSpanTablet = 12;
-        normalized.colStartMobile = 1;
-        normalized.colSpanMobile = 12;
-      }
-
-      return normalized;
-    }
+  return normalized;
+}
 
     function getSelectedIndex() {
       return (pageData?.blocks || []).findIndex((block) => block.id === selectedId);
@@ -326,80 +335,98 @@
       renderLocalUi();
     }
 
-    function renderToolbar() {
-      miniToolbar.innerHTML = `
-        <div class="mini-grid-toolbar">
-          <button class="tiny-btn" data-action="left" type="button">←</button>
-          <button class="tiny-btn" data-action="right" type="button">→</button>
-          <button class="tiny-btn" data-action="shrink" type="button">－</button>
-          <button class="tiny-btn" data-action="grow" type="button">＋</button>
-          <button class="tiny-btn" data-action="rowless" type="button">▭－</button>
-          <button class="tiny-btn" data-action="rowmore" type="button">▭＋</button>
-          <button class="tiny-btn" data-action="full" type="button">□</button>
+ function renderToolbar() {
+  miniToolbar.innerHTML = `
+    <div class="mini-grid-toolbar">
+      <button class="tiny-btn" data-action="left" type="button">←</button>
+      <button class="tiny-btn" data-action="right" type="button">→</button>
+      <button class="tiny-btn" data-action="up" type="button">↑</button>
+      <button class="tiny-btn" data-action="down" type="button">↓</button>
+      <button class="tiny-btn" data-action="shrink" type="button">－</button>
+      <button class="tiny-btn" data-action="grow" type="button">＋</button>
+      <button class="tiny-btn" data-action="rowless" type="button">▭－</button>
+      <button class="tiny-btn" data-action="rowmore" type="button">▭＋</button>
+      <button class="tiny-btn" data-action="full" type="button">□</button>
+    </div>
+  `;
+
+  miniToolbar.querySelectorAll("[data-action]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const action = btn.getAttribute("data-action");
+      if (action === "left") moveSelected(-1);
+      if (action === "right") moveSelected(1);
+      if (action === "up") updateSelected({ rowStartDesktop: Number(pageData.blocks[getSelectedIndex()]?.rowStartDesktop || 1) - 1 });
+      if (action === "down") updateSelected({ rowStartDesktop: Number(pageData.blocks[getSelectedIndex()]?.rowStartDesktop || 1) + 1 });
+      if (action === "shrink") resizeSelected(-1);
+      if (action === "grow") resizeSelected(1);
+      if (action === "rowless") changeSelectedRow(-1);
+      if (action === "rowmore") changeSelectedRow(1);
+      if (action === "full") toggleSelectedFullWidth();
+    });
+  });
+}
+function renderInspector() {
+  const index = getSelectedIndex();
+  if (index < 0) {
+    inspector.innerHTML = `<div class="mini-card"><div class="mini-card-title">Blok seç</div></div>`;
+    return;
+  }
+
+  const block = pageData.blocks[index];
+
+  inspector.innerHTML = `
+    <div class="mini-card">
+      <div class="mini-card-title">${escapeHtml(block.type.toUpperCase())}</div>
+      <div class="mini-grid">
+        <div>
+          <label>D Baş.</label>
+          <input id="iColStart" type="number" min="1" max="12" value="${Number(block.colStartDesktop || 1)}" ${block.fullWidth ? "disabled" : ""}>
         </div>
-      `;
-
-      miniToolbar.querySelectorAll("[data-action]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const action = btn.getAttribute("data-action");
-          if (action === "left") moveSelected(-1);
-          if (action === "right") moveSelected(1);
-          if (action === "shrink") resizeSelected(-1);
-          if (action === "grow") resizeSelected(1);
-          if (action === "rowless") changeSelectedRow(-1);
-          if (action === "rowmore") changeSelectedRow(1);
-          if (action === "full") toggleSelectedFullWidth();
-        });
-      });
-    }
-
-    function renderInspector() {
-      const index = getSelectedIndex();
-      if (index < 0) {
-        inspector.innerHTML = `<div class="mini-card"><div class="mini-card-title">Blok seç</div></div>`;
-        return;
-      }
-
-      const block = pageData.blocks[index];
-
-      inspector.innerHTML = `
-        <div class="mini-card">
-          <div class="mini-card-title">${escapeHtml(block.type.toUpperCase())}</div>
-          <div class="mini-grid">
-            <div>
-              <label>D Baş.</label>
-              <input id="iColStart" type="number" min="1" max="12" value="${Number(block.colStartDesktop || 1)}" ${block.fullWidth ? "disabled" : ""}>
-            </div>
-            <div>
-              <label>D Kol.</label>
-              <input id="iColSpan" type="number" min="1" max="12" value="${Number(block.colSpanDesktop || 12)}" ${block.fullWidth ? "disabled" : ""}>
-            </div>
-            <div>
-              <label>Satır</label>
-              <input id="iRowSpan" type="number" min="1" max="12" value="${Number(block.rowSpan || 1)}">
-            </div>
-            <div>
-              <label>Min Y.</label>
-              <input id="iMinHeight" type="number" min="0" max="2000" value="${Number(block.minHeight || 0)}">
-            </div>
-          </div>
+        <div>
+          <label>D Kol.</label>
+          <input id="iColSpan" type="number" min="1" max="12" value="${Number(block.colSpanDesktop || 12)}" ${block.fullWidth ? "disabled" : ""}>
         </div>
-      `;
+        <div>
+          <label>Satır Baş.</label>
+          <input id="iRowStart" type="number" min="1" max="500" value="${Number(block.rowStartDesktop || 1)}">
+        </div>
+        <div>
+          <label>Satır Span</label>
+          <input id="iRowSpan" type="number" min="1" max="12" value="${Number(block.rowSpan || 1)}">
+        </div>
+        <div>
+          <label>Min Y.</label>
+          <input id="iMinHeight" type="number" min="0" max="2000" value="${Number(block.minHeight || 0)}">
+        </div>
+        <div>
+          <label>Kutulu</label>
+          <input id="iSurface" type="number" min="0" max="1" value="${block.surface === false ? 0 : 1}">
+        </div>
+      </div>
+    </div>
+  `;
 
-      const bind = (id, key) => {
-        const input = document.getElementById(id);
-        if (!input) return;
-        const apply = () => updateSelected({ [key]: Number(input.value || 0) });
-        input.addEventListener("input", apply);
-        input.addEventListener("change", apply);
-      };
+  const bind = (id, key) => {
+    const input = document.getElementById(id);
+    if (!input) return;
+    const apply = () => updateSelected({ [key]: Number(input.value || 0) });
+    input.addEventListener("input", apply);
+    input.addEventListener("change", apply);
+  };
 
-      bind("iColStart", "colStartDesktop");
-      bind("iColSpan", "colSpanDesktop");
-      bind("iRowSpan", "rowSpan");
-      bind("iMinHeight", "minHeight");
-    }
+  bind("iColStart", "colStartDesktop");
+  bind("iColSpan", "colSpanDesktop");
+  bind("iRowStart", "rowStartDesktop");
+  bind("iRowSpan", "rowSpan");
+  bind("iMinHeight", "minHeight");
 
+  const iSurface = document.getElementById("iSurface");
+  if (iSurface) {
+    const applySurface = () => updateSelected({ surface: Number(iSurface.value || 0) === 1 });
+    iSurface.addEventListener("input", applySurface);
+    iSurface.addEventListener("change", applySurface);
+  }
+}
     function renderBlockFields(block, index) {
       if (block.type === "hero") {
         return `
@@ -450,6 +477,15 @@
           <input data-index="${index}" data-key="height" type="number" value="${Number(block.height || 32)}">
         `;
       }
+
+      if (block.type === "table") {
+  return `
+    <label>Başlıklar</label>
+    <input data-index="${index}" data-key="tableHeaders" value="${escapeHtml(block.tableHeaders || "")}">
+    <label>Satırlar</label>
+    <textarea data-index="${index}" data-key="tableRows">${escapeHtml(block.tableRows || "")}</textarea>
+  `;
+}
 
       return "";
     }
@@ -536,17 +572,18 @@
       });
     }
 
-    function renderLocalUi() {
-      if (!pageData) return;
-      renderToolbar();
-      renderInspector();
-      renderBlockList();
-      designerTitle.textContent = pageData.title || "Tasarım Düzenleyici";
-      designerSub.textContent = (pageData.isHome ? "/" : "/" + (pageData.slug || "")) || "/";
-      pagePathChip.textContent = (pageData.isHome ? "/" : "/" + (pageData.slug || "")) || "/";
-      pageModeChip.textContent = pageData.editorMode || "blocks";
-      sendSelectToPreview();
-    }
+  function renderLocalUi() {
+  if (!pageData) return;
+  renderToolbar();
+  renderInspector();
+  renderBlockList();
+  designerTitle.textContent = pageData.title || "Tasarım Düzenleyici";
+  designerSub.textContent = (pageData.isHome ? "/" : "/" + (pageData.slug || "")) || "/";
+  pagePathChip.textContent = (pageData.isHome ? "/" : "/" + (pageData.slug || "")) || "/";
+  pageModeChip.textContent = pageData.editorMode || "blocks";
+  sendSelectToPreview();
+  sendLiveUpdateToPreview();
+}
 
     function buildPreviewUrl() {
       const path = pageData?.isHome ? "/" : "/" + (pageData?.slug || "");
@@ -570,6 +607,10 @@
       if (!previewReady || !previewFrame.contentWindow || !selectedId) return;
       previewFrame.contentWindow.postMessage({ type: "vera:selectBlock", blockId: selectedId }, "*");
     }
+    function sendLiveUpdateToPreview() {
+  if (!previewReady || !previewFrame.contentWindow || !pageData) return;
+  previewFrame.contentWindow.postMessage({ type: "vera:updatePage", page: pageData }, "*");
+}
 
     async function loadPageOnly() {
       if (!pageId) {
