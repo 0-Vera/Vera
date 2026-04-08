@@ -93,9 +93,12 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
   const mobileStart = block.fullWidth ? 1 : Number(block.colStartMobile || 1);
   const mobileSpan = block.fullWidth ? 12 : Number(block.colSpanMobile || 12);
 
+  const rowStart = Number(block.rowStartDesktop || 1);
   const rowSpan = Number(block.rowSpan || 1);
   const minHeight = Number(block.minHeight || 0);
   const innerMaxWidth = Number(block.innerMaxWidth || 100);
+
+  const useSurface = block.surface !== false && block.type !== "spacer";
 
   const innerStyle =
     block.contentWidthMode === "boxed"
@@ -118,9 +121,10 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
         --col-span-tablet:${tabletSpan};
         --col-start-mobile:${mobileStart};
         --col-span-mobile:${mobileSpan};
+        --row-start-desktop:${rowStart};
         --row-span:${rowSpan};
         grid-column: var(--col-start-desktop) / span var(--col-span-desktop);
-        grid-row: span var(--row-span);
+        grid-row: var(--row-start-desktop) / span var(--row-span);
         justify-content:${justify};
       "
     >
@@ -130,12 +134,14 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
         style="
           width:100%;
           max-width:${Number(block.maxWidth || 100)}%;
-          background:${block.background || "#ffffff"};
+          background:${useSurface ? (block.background || "#ffffff") : "transparent"};
           color:${block.color || "#0f172a"};
-          padding:${Number(block.padding || 24)}px;
-          border-radius:${Number(block.radius || 18)}px;
+          padding:${useSurface ? Number(block.padding || 24) + "px" : "0"};
+          border-radius:${useSurface ? Number(block.radius || 18) + "px" : "0"};
           text-align:${align};
           min-height:${minHeight}px;
+          border:${useSurface ? "1px solid var(--border-color)" : "0"};
+          box-shadow:${useSurface ? "0 1px 2px rgba(15,23,42,.05)" : "none"};
         "
       >
         <div style="${innerStyle}">
@@ -145,69 +151,78 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
     </section>
   `;
 }
+function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
+  const align = ["left", "center", "right"].includes(block.align) ? block.align : "left";
+  const justify = align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start";
+  const className = ["block-inner", block.cssClass || ""].filter(Boolean).join(" ");
+  const htmlId = block.htmlId ? `id="${escapeHtml(block.htmlId)}"` : "";
 
-function renderBlock(block, pageOptions = {}, renderMeta = {}) {
-  if (!block || block.visible === false) return "";
+  const desktopStart = block.fullWidth ? 1 : Number(block.colStartDesktop || 1);
+  const desktopSpan = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
 
-  if (block.type === "hero") {
-    return blockWrapper(block, `
-      <div class="hero">
-        <h1>${escapeHtml(block.title)}</h1>
-        <p>${escapeHtml(block.text)}</p>
-        <div class="actions">
-          ${block.primaryText ? `<a class="btn primary" href="${escapeHtml(normalizeLink(block.primaryLink, "#"))}">${escapeHtml(block.primaryText)}</a>` : ""}
-          ${block.secondaryText ? `<a class="btn" href="${escapeHtml(normalizeLink(block.secondaryLink, "#"))}">${escapeHtml(block.secondaryText)}</a>` : ""}
+  const tabletStart = block.fullWidth ? 1 : Number(block.colStartTablet || 1);
+  const tabletSpan = block.fullWidth ? 12 : Number(block.colSpanTablet || 12);
+
+  const mobileStart = block.fullWidth ? 1 : Number(block.colStartMobile || 1);
+  const mobileSpan = block.fullWidth ? 12 : Number(block.colSpanMobile || 12);
+
+  const rowStart = Number(block.rowStartDesktop || 1);
+  const rowSpan = Number(block.rowSpan || 1);
+  const minHeight = Number(block.minHeight || 0);
+  const innerMaxWidth = Number(block.innerMaxWidth || 100);
+
+  const useSurface = block.surface !== false && block.type !== "spacer";
+
+  const innerStyle =
+    block.contentWidthMode === "boxed"
+      ? `max-width:${innerMaxWidth}%;margin:${align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0"};`
+      : "";
+
+  const designerAttrs =
+    renderMeta.isDesigner
+      ? ` data-block-id="${escapeHtml(block.id || "")}" data-block-type="${escapeHtml(block.type || "")}"`
+      : "";
+
+  return `
+    <section
+      class="block-shell"
+      ${designerAttrs}
+      style="
+        --col-start-desktop:${desktopStart};
+        --col-span-desktop:${desktopSpan};
+        --col-start-tablet:${tabletStart};
+        --col-span-tablet:${tabletSpan};
+        --col-start-mobile:${mobileStart};
+        --col-span-mobile:${mobileSpan};
+        --row-start-desktop:${rowStart};
+        --row-span:${rowSpan};
+        grid-column: var(--col-start-desktop) / span var(--col-span-desktop);
+        grid-row: var(--row-start-desktop) / span var(--row-span);
+        justify-content:${justify};
+      "
+    >
+      <div
+        ${htmlId}
+        class="${className}"
+        style="
+          width:100%;
+          max-width:${Number(block.maxWidth || 100)}%;
+          background:${useSurface ? (block.background || "#ffffff") : "transparent"};
+          color:${block.color || "#0f172a"};
+          padding:${useSurface ? Number(block.padding || 24) + "px" : "0"};
+          border-radius:${useSurface ? Number(block.radius || 18) + "px" : "0"};
+          text-align:${align};
+          min-height:${minHeight}px;
+          border:${useSurface ? "1px solid var(--border-color)" : "0"};
+          box-shadow:${useSurface ? "0 1px 2px rgba(15,23,42,.05)" : "none"};
+        "
+      >
+        <div style="${innerStyle}">
+          ${innerHtml}
         </div>
       </div>
-    `, pageOptions, renderMeta);
-  }
-
-  if (block.type === "text") {
-    return blockWrapper(block, `
-      <div class="text-block">
-        ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
-        <p>${escapeHtml(block.text)}</p>
-      </div>
-    `, pageOptions, renderMeta);
-  }
-
-  if (block.type === "button") {
-    return blockWrapper(block, `
-      <div class="button-block ${block.align || "left"}">
-        <a class="btn ${block.style === "primary" ? "primary" : ""}" href="${escapeHtml(normalizeLink(block.link, "#"))}">${escapeHtml(block.text)}</a>
-      </div>
-    `, pageOptions, renderMeta);
-  }
-
-  if (block.type === "image") {
-    const safeSrc = normalizeImageSrc(block.src);
-    const safeLink = normalizeLink(block.link, "");
-    const imageHtml = safeSrc
-      ? `<img src="${escapeHtml(safeSrc)}" alt="${escapeHtml(block.alt || "")}" loading="lazy" decoding="async" style="max-width:${escapeHtml(block.width || "100%")};width:100%;height:auto;">`
-      : `<p>Görsel URL girilmedi.</p>`;
-
-    return blockWrapper(block, `
-      <div class="image-block">
-        ${safeLink ? `<a href="${escapeHtml(safeLink)}">${imageHtml}</a>` : imageHtml}
-      </div>
-    `, pageOptions, renderMeta);
-  }
-
-  if (block.type === "html") {
-    return blockWrapper(block, `<div class="html-block">${block.html || ""}</div>`, pageOptions, renderMeta);
-  }
-
-  if (block.type === "spacer") {
-    const designerAttrs =
-      renderMeta.isDesigner
-        ? ` data-block-id="${escapeHtml(block.id || "")}" data-block-type="${escapeHtml(block.type || "")}"`
-        : "";
-    return `
-      <div ${designerAttrs} style="grid-column:1 / span 12;height:${Number(block.height || 32)}px"></div>
-    `;
-  }
-
-  return "";
+    </section>
+  `;
 }
 
 function render404() {
@@ -252,6 +267,10 @@ function render404() {
       background:#2563eb;
       color:#fff;
     }
+    .table-wrap{width:100%;overflow:auto}
+.table-wrap table{width:100%;border-collapse:collapse;background:#fff}
+.table-wrap th,.table-wrap td{border:1px solid var(--border-color);padding:10px 12px;text-align:left;font-size:14px}
+.table-wrap th{background:#f8fafc;font-weight:700}
   </style>
 </head>
 <body>
@@ -265,6 +284,7 @@ function render404() {
 }
 
 function renderDesignerBridge(page, currentPath) {
+  const pageJson = JSON.stringify(page || {});
   const blocksJson = JSON.stringify(
     Array.isArray(page.blocks)
       ? page.blocks.map((block) => ({
@@ -295,7 +315,9 @@ function renderDesignerBridge(page, currentPath) {
   </style>
   <script>
     (function(){
-      const BLOCKS = ${blocksJson};
+      let CURRENT_PAGE = ${pageJson};
+      let BLOCKS = ${blocksJson};
+
       const PAGE_INFO = {
         title: ${JSON.stringify(page.title || "")},
         slug: ${JSON.stringify(currentPath || "/")},
@@ -308,6 +330,34 @@ function renderDesignerBridge(page, currentPath) {
             window.parent.postMessage(message, "*");
           }
         }catch(e){}
+      }
+
+      function escapeHtml(value){
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function normalizeLink(value, fallback = "#"){
+        const raw = String(value || "").trim();
+        if (!raw) return fallback;
+        if (raw.startsWith("#")) return raw;
+        if (raw.startsWith("/")) return raw;
+        if (raw.startsWith("./") || raw.startsWith("../")) return raw;
+        if (/^(https?:\\/\\/|mailto:|tel:)/i.test(raw)) return raw;
+        return fallback;
+      }
+
+      function normalizeImageSrc(value){
+        const raw = String(value || "").trim();
+        if (!raw) return "";
+        if (raw.startsWith("/")) return raw;
+        if (raw.startsWith("./") || raw.startsWith("../")) return raw;
+        if (/^https?:\\/\\//i.test(raw)) return raw;
+        if (/^data:image\\//i.test(raw)) return raw;
+        return "";
       }
 
       function getNodeById(id){
@@ -345,6 +395,185 @@ function renderDesignerBridge(page, currentPath) {
         });
       }
 
+      function blockWrapper(block, innerHtml){
+        const align = ["left", "center", "right"].includes(block.align) ? block.align : "left";
+        const justify = align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start";
+        const className = ["block-inner", block.cssClass || ""].filter(Boolean).join(" ");
+        const htmlId = block.htmlId ? 'id="' + escapeHtml(block.htmlId) + '"' : "";
+
+        const desktopStart = block.fullWidth ? 1 : Number(block.colStartDesktop || 1);
+        const desktopSpan = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
+
+        const rowStart = Number(block.rowStartDesktop || 1);
+        const rowSpan = Number(block.rowSpan || 1);
+        const minHeight = Number(block.minHeight || 0);
+        const innerMaxWidth = Number(block.innerMaxWidth || 100);
+        const useSurface = block.surface !== false && block.type !== "spacer";
+
+        const innerStyle =
+          block.contentWidthMode === "boxed"
+            ? 'max-width:' + innerMaxWidth + '%;margin:' + (align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0") + ';'
+            : "";
+
+        return \`
+          <section
+            class="block-shell"
+            data-block-id="\${escapeHtml(block.id || "")}"
+            data-block-type="\${escapeHtml(block.type || "")}"
+            style="
+              grid-column:\${desktopStart} / span \${desktopSpan};
+              grid-row:\${rowStart} / span \${rowSpan};
+              justify-content:\${justify};
+            "
+          >
+            <div
+              \${htmlId}
+              class="\${className}"
+              style="
+                width:100%;
+                max-width:\${Number(block.maxWidth || 100)}%;
+                background:\${useSurface ? (block.background || "#ffffff") : "transparent"};
+                color:\${block.color || "#0f172a"};
+                padding:\${useSurface ? Number(block.padding || 24) + "px" : "0"};
+                border-radius:\${useSurface ? Number(block.radius || 18) + "px" : "0"};
+                text-align:\${align};
+                min-height:\${minHeight}px;
+                border:\${useSurface ? "1px solid var(--border-color)" : "0"};
+                box-shadow:\${useSurface ? "0 1px 2px rgba(15,23,42,.05)" : "none"};
+              "
+            >
+              <div style="\${innerStyle}">
+                \${innerHtml}
+              </div>
+            </div>
+          </section>
+        \`;
+      }
+
+      function renderBlock(block){
+        if (!block || block.visible === false) return "";
+
+        if (block.type === "hero") {
+          return blockWrapper(block, \`
+            <div class="hero">
+              <h1>\${escapeHtml(block.title)}</h1>
+              <p>\${escapeHtml(block.text)}</p>
+              <div class="actions">
+                \${block.primaryText ? '<a class="btn primary" href="' + escapeHtml(normalizeLink(block.primaryLink, "#")) + '">' + escapeHtml(block.primaryText) + '</a>' : ""}
+                \${block.secondaryText ? '<a class="btn" href="' + escapeHtml(normalizeLink(block.secondaryLink, "#")) + '">' + escapeHtml(block.secondaryText) + '</a>' : ""}
+              </div>
+            </div>
+          \`);
+        }
+
+        if (block.type === "text") {
+          return blockWrapper(block, \`
+            <div class="text-block">
+              \${block.title ? '<h2>' + escapeHtml(block.title) + '</h2>' : ""}
+              <p>\${escapeHtml(block.text)}</p>
+            </div>
+          \`);
+        }
+
+        if (block.type === "button") {
+          return blockWrapper(block, \`
+            <div class="button-block \${block.align || "left"}">
+              <a class="btn \${block.style === "primary" ? "primary" : ""}" href="\${escapeHtml(normalizeLink(block.link, "#"))}">\${escapeHtml(block.text)}</a>
+            </div>
+          \`);
+        }
+
+        if (block.type === "image") {
+          const safeSrc = normalizeImageSrc(block.src);
+          const safeLink = normalizeLink(block.link, "");
+          const imageHtml = safeSrc
+            ? '<img src="' + escapeHtml(safeSrc) + '" alt="' + escapeHtml(block.alt || "") + '" loading="lazy" decoding="async" style="max-width:' + escapeHtml(block.width || "100%") + ';width:100%;height:auto;">'
+            : '<p>Görsel URL girilmedi.</p>';
+
+          return blockWrapper(block, \`
+            <div class="image-block">
+              \${safeLink ? '<a href="' + escapeHtml(safeLink) + '">' + imageHtml + '</a>' : imageHtml}
+            </div>
+          \`);
+        }
+
+        if (block.type === "table") {
+          const headers = String(block.tableHeaders || "")
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+          const rows = String(block.tableRows || "")
+            .split("\\n")
+            .map((line) => line.trim())
+            .filter(Boolean)
+            .map((line) => line.split("|").map((cell) => cell.trim()));
+
+          const tableHead = headers.length
+            ? '<thead><tr>' + headers.map((header) => '<th>' + escapeHtml(header) + '</th>').join("") + '</tr></thead>'
+            : '';
+
+          const tableBody = rows.length
+            ? '<tbody>' + rows.map((row) => '<tr>' + row.map((cell) => '<td>' + escapeHtml(cell) + '</td>').join("") + '</tr>').join("") + '</tbody>'
+            : '<tbody><tr><td>Tablo verisi yok.</td></tr></tbody>';
+
+          return blockWrapper(block, \`
+            <div class="table-block">
+              <div class="table-wrap">
+                <table>
+                  \${tableHead}
+                  \${tableBody}
+                </table>
+              </div>
+            </div>
+          \`);
+        }
+
+        if (block.type === "html") {
+          return blockWrapper(block, '<div class="html-block">' + (block.html || "") + '</div>');
+        }
+
+        if (block.type === "spacer") {
+          return '<div data-block-id="' + escapeHtml(block.id || "") + '" data-block-type="' + escapeHtml(block.type || "") + '" style="grid-column:1 / span 12;grid-row:' + Number(block.rowStartDesktop || 1) + ' / span ' + Number(block.rowSpan || 1) + ';height:' + Number(block.height || 32) + 'px"></div>';
+        }
+
+        return "";
+      }
+
+      function bindBlockClicks(){
+        document.querySelectorAll("[data-block-id]").forEach(function(node){
+          node.addEventListener("click", function(e){
+            e.preventDefault();
+            e.stopPropagation();
+            const id = node.getAttribute("data-block-id");
+            highlight(id);
+            send({ type:"vera:blockSelected", blockId:id });
+          }, true);
+        });
+      }
+
+      function rerenderPage(){
+        const content = document.getElementById("content");
+        if(content){
+          content.innerHTML = (Array.isArray(CURRENT_PAGE.blocks) ? CURRENT_PAGE.blocks : []).map(renderBlock).join("");
+        }
+
+        const wrap = document.querySelector(".wrap");
+        if(wrap){
+          wrap.style.maxWidth = Number(CURRENT_PAGE.pageOptions?.contentWidth || 1200) + "px";
+          wrap.style.paddingLeft = Number(CURRENT_PAGE.pageOptions?.pagePaddingX || 24) + "px";
+          wrap.style.paddingRight = Number(CURRENT_PAGE.pageOptions?.pagePaddingX || 24) + "px";
+        }
+
+        const stack = document.querySelector(".stack");
+        if(stack){
+          stack.style.gridTemplateColumns = 'repeat(' + Number(CURRENT_PAGE.pageOptions?.gridColumns || 12) + ', minmax(0,1fr))';
+          stack.style.gap = Number(CURRENT_PAGE.pageOptions?.sectionGap || 18) + "px";
+        }
+
+        bindBlockClicks();
+      }
+
       document.addEventListener("click", function(e){
         const node = e.target.closest("[data-block-id]");
         if(!node) return;
@@ -368,10 +597,24 @@ function renderDesignerBridge(page, currentPath) {
             height: document.documentElement.scrollHeight
           });
         }
+        if(data.type === "vera:updatePage" && data.page){
+          CURRENT_PAGE = data.page;
+          BLOCKS = Array.isArray(CURRENT_PAGE.blocks)
+            ? CURRENT_PAGE.blocks.map(function(block){ return { id:block.id || "", type:block.type || "" }; })
+            : [];
+          rerenderPage();
+          send({
+            type:"vera:snapshot",
+            blocks: collectRects(),
+            page: PAGE_INFO,
+            height: document.documentElement.scrollHeight
+          });
+        }
       });
 
       window.addEventListener("load", function(){
         document.body.classList.add("vera-designer-mode");
+        bindBlockClicks();
         send({
           type:"vera:ready",
           blocks: BLOCKS,
