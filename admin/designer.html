@@ -6,17 +6,6 @@
   <title>Vera Admin - Tasarım Düzenleyici</title>
   <style>
     *{box-sizing:border-box}
-    :root{
-      --body-bg:#f8fafc;
-      --body-text:#0f172a;
-      --border-color:#e2e8f0;
-      --primary-color:#2563eb;
-      --container-width:1200px;
-      --page-content-width:1200px;
-      --page-padding-x:24px;
-      --section-gap:18px;
-      --grid-columns:12;
-    }
     body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#0f172a}
     .loading{min-height:100vh;display:flex;align-items:center;justify-content:center;color:#64748b}
 
@@ -40,14 +29,12 @@
     .side-top h1{margin:0 0 4px;font-size:16px}
     .side-top p{margin:0;font-size:12px;color:#64748b}
 
-    .add-toolbar,
-    .mini-toolbar{
+    .add-toolbar,.mini-toolbar{
       padding:10px;
       border-bottom:1px solid #eef2f7;
       display:grid;
       gap:6px;
     }
-
     .add-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
     .mini-grid-toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 
@@ -97,147 +84,27 @@
     .stage-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
     .chip{display:inline-flex;align-items:center;padding:8px 10px;border-radius:999px;background:#fff;border:1px solid #dbe3ee;font-size:12px;font-weight:700;color:#334155}
 
-    .page-frame{
+    .iframe-shell{
       width:min(100%, 1800px);
       margin:0 auto;
-      background:#fff;
       border:1px solid #d7e0ec;
       border-radius:16px;
       overflow:hidden;
+      background:#fff;
       box-shadow:0 16px 40px rgba(15,23,42,.07);
     }
 
-    .site-header{
-      border-bottom:1px solid var(--border-color);
-      background:rgba(255,255,255,.92);
-      backdrop-filter:blur(10px);
-      position:sticky;
-      top:0;
-      z-index:10;
-    }
-    .site-header-inner,.site-footer-inner{
-      max-width:var(--container-width);
-      margin:0 auto;
-      padding-left:24px;
-      padding-right:24px;
-    }
-    .site-header-inner{
-      min-height:72px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-    }
-    .site-brand{text-decoration:none;font-size:24px;font-weight:800;color:inherit}
-    .site-nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-    .site-nav a{
-      text-decoration:none;
-      color:#334155;
-      font-weight:700;
-      font-size:14px;
-      padding:8px 10px;
-      border-radius:10px;
-      transition:background .18s ease,color .18s ease;
-    }
-    .site-nav a:hover,.site-nav a.active{background:#eff6ff;color:#1d4ed8}
-    .top-cta{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      text-decoration:none;
-      border-radius:12px;
-      padding:11px 16px;
-      font-weight:700;
-      background:var(--primary-color);
-      color:#ffffff;
-      border:1px solid var(--primary-color);
-    }
-
-    .page-content{
-      max-width:var(--page-content-width);
-      margin:0 auto;
-      padding-top:24px;
-      padding-bottom:24px;
-      padding-left:var(--page-padding-x);
-      padding-right:var(--page-padding-x);
-      background:var(--body-bg);
-      color:var(--body-text);
-    }
-
-    .grid-canvas{
-      display:grid;
-      grid-template-columns:repeat(var(--grid-columns), minmax(0,1fr));
-      gap:var(--section-gap);
-      min-height:60vh;
-      background:var(--body-bg);
-    }
-
-    .design-item{min-width:0;padding:4px;cursor:pointer}
-    .design-item.selected .design-card{outline:2px solid #2563eb;outline-offset:0}
-    .design-card{
+    .preview-frame{
       width:100%;
-      min-width:0;
-      border:1px solid var(--border-color);
+      border:0;
+      display:block;
       background:#fff;
-      box-shadow:0 1px 2px rgba(15,23,42,.05);
-      overflow-wrap:anywhere;
+      min-height:900px;
     }
-
-    .hero h1{margin:0 0 12px;font-size:38px;line-height:1.15}
-    .hero p{margin:0 0 24px;line-height:1.7;font-size:16px}
-    .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-    .actions a,.actions span{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      text-decoration:none;
-      border-radius:12px;
-      padding:12px 18px;
-      font-weight:700;
-      border:1px solid #cbd5e1;
-      color:#0f172a;
-      background:#ffffff;
-      min-width:120px;
-    }
-    .actions .primary{
-      background:var(--primary-color);
-      color:#ffffff;
-      border-color:var(--primary-color);
-    }
-
-    .text-block h2{margin:0 0 10px;font-size:24px}
-    .text-block p{margin:0;line-height:1.8;white-space:pre-line}
-    .image-block img{max-width:100%;border-radius:12px;display:inline-block;height:auto}
-    .button-block{display:flex}
-    .button-block.left{justify-content:flex-start}
-    .button-block.center{justify-content:center}
-    .button-block.right{justify-content:flex-end}
-    .html-block{line-height:1.8}
-
-    .site-footer{
-      margin-top:28px;
-      border-top:1px solid var(--border-color);
-      background:#ffffff;
-    }
-    .site-footer-inner{
-      padding-top:18px;
-      padding-bottom:18px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:18px;
-      flex-wrap:wrap;
-    }
-    .footer-muted{color:#64748b;font-size:14px}
 
     @media(max-width:1200px){
       .app{grid-template-columns:1fr}
       .side{position:relative;min-height:auto}
-    }
-
-    @media(max-width:900px){
-      .site-header-inner,.site-footer-inner{flex-direction:column;align-items:flex-start}
-      .hero h1{font-size:30px}
     }
   </style>
 </head>
@@ -268,6 +135,7 @@
 
       <div class="side-bottom">
         <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
+        <button id="reloadPreviewBtn" class="btn btn-secondary" type="button">Önizlemeyi Yenile</button>
         <button id="openLiveBtn" class="btn btn-secondary" type="button">Canlı Sayfayı Aç</button>
         <button id="backBtn" class="btn btn-danger" type="button">Sayfalara Dön</button>
       </div>
@@ -279,7 +147,9 @@
         <span class="chip" id="pageModeChip">blocks</span>
       </div>
 
-      <div id="pageFrame" class="page-frame"></div>
+      <div class="iframe-shell">
+        <iframe id="previewFrame" class="preview-frame" title="Sayfa önizleme"></iframe>
+      </div>
     </main>
   </div>
 
@@ -288,15 +158,14 @@
     const pageId = url.searchParams.get("id") || "";
 
     let pageData = null;
-    let siteSettings = null;
     let selectedId = null;
     let expandedIds = new Set();
-    let contentTheme = null;
+    let previewReady = false;
 
     function escapeHtml(value) {
       return String(value || "")
         .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;')
+        .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
     }
@@ -314,26 +183,6 @@
         safeStart = Math.max(1, maxCols - safeSpan + 1);
       }
       return { start: safeStart, span: safeSpan };
-    }
-
-    function normalizeLink(value, fallback = "#") {
-      const raw = String(value || "").trim();
-      if (!raw) return fallback;
-      if (raw.startsWith("#")) return raw;
-      if (raw.startsWith("/")) return raw;
-      if (raw.startsWith("./") || raw.startsWith("../")) return raw;
-      if (/^(https?:\/\/|mailto:|tel:)/i.test(raw)) return raw;
-      return fallback;
-    }
-
-    function normalizeImageSrc(value) {
-      const raw = String(value || "").trim();
-      if (!raw) return "";
-      if (raw.startsWith("/")) return raw;
-      if (raw.startsWith("./") || raw.startsWith("../")) return raw;
-      if (/^https?:\/\//i.test(raw)) return raw;
-      if (/^data:image\//i.test(raw)) return raw;
-      return "";
     }
 
     function newBlock(type, order = 0) {
@@ -421,14 +270,15 @@
 
     function setSelected(id) {
       selectedId = id || null;
-      renderDesigner();
+      renderLocalUi();
+      sendSelectToPreview();
     }
 
     function updateSelected(patch = {}) {
       const index = getSelectedIndex();
       if (index < 0) return;
       pageData.blocks[index] = normalizeBlock({ ...pageData.blocks[index], ...patch }, index);
-      renderDesigner();
+      renderLocalUi();
     }
 
     function toggleExpanded(id) {
@@ -473,7 +323,7 @@
       pageData.blocks.push(block);
       selectedId = block.id;
       expandedIds.add(block.id);
-      renderDesigner();
+      renderLocalUi();
     }
 
     function renderToolbar() {
@@ -646,7 +496,7 @@
           const tmp = pageData.blocks[index];
           pageData.blocks[index] = pageData.blocks[target];
           pageData.blocks[target] = tmp;
-          renderDesigner();
+          renderLocalUi();
         });
       });
 
@@ -658,7 +508,7 @@
           const tmp = pageData.blocks[index];
           pageData.blocks[index] = pageData.blocks[target];
           pageData.blocks[target] = tmp;
-          renderDesigner();
+          renderLocalUi();
         });
       });
 
@@ -668,7 +518,7 @@
           const removingId = pageData.blocks[index]?.id;
           pageData.blocks.splice(index, 1);
           if (selectedId === removingId) selectedId = pageData.blocks[0]?.id || null;
-          renderDesigner();
+          renderLocalUi();
         });
       });
 
@@ -679,229 +529,73 @@
           let value = field.value;
           if (["height"].includes(key)) value = Number(value || 0);
           pageData.blocks[index] = normalizeBlock({ ...pageData.blocks[index], [key]: value }, index);
-          renderDesigner();
+          renderLocalUi();
         };
         field.addEventListener("input", apply);
         field.addEventListener("change", apply);
       });
     }
 
-    function renderHeader() {
-      const settings = siteSettings || {};
-      const pageOptions = pageData.pageOptions || {};
-      if (settings.showHeader === false || pageOptions.showHeader === false) return "";
-
-      const navHtml = Array.isArray(settings.menuItems)
-        ? settings.menuItems.map((item) => {
-            const href = normalizeLink(item.link, "#");
-            return `<a href="${escapeHtml(href)}">${escapeHtml(item.text || "")}</a>`;
-          }).join("")
-        : "";
-
-      const ctaHtml = settings.showTopCta && settings.topCtaText
-        ? `<a class="top-cta" href="${escapeHtml(normalizeLink(settings.topCtaLink, "#"))}">${escapeHtml(settings.topCtaText)}</a>`
-        : "";
-
-      return `
-        <header class="site-header">
-          <div class="site-header-inner">
-            <a class="site-brand" href="${escapeHtml(normalizeLink(settings.logoLink || "/", "/"))}">${escapeHtml(settings.logoText || settings.siteName || "Vera")}</a>
-            <nav class="site-nav">${navHtml}</nav>
-            ${ctaHtml}
-          </div>
-        </header>
-      `;
-    }
-
-    function renderFooter() {
-      const settings = siteSettings || {};
-      const pageOptions = pageData.pageOptions || {};
-      if (settings.showFooter === false || pageOptions.showFooter === false) return "";
-
-      return `
-        <footer class="site-footer">
-          <div class="site-footer-inner">
-            <div class="footer-muted">${escapeHtml(settings.footerText || "")}</div>
-            <div class="footer-muted">${escapeHtml([settings.contactEmail, settings.contactPhone].filter(Boolean).join(" • "))}</div>
-          </div>
-        </footer>
-      `;
-    }
-
-    function renderBlock(block) {
-      if (!block || block.visible === false) return "";
-
-      const align = ["left", "center", "right"].includes(block.align) ? block.align : "left";
-      const start = block.fullWidth ? 1 : Number(block.colStartDesktop || 1);
-      const span = block.fullWidth ? 12 : Number(block.colSpanDesktop || 12);
-
-      let inner = "";
-
-      if (block.type === "hero") {
-        inner = `
-          <div class="hero">
-            <h1>${escapeHtml(block.title || "")}</h1>
-            <p>${escapeHtml(block.text || "")}</p>
-            <div class="actions">
-              ${block.primaryText ? `<span class="primary">${escapeHtml(block.primaryText)}</span>` : ""}
-              ${block.secondaryText ? `<span>${escapeHtml(block.secondaryText)}</span>` : ""}
-            </div>
-          </div>
-        `;
-      } else if (block.type === "text") {
-        inner = `
-          <div class="text-block">
-            ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
-            <p>${escapeHtml(block.text || "")}</p>
-          </div>
-        `;
-      } else if (block.type === "button") {
-        inner = `
-          <div class="button-block ${align}">
-            <div class="actions">
-              <span class="${block.style === "primary" ? "primary" : ""}">${escapeHtml(block.text || "")}</span>
-            </div>
-          </div>
-        `;
-      } else if (block.type === "image") {
-        const src = normalizeImageSrc(block.src);
-        inner = `
-          <div class="image-block">
-            ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(block.alt || "")}" style="width:100%;max-width:${escapeHtml(block.width || "100%")}">` : `<p>Görsel URL girilmedi.</p>`}
-          </div>
-        `;
-      } else if (block.type === "html") {
-        inner = `<div class="html-block">${block.html || ""}</div>`;
-      } else if (block.type === "spacer") {
-        inner = `<div style="height:${Number(block.height || 32)}px"></div>`;
-      }
-
-      const selectedClass = block.id === selectedId ? " selected" : "";
-      const innerBoxStyle = block.contentWidthMode === "boxed"
-        ? `max-width:${Number(block.innerMaxWidth || 100)}%;margin:${align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0"};`
-        : "";
-
-      return `
-        <div class="design-item${selectedClass}" data-id="${escapeHtml(block.id)}" style="grid-column:${start} / span ${span};grid-row:span ${Number(block.rowSpan || 1)};">
-          <div
-            class="design-card"
-            style="
-              background:${block.background || "#ffffff"};
-              color:${block.color || "#0f172a"};
-              padding:${Number(block.padding || 24)}px;
-              border-radius:${Number(block.radius || 18)}px;
-              min-height:${Number(block.minHeight || 0)}px;
-              max-width:${Number(block.maxWidth || 100)}%;
-              margin:${align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0"};
-              text-align:${align};
-            "
-          >
-            <div style="${innerBoxStyle}">
-              ${inner}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function applyThemeVars() {
-      const theme = contentTheme || {};
-      const pageOptions = pageData.pageOptions || {};
-
-      document.documentElement.style.setProperty("--body-bg", theme.bodyBg || "#f8fafc");
-      document.documentElement.style.setProperty("--body-text", theme.bodyText || "#0f172a");
-      document.documentElement.style.setProperty("--border-color", theme.borderColor || "#e2e8f0");
-      document.documentElement.style.setProperty("--primary-color", theme.primaryColor || "#2563eb");
-      document.documentElement.style.setProperty("--container-width", (Number(theme.containerWidth || 1200)) + "px");
-      document.documentElement.style.setProperty("--page-content-width", (Number(pageOptions.contentWidth || theme.containerWidth || 1200)) + "px");
-      document.documentElement.style.setProperty("--page-padding-x", (Number(pageOptions.pagePaddingX || 24)) + "px");
-      document.documentElement.style.setProperty("--section-gap", (Number(pageOptions.sectionGap || 18)) + "px");
-      document.documentElement.style.setProperty("--grid-columns", String(Number(pageOptions.gridColumns || 12)));
-    }
-
-    function renderPageFrame() {
-      applyThemeVars();
-
-      const path = pageData.isHome ? "/" : "/" + (pageData.slug || "");
-      pagePathChip.textContent = path || "/";
-      pageModeChip.textContent = pageData.editorMode || "blocks";
-
-      if (pageData.editorMode === "code") {
-        pageFrame.innerHTML = `
-          ${renderHeader()}
-          <main class="page-content">
-            <div style="border:1px dashed #cbd5e1;border-radius:12px;padding:16px;background:#fff">
-              ${pageData.code?.html || "<p>Kod görünümü aktif.</p>"}
-            </div>
-          </main>
-          ${renderFooter()}
-        `;
-        return;
-      }
-
-      pageFrame.innerHTML = `
-        ${renderHeader()}
-        <main class="page-content">
-          <div class="grid-canvas">
-            ${(pageData.blocks || []).map(renderBlock).join("")}
-          </div>
-        </main>
-        ${renderFooter()}
-      `;
-
-      pageFrame.querySelectorAll(".design-item").forEach((node) => {
-        node.addEventListener("click", () => setSelected(node.getAttribute("data-id")));
-      });
-    }
-
-    function renderDesigner() {
+    function renderLocalUi() {
       if (!pageData) return;
       renderToolbar();
       renderInspector();
       renderBlockList();
-      renderPageFrame();
       designerTitle.textContent = pageData.title || "Tasarım Düzenleyici";
       designerSub.textContent = (pageData.isHome ? "/" : "/" + (pageData.slug || "")) || "/";
+      pagePathChip.textContent = (pageData.isHome ? "/" : "/" + (pageData.slug || "")) || "/";
+      pageModeChip.textContent = pageData.editorMode || "blocks";
+      sendSelectToPreview();
     }
 
-    async function loadAll() {
+    function buildPreviewUrl() {
+      const path = pageData?.isHome ? "/" : "/" + (pageData?.slug || "");
+      const u = new URL(path || "/", location.origin);
+      u.searchParams.set("vera_designer", "1");
+      u.searchParams.set("_ts", String(Date.now()));
+      return u.toString();
+    }
+
+    function loadPreview() {
+      previewReady = false;
+      previewFrame.src = buildPreviewUrl();
+    }
+
+    function requestPreviewSnapshot() {
+      if (!previewReady || !previewFrame.contentWindow) return;
+      previewFrame.contentWindow.postMessage({ type: "vera:requestSnapshot" }, "*");
+    }
+
+    function sendSelectToPreview() {
+      if (!previewReady || !previewFrame.contentWindow || !selectedId) return;
+      previewFrame.contentWindow.postMessage({ type: "vera:selectBlock", blockId: selectedId }, "*");
+    }
+
+    async function loadPageOnly() {
       if (!pageId) {
         loading.textContent = "Sayfa id bulunamadı.";
-        return;
+        return false;
       }
 
       try {
-        const [pageRes, settingsRes, contentRes] = await Promise.all([
-          fetch(`/api/pages?id=${encodeURIComponent(pageId)}`, { headers: { Accept: "application/json" } }),
-          fetch(`/api/site-settings`, { headers: { Accept: "application/json" } }),
-          fetch(`/api/site-content`, { headers: { Accept: "application/json" } })
-        ]);
-
-        const pageJson = await pageRes.json();
-        const settingsJson = await settingsRes.json();
-        const contentJson = await contentRes.json();
-
-        if (!pageJson.ok || !pageJson.page) {
+        const res = await fetch(`/api/pages?id=${encodeURIComponent(pageId)}`, { headers: { Accept: "application/json" } });
+        const data = await res.json();
+        if (!data.ok || !data.page) {
           loading.textContent = "Sayfa bulunamadı.";
-          return;
+          return false;
         }
 
         pageData = {
-          ...pageJson.page,
-          blocks: Array.isArray(pageJson.page.blocks) ? pageJson.page.blocks.map((block, index) => normalizeBlock(block, index)) : []
+          ...data.page,
+          blocks: Array.isArray(data.page.blocks) ? data.page.blocks.map((block, index) => normalizeBlock(block, index)) : []
         };
-
-        siteSettings = settingsJson.settings || {};
-        contentTheme = contentJson.content?.theme || {};
 
         selectedId = pageData.blocks?.[0]?.id || null;
         if (selectedId) expandedIds.add(selectedId);
-
-        loading.style.display = "none";
-        app.style.display = "grid";
-        renderDesigner();
+        return true;
       } catch {
         loading.textContent = "Tasarım düzenleyici yüklenemedi.";
+        return false;
       }
     }
 
@@ -930,18 +624,38 @@
           };
         }
 
-        renderDesigner();
+        renderLocalUi();
+        loadPreview();
         alert("Kaydedildi.");
       } catch {
         alert("İstek sırasında hata oluştu.");
       }
     }
 
+    window.addEventListener("message", (event) => {
+      const data = event.data || {};
+      if (data.type === "vera:ready") {
+        previewReady = true;
+        sendSelectToPreview();
+        requestPreviewSnapshot();
+      }
+
+      if (data.type === "vera:blockSelected" && data.blockId) {
+        selectedId = data.blockId;
+        renderLocalUi();
+      }
+
+      if (data.type === "vera:snapshot" && data.height) {
+        previewFrame.style.height = Math.max(900, Number(data.height || 900)) + "px";
+      }
+    });
+
     document.querySelectorAll("[data-add]").forEach((btn) => {
       btn.addEventListener("click", () => addBlock(btn.getAttribute("data-add")));
     });
 
     saveBtn.addEventListener("click", saveDesigner);
+    reloadPreviewBtn.addEventListener("click", loadPreview);
 
     openLiveBtn.addEventListener("click", () => {
       if (!pageData) return;
@@ -953,7 +667,14 @@
       location.href = "/admin/pages.html";
     });
 
-    loadAll();
+    (async function init() {
+      const ok = await loadPageOnly();
+      if (!ok) return;
+      loading.style.display = "none";
+      app.style.display = "grid";
+      renderLocalUi();
+      loadPreview();
+    })();
   </script>
 </body>
 </html>
