@@ -588,6 +588,10 @@
       .stage-main{padding:10px}
       .preview-topbar{padding:0 10px}
     }
+    .iframe-shell{
+  transform-origin: top center;
+  transition: transform .15s ease;
+}
   </style>
 </head>
 <body>
@@ -648,6 +652,11 @@
           <span class="chip soft" id="pagePathChip">/</span>
           <span class="chip" id="pageModeChip">blocks</span>
           <span class="chip" id="previewMatchChip">Orijinal görünümle uyumlu önizleme</span>
+          <label class="chip" style="gap:8px">
+  <span>Zoom</span>
+  <input id="previewZoom" type="range" min="40" max="100" value="100" step="5" style="width:120px">
+  <span id="previewZoomLabel">%100</span>
+</label>
         </div>
         <div class="stage-head-right">
           <span class="chip">Preview iframe korunuyor</span>
@@ -1781,6 +1790,28 @@
       renderLocalUi();
       loadPreview();
     })();
+    function applyPreviewZoom(value) {
+  const scale = Number(value) / 100;
+
+  const shell = document.querySelector(".iframe-shell");
+  const label = document.getElementById("previewZoomLabel");
+
+  if(shell){
+    shell.style.transform = "scale(" + scale + ")";
+    shell.style.width = (100 / scale) + "%";
+  }
+
+  if(label){
+    label.textContent = "%" + value;
+  }
+}
+    const zoomSlider = document.getElementById("previewZoom");
+
+if(zoomSlider){
+  zoomSlider.addEventListener("input", function(){
+    applyPreviewZoom(this.value);
+  });
+}
   </script>
 </body>
 </html>
