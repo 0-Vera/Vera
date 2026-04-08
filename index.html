@@ -10,157 +10,295 @@
   <meta property="og:description" content="Hoş geldiniz." />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="robots" content="index,follow" />
-  <link rel="canonical" id="canonicalLink" href="/" />
-  <style id="runtimeStyles">
-    *{box-sizing:border-box}
-    :root{
-      --body-bg:#f8fafc;
-      --body-text:#0f172a;
-      --border-color:#e2e8f0;
-      --primary-color:#2563eb;
-      --container-width:1200px;
-      --header-bg:#ffffff;
-      --header-text:#0f172a;
-      --footer-bg:#0f172a;
-      --footer-text:#e2e8f0;
-      --page-padding-x:24px;
-      --page-gap:18px;
-      --grid-columns:12;
+  <link id="canonicalLink" rel="canonical" href="/" />
+  <style id="baseStyles">
+    * { box-sizing: border-box; }
+
+    :root {
+      --body-bg: #f8fafc;
+      --body-text: #0f172a;
+      --border-color: #e2e8f0;
+      --primary-color: #2563eb;
+      --container-width: 1200px;
     }
-    html{scroll-behavior:smooth}
-    body{margin:0;font-family:Arial,sans-serif;background:var(--body-bg);color:var(--body-text)}
-    a{color:inherit}
-    img{max-width:100%;display:block}
-    .site-header{
-      background:var(--header-bg);
-      color:var(--header-text);
-      border-bottom:1px solid var(--border-color);
-      position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--body-bg);
+      color: var(--body-text);
     }
-    .site-header-inner,.site-footer-inner,.wrap{
-      max-width:var(--container-width);
-      margin:0 auto;
-      padding-left:var(--page-padding-x);
-      padding-right:var(--page-padding-x);
+
+    a { color: inherit; }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 12px;
+      background: #ffffff;
+      color: #0f172a;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      z-index: 1000;
+      text-decoration: none;
+      font-weight: 700;
     }
-    .site-header-inner{
-      min-height:72px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:20px;
+
+    .skip-link:focus {
+      left: 12px;
     }
-    .site-brand{text-decoration:none;font-size:24px;font-weight:800}
-    .site-nav{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
-    .site-nav a{text-decoration:none;color:var(--header-text);opacity:.8}
-    .site-nav a.active,.site-nav a:hover{opacity:1}
-    .top-cta{
-      display:none;
-      align-items:center;
-      justify-content:center;
-      text-decoration:none;
-      padding:11px 16px;
-      border-radius:12px;
-      background:var(--primary-color);
-      color:#fff;
-      font-weight:700;
+
+    .site-header {
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 30;
     }
-    .wrap{padding-top:24px;padding-bottom:24px}
-    .page-grid{
-      display:grid;
-      grid-template-columns:repeat(var(--grid-columns), minmax(0, 1fr));
-      gap:var(--page-gap);
-      grid-auto-flow:dense;
-      align-items:start;
+
+    .site-header-inner,
+    .site-footer-inner,
+    .wrap {
+      max-width: var(--container-width);
+      margin: 0 auto;
+      padding-left: 24px;
+      padding-right: 24px;
     }
-    .block-shell{
-      grid-column:span var(--col-span-d);
-      grid-row:span var(--row-span);
-      min-width:0;
-      display:flex;
+
+    .site-header-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
     }
-    .block-inner{
-      width:100%;
-      min-width:0;
-      border:1px solid var(--border-color);
-      overflow:hidden;
+
+    .site-brand {
+      text-decoration: none;
+      font-size: 24px;
+      font-weight: 800;
     }
-    .hero-block h1,.text-block h2{margin:0 0 12px}
-    .hero-block p,.text-block p,.caption{margin:0;color:#475569;line-height:1.7}
-    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      text-decoration:none;
-      padding:11px 16px;
-      border-radius:12px;
-      border:1px solid var(--border-color);
-      background:#fff;
-      color:#0f172a;
-      font-weight:700;
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
     }
-    .btn.primary{background:var(--primary-color);color:#fff;border-color:var(--primary-color)}
-    .empty-box{
-      border:1px dashed var(--border-color);
-      border-radius:14px;
-      padding:24px;
-      text-align:center;
-      color:#64748b;
-      background:#f8fafc;
+
+    .site-nav a {
+      text-decoration: none;
+      color: #334155;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      transition: background .18s ease, color .18s ease;
     }
-    .site-footer{
-      margin-top:32px;
-      background:var(--footer-bg);
-      color:var(--footer-text);
-      border-top:1px solid rgba(255,255,255,.08);
+
+    .site-nav a:hover,
+    .site-nav a.active {
+      background: #eff6ff;
+      color: #1d4ed8;
     }
-    .site-footer-inner{
-      padding-top:24px;
-      padding-bottom:24px;
-      display:flex;
-      flex-wrap:wrap;
-      justify-content:space-between;
-      gap:12px;
+
+    .top-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-weight: 700;
+      background: var(--primary-color);
+      color: #ffffff;
+      border: 1px solid var(--primary-color);
+      transition: transform .18s ease, box-shadow .18s ease;
     }
-    .footer-muted{opacity:.86}
-    .error-box{
-      max-width:720px;
-      margin:48px auto;
-      background:#fff;
-      border:1px solid var(--border-color);
-      border-radius:18px;
-      padding:28px;
+
+    .top-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(37,99,235,.18);
     }
-    @media (max-width:1024px){ .block-shell{grid-column:span var(--col-span-t)} }
-    @media (max-width:768px){
-      .site-header-inner{flex-wrap:wrap;padding-top:16px;padding-bottom:16px}
-      .site-nav{width:100%;justify-content:flex-start}
-      .block-shell{grid-column:span var(--col-span-m)}
-      .site-footer-inner{flex-direction:column}
+
+    .wrap {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-height: 40vh;
+    }
+
+    .block-shell {
+      width: 100%;
+      display: flex;
+    }
+
+    .block-inner {
+      width: 100%;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+      overflow-wrap: anywhere;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: 38px;
+      line-height: 1.15;
+    }
+
+    .hero p {
+      margin: 0 0 24px;
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    a.btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      background: #ffffff;
+      min-width: 120px;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+
+    a.btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(15,23,42,.08);
+    }
+
+    a.btn.primary {
+      background: var(--primary-color);
+      color: #ffffff;
+      border-color: var(--primary-color);
+    }
+
+    .text-block h2 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .text-block p {
+      margin: 0;
+      line-height: 1.8;
+      white-space: pre-line;
+    }
+
+    .image-block img {
+      max-width: 100%;
+      border-radius: 12px;
+      display: inline-block;
+      height: auto;
+    }
+
+    .button-block {
+      display: flex;
+    }
+
+    .button-block.left { justify-content: flex-start; }
+    .button-block.center { justify-content: center; }
+    .button-block.right { justify-content: flex-end; }
+
+    .html-block {
+      line-height: 1.8;
+    }
+
+    .site-footer {
+      margin-top: 28px;
+      border-top: 1px solid var(--border-color);
+      background: #ffffff;
+    }
+
+    .site-footer-inner {
+      padding-top: 18px;
+      padding-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .footer-muted {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .spacer-block {
+      width: 100%;
+      border: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .error-box {
+      max-width: 100%;
+      background: #fff;
+      padding: 24px;
+      border-radius: 18px;
+      border: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 900px) {
+      .site-header-inner,
+      .site-footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero h1 {
+        font-size: 30px;
+      }
     }
   </style>
-  <style id="pageCss"></style>
+  <style id="customCss"></style>
 </head>
 <body>
+  <a class="skip-link" href="#content">İçeriğe geç</a>
+
   <div id="beforeBodyHtml"></div>
-  <header class="site-header" id="siteHeader">
+
+  <header id="siteHeader" class="site-header" style="display:none;">
     <div class="site-header-inner">
-      <a class="site-brand" id="siteBrand" href="/">Vera</a>
-      <nav class="site-nav" id="siteNav" aria-label="Site menüsü"></nav>
-      <a class="top-cta" id="topCta" href="#">İletişim</a>
+      <a id="siteBrand" class="site-brand" href="/">Vera</a>
+      <nav id="siteNav" class="site-nav" aria-label="Site menüsü"></nav>
+      <a id="topCta" class="top-cta" href="#" style="display:none;">İletişim</a>
     </div>
   </header>
+
   <main class="wrap">
-    <div class="page-grid" id="content"></div>
-    <div id="pageHtml"></div>
+    <div id="content" class="stack"></div>
   </main>
-  <footer class="site-footer" id="siteFooter">
+
+  <footer id="siteFooter" class="site-footer" style="display:none;">
     <div class="site-footer-inner">
-      <div class="footer-muted" id="footerText"></div>
-      <div class="footer-muted" id="footerContact"></div>
+      <div id="footerText" class="footer-muted"></div>
+      <div id="footerContact" class="footer-muted"></div>
     </div>
   </footer>
+
   <div id="afterBodyHtml"></div>
 
   <script>
@@ -171,16 +309,7 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
     }
-    function normalizeText(value, fallback = "") {
-      const v = String(value || "").trim();
-      return v || fallback;
-    }
-    function normalizeBool(value, fallback = false) {
-      if (typeof value === "boolean") return value;
-      if (value === "true") return true;
-      if (value === "false") return false;
-      return fallback;
-    }
+
     function normalizeLink(value, fallback = "#") {
       const raw = String(value || "").trim();
       if (!raw) return fallback;
@@ -190,6 +319,7 @@
       if (/^(https?:\/\/|mailto:|tel:)/i.test(raw)) return raw;
       return fallback;
     }
+
     function normalizeImageSrc(value) {
       const raw = String(value || "").trim();
       if (!raw) return "";
@@ -199,209 +329,245 @@
       if (/^data:image\//i.test(raw)) return raw;
       return "";
     }
+
     function isExternalLink(href) {
       return /^(https?:\/\/)/i.test(String(href || ""));
     }
-    function clampNumber(value, min, max, fallback) {
-      const n = Number(value);
-      if (!Number.isFinite(n)) return fallback;
-      return Math.min(max, Math.max(min, n));
+
+    function isActivePath(href) {
+      const safeHref = normalizeLink(href, "");
+      if (!safeHref || safeHref === "#") return false;
+      if (isExternalLink(safeHref) || /^mailto:|^tel:/i.test(safeHref)) return false;
+
+      const current = location.pathname.replace(/\/+$/, "") || "/";
+      const target = safeHref.replace(/\/+$/, "") || "/";
+      return current === target;
     }
-    function normalizeAction(action = {}, legacyLink = "") {
-      const legacyHref = normalizeText(legacyLink);
-      const type = ["none", "url", "page", "anchor", "email", "phone"].includes(action.type)
-        ? action.type
-        : (legacyHref ? "url" : "none");
-      return {
-        type,
-        url: normalizeText(action.url, legacyHref),
-        pageId: normalizeText(action.pageId),
-        pageSlug: normalizeText(action.pageSlug),
-        anchorId: normalizeText(action.anchorId),
-        email: normalizeText(action.email),
-        phone: normalizeText(action.phone),
-        newTab: normalizeBool(action.newTab, false)
-      };
-    }
-    function resolveActionHref(action = {}, pages = []) {
-      const safe = normalizeAction(action);
-      if (safe.type === "url") return normalizeLink(safe.url, "#");
-      if (safe.type === "page") {
-        const pageById = safe.pageId ? pages.find((item) => item.id === safe.pageId) : null;
-        const pageBySlug = !pageById && safe.pageSlug ? pages.find((item) => item.slug === safe.pageSlug) : null;
-        const page = pageById || pageBySlug;
-        if (!page) return "#";
-        return page.isHome ? "/" : `/${page.slug}`;
-      }
-      if (safe.type === "anchor") return safe.anchorId ? `#${safe.anchorId.replace(/^#/, "")}` : "#";
-      if (safe.type === "email") return safe.email ? `mailto:${safe.email}` : "#";
-      if (safe.type === "phone") return safe.phone ? `tel:${safe.phone}` : "#";
-      return "#";
-    }
-    function actionAttrs(action = {}, pages = []) {
-      const safe = normalizeAction(action);
-      const href = resolveActionHref(safe, pages);
-      const external = isExternalLink(href);
-      const blank = safe.newTab || external;
-      return {
-        href,
-        extra: blank ? ' target="_blank" rel="noopener noreferrer"' : ""
-      };
-    }
-    function normalizeSiteSettings(raw = {}) {
-      return {
-        siteName: normalizeText(raw.siteName, "Vera"),
-        logoText: normalizeText(raw.logoText, raw.siteName || "Vera"),
-        logoLink: normalizeText(raw.logoLink, "/"),
-        contactEmail: normalizeText(raw.contactEmail),
-        contactPhone: normalizeText(raw.contactPhone),
-        footerText: normalizeText(raw.footerText, "© Vera"),
-        showHeader: normalizeBool(raw.showHeader, true),
-        showFooter: normalizeBool(raw.showFooter, true),
-        showTopCta: normalizeBool(raw.showTopCta, false),
-        headerSticky: normalizeBool(raw.headerSticky, true),
-        headerTransparent: normalizeBool(raw.headerTransparent, false),
-        headerBackground: normalizeText(raw.headerBackground, "#ffffff"),
-        headerTextColor: normalizeText(raw.headerTextColor, "#0f172a"),
-        footerBackground: normalizeText(raw.footerBackground, "#0f172a"),
-        footerTextColor: normalizeText(raw.footerTextColor, "#e2e8f0"),
-        topCtaText: normalizeText(raw.topCtaText),
-        topCtaAction: normalizeAction(raw.topCtaAction || {}, raw.topCtaLink || ""),
-        menuItems: Array.isArray(raw.menuItems) ? raw.menuItems : [],
-        custom: {
-          headHtml: String(raw.custom?.headHtml || ""),
-          beforeBodyHtml: String(raw.custom?.beforeBodyHtml || ""),
-          afterBodyHtml: String(raw.custom?.afterBodyHtml || "")
-        }
-      };
-    }
-    function normalizeBlock(block = {}, index = 0) {
-      return {
-        ...block,
-        id: normalizeText(block.id, `block-${index + 1}`),
-        type: normalizeText(block.type, "text"),
-        visible: normalizeBool(block.visible, true),
-        background: normalizeText(block.background, "#ffffff"),
-        color: normalizeText(block.color, "#0f172a"),
-        padding: clampNumber(block.padding, 0, 240, 24),
-        radius: clampNumber(block.radius, 0, 80, 18),
-        align: ["left", "center", "right"].includes(block.align) ? block.align : "left",
-        maxWidth: clampNumber(block.maxWidth, 20, 100, 100),
-        cssClass: normalizeText(block.cssClass),
-        htmlId: normalizeText(block.htmlId),
-        fullWidth: normalizeBool(block.fullWidth, false),
-        surface: normalizeBool(block.surface, true),
-        colSpanDesktop: clampNumber(block.colSpanDesktop, 1, 12, 12),
-        colSpanTablet: clampNumber(block.colSpanTablet, 1, 12, 12),
-        colSpanMobile: clampNumber(block.colSpanMobile, 1, 12, 12),
-        rowSpan: clampNumber(block.rowSpan, 1, 12, 1),
-        minHeight: clampNumber(block.minHeight, 0, 2000, 0),
-        contentWidthMode: block.contentWidthMode === "boxed" ? "boxed" : "full",
-        innerMaxWidth: clampNumber(block.innerMaxWidth, 20, 100, 100),
-        title: normalizeText(block.title),
-        text: normalizeText(block.text),
-        html: String(block.html || ""),
-        src: normalizeText(block.src),
-        alt: normalizeText(block.alt),
-        width: normalizeText(block.width, "100%"),
-        style: ["primary", "secondary"].includes(block.style) ? block.style : "primary",
-        height: clampNumber(block.height, 0, 800, 40),
-        caption: normalizeText(block.caption),
-        buttonText: normalizeText(block.buttonText || block.text || "Buton"),
-        primaryText: normalizeText(block.primaryText),
-        secondaryText: normalizeText(block.secondaryText),
-        action: normalizeAction(block.action || {}, block.link || ""),
-        primaryAction: normalizeAction(block.primaryAction || {}, block.primaryLink || ""),
-        secondaryAction: normalizeAction(block.secondaryAction || {}, block.secondaryLink || "")
-      };
-    }
-    function blockOuterStyle(block) {
-      const justify = block.align === "center" ? "center" : block.align === "right" ? "flex-end" : "flex-start";
-      return `--col-span-d:${block.fullWidth ? 12 : block.colSpanDesktop};--col-span-t:${block.fullWidth ? 12 : block.colSpanTablet};--col-span-m:${block.fullWidth ? 12 : block.colSpanMobile};--row-span:${block.rowSpan};justify-content:${justify};`;
-    }
-    function blockInnerStyle(block) {
-      return `max-width:${Number(block.maxWidth || 100)}%;background:${block.surface ? block.background : "transparent"};color:${block.color || "#0f172a"};padding:${Number(block.padding || 24)}px;border-radius:${Number(block.radius || 18)}px;text-align:${block.align || "left"};min-height:${Number(block.minHeight || 0)}px;margin:${block.align === "center" ? "0 auto" : block.align === "right" ? "0 0 0 auto" : "0"};width:${block.contentWidthMode === "boxed" ? `${Number(block.innerMaxWidth || 100)}%` : "100%"};`;
-    }
-    function renderActionButton(text, action, pages, variant) {
-      if (!text) return "";
-      const attrs = actionAttrs(action, pages);
-      return `<a class="btn ${variant === "primary" ? "primary" : ""}" href="${escapeHtml(attrs.href)}"${attrs.extra}>${escapeHtml(text)}</a>`;
-    }
-    function renderBlock(block, pages) {
-      if (!block || block.visible === false) return "";
-      const safe = normalizeBlock(block);
-      if (safe.type === "hero") {
-        return `<section class="block-shell ${escapeHtml(safe.cssClass || "")}" ${safe.htmlId ? `id="${escapeHtml(safe.htmlId)}"` : ""} style="${blockOuterStyle(safe)}"><div class="block-inner hero-block" style="${blockInnerStyle(safe)}">${safe.title ? `<h1>${escapeHtml(safe.title)}</h1>` : ""}${safe.text ? `<p>${escapeHtml(safe.text)}</p>` : ""}<div class="actions">${renderActionButton(safe.primaryText, safe.primaryAction, pages, "primary")}${renderActionButton(safe.secondaryText, safe.secondaryAction, pages, "secondary")}</div></div></section>`;
-      }
-      if (safe.type === "button") {
-        const attrs = actionAttrs(safe.action, pages);
-        return `<section class="block-shell ${escapeHtml(safe.cssClass || "")}" ${safe.htmlId ? `id="${escapeHtml(safe.htmlId)}"` : ""} style="${blockOuterStyle(safe)}"><div class="block-inner button-block" style="${blockInnerStyle(safe)}"><a class="btn ${safe.style === "primary" ? "primary" : ""}" href="${escapeHtml(attrs.href)}"${attrs.extra}>${escapeHtml(safe.buttonText || "Buton")}</a></div></section>`;
-      }
-      if (safe.type === "image") {
-        const attrs = actionAttrs(safe.action, pages);
-        const src = normalizeImageSrc(safe.src);
-        const imageHtml = src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(safe.alt || "")}" loading="lazy" decoding="async" style="width:${escapeHtml(safe.width || "100%")}">` : `<div class="empty-box">Görsel eklenmedi</div>`;
-        const wrapped = attrs.href && attrs.href !== "#" ? `<a href="${escapeHtml(attrs.href)}"${attrs.extra}>${imageHtml}</a>` : imageHtml;
-        return `<section class="block-shell ${escapeHtml(safe.cssClass || "")}" ${safe.htmlId ? `id="${escapeHtml(safe.htmlId)}"` : ""} style="${blockOuterStyle(safe)}"><div class="block-inner image-block" style="${blockInnerStyle(safe)}">${wrapped}${safe.caption ? `<p class="caption">${escapeHtml(safe.caption)}</p>` : ""}</div></section>`;
-      }
-      if (safe.type === "html") {
-        return `<section class="block-shell ${escapeHtml(safe.cssClass || "")}" ${safe.htmlId ? `id="${escapeHtml(safe.htmlId)}"` : ""} style="${blockOuterStyle(safe)}"><div class="block-inner html-block" style="${blockInnerStyle(safe)}">${safe.html || ""}</div></section>`;
-      }
-      if (safe.type === "spacer") {
-        return `<section class="block-shell ${escapeHtml(safe.cssClass || "")}" ${safe.htmlId ? `id="${escapeHtml(safe.htmlId)}"` : ""} style="${blockOuterStyle(safe)}"><div class="block-inner spacer-block" style="${blockInnerStyle(safe)}padding:0;min-height:${Number(safe.height || 40)}px;"></div></section>`;
-      }
-      return `<section class="block-shell ${escapeHtml(safe.cssClass || "")}" ${safe.htmlId ? `id="${escapeHtml(safe.htmlId)}"` : ""} style="${blockOuterStyle(safe)}"><div class="block-inner text-block" style="${blockInnerStyle(safe)}">${safe.title ? `<h2>${escapeHtml(safe.title)}</h2>` : ""}${safe.text ? `<p>${escapeHtml(safe.text)}</p>` : ""}</div></section>`;
-    }
-    function renderMenu(items, pages) {
-      return (Array.isArray(items) ? items : []).filter(item => item && item.text).map((item) => {
-        const action = normalizeAction(item.action || {}, item.link || "");
-        const attrs = actionAttrs(action, pages);
-        const current = location.pathname.replace(/\/+$/, "") || "/";
-        const target = attrs.href.replace(/\/+$/, "") || "/";
-        const activeClass = !isExternalLink(attrs.href) && !/^mailto:|^tel:/i.test(attrs.href) && current === target ? "active" : "";
-        return `<a class="${activeClass}" href="${escapeHtml(attrs.href)}"${attrs.extra}>${escapeHtml(item.text)}</a>`;
-      }).join("");
-    }
-    function applyMeta(page, settings) {
-      const title = page.metaTitle || page.title || settings.siteName || "Vera";
-      const description = page.metaDescription || "Hoş geldiniz.";
+
+    function applyMeta(content = {}, settings = {}) {
+      const title = content.pageTitle || settings.siteName || "Vera";
+      const description = content.metaDescription || "Hoş geldiniz.";
+      const canonicalHref = location.origin + location.pathname;
+
       document.title = title;
-      document.querySelector('meta[name="description"]').setAttribute("content", description);
-      document.querySelector('meta[property="og:title"]').setAttribute("content", title);
-      document.querySelector('meta[property="og:description"]').setAttribute("content", description);
-      document.getElementById("canonicalLink").setAttribute("href", location.origin + location.pathname);
+
+      const desc = document.querySelector('meta[name="description"]');
+      if (desc) desc.setAttribute("content", description);
+
+      const ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute("content", title);
+
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      if (ogDesc) ogDesc.setAttribute("content", description);
+
+      const canonical = document.getElementById("canonicalLink");
+      if (canonical) canonical.setAttribute("href", canonicalHref);
     }
-    function applyTheme(page, settings) {
-      const theme = page.theme || {};
-      const options = page.pageOptions || {};
+
+    function applyTheme(theme = {}) {
       document.documentElement.style.setProperty("--body-bg", theme.bodyBg || "#f8fafc");
       document.documentElement.style.setProperty("--body-text", theme.bodyText || "#0f172a");
       document.documentElement.style.setProperty("--border-color", theme.borderColor || "#e2e8f0");
       document.documentElement.style.setProperty("--primary-color", theme.primaryColor || "#2563eb");
       document.documentElement.style.setProperty("--container-width", (theme.containerWidth || 1200) + "px");
-      document.documentElement.style.setProperty("--header-bg", settings.headerTransparent ? "rgba(255,255,255,.82)" : (settings.headerBackground || "#ffffff"));
-      document.documentElement.style.setProperty("--header-text", settings.headerTextColor || "#0f172a");
-      document.documentElement.style.setProperty("--footer-bg", settings.footerBackground || "#0f172a");
-      document.documentElement.style.setProperty("--footer-text", settings.footerTextColor || "#e2e8f0");
-      document.documentElement.style.setProperty("--page-padding-x", (options.pagePaddingX || 24) + "px");
-      document.documentElement.style.setProperty("--page-gap", (options.sectionGap || 18) + "px");
-      document.documentElement.style.setProperty("--grid-columns", String(options.gridColumns || 12));
     }
-    function applyChrome(settings, page, pages) {
-      document.getElementById("siteHeader").style.display = settings.showHeader && page.pageOptions?.showHeader !== false ? "" : "none";
-      document.getElementById("siteFooter").style.display = settings.showFooter && page.pageOptions?.showFooter !== false ? "" : "none";
-      document.getElementById("siteBrand").textContent = settings.logoText || settings.siteName || "Vera";
-      document.getElementById("siteBrand").href = normalizeLink(settings.logoLink, "/");
-      document.getElementById("siteNav").innerHTML = renderMenu(settings.menuItems, pages);
+
+    function blockWrapper(block, innerHtml, extraClass = "") {
+      const align = ["left", "center", "right"].includes(block.align) ? block.align : "left";
+      const justify =
+        align === "center" ? "center" :
+        align === "right" ? "flex-end" :
+        "flex-start";
+
+      const className = ["block-inner", extraClass, block.cssClass || ""].filter(Boolean).join(" ");
+      const htmlId = block.htmlId ? `id="${escapeHtml(block.htmlId)}"` : "";
+
+      return `
+        <section class="block-shell" style="justify-content:${justify}">
+          <div
+            ${htmlId}
+            class="${className}"
+            style="
+              max-width:${Number(block.maxWidth || 100)}%;
+              background:${block.background || "#ffffff"};
+              color:${block.color || "#0f172a"};
+              padding:${Number(block.padding || 24)}px;
+              border-radius:${Number(block.radius || 18)}px;
+              text-align:${align};
+            "
+          >
+            ${innerHtml}
+          </div>
+        </section>
+      `;
+    }
+
+    function renderHero(block) {
+      return blockWrapper(block, `
+        <div class="hero">
+          <h1>${escapeHtml(block.title)}</h1>
+          <p>${escapeHtml(block.text)}</p>
+          <div class="actions">
+            ${block.primaryText ? (() => { const href = resolveActionHref(block.primaryAction, block.primaryLink || "#"); return `<a class="btn primary" href="${escapeHtml(href)}"${actionAttrs(block.primaryAction, href)}>${escapeHtml(block.primaryText)}</a>`; })() : ""}
+            ${block.secondaryText ? (() => { const href = resolveActionHref(block.secondaryAction, block.secondaryLink || "#"); return `<a class="btn" href="${escapeHtml(href)}"${actionAttrs(block.secondaryAction, href)}>${escapeHtml(block.secondaryText)}</a>`; })() : ""}
+          </div>
+        </div>
+      `);
+    }
+
+    function renderText(block) {
+      return blockWrapper(block, `
+        <div class="text-block">
+          ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
+          <p>${escapeHtml(block.text)}</p>
+        </div>
+      `);
+    }
+
+    function renderImage(block) {
+      const safeSrc = normalizeImageSrc(block.src);
+      const safeLink = resolveActionHref(block.action, block.link || "");
+      const imageHtml = safeSrc
+        ? `<img src="${escapeHtml(safeSrc)}" alt="${escapeHtml(block.alt || "")}" loading="lazy" decoding="async" style="width:${escapeHtml(block.width || "100%")};">`
+        : `<p>Görsel URL girilmedi.</p>`;
+
+      return blockWrapper(block, `
+        <div class="image-block">
+          ${safeLink && safeLink !== "#" ? `<a href="${escapeHtml(safeLink)}"${actionAttrs(block.action, safeLink)}>${imageHtml}</a>` : imageHtml}
+        </div>
+      `);
+    }
+
+    function renderButton(block) {
+      const cls = block.style === "primary" ? "btn primary" : "btn";
+      const href = resolveActionHref(block.action, block.link || "#");
+      return blockWrapper(block, `
+        <div class="button-block ${block.align || "left"}">
+          <a class="${cls}" href="${escapeHtml(href)}"${actionAttrs(block.action, href)}>${escapeHtml(block.text)}</a>
+        </div>
+      `);
+    }
+
+    function renderHtml(block) {
+      return blockWrapper(block, `
+        <div class="html-block">${block.html || ""}</div>
+      `);
+    }
+
+    function renderSpacer(block) {
+      return blockWrapper(
+        block,
+        "",
+        "spacer-block"
+      ).replace(
+        /padding:[^;]+;/,
+        `padding:0;height:${Number(block.height || 32)}px;`
+      );
+    }
+
+    function renderBlock(block) {
+      if (!block || block.visible === false) return "";
+      if (block.type === "hero") return renderHero(block);
+      if (block.type === "image") return renderImage(block);
+      if (block.type === "button") return renderButton(block);
+      if (block.type === "html") return renderHtml(block);
+      if (block.type === "spacer") return renderSpacer(block);
+      return renderText(block);
+    }
+
+    function runCustomJs(code) {
+      if (!code || !code.trim()) return;
+      try {
+        new Function(code)();
+      } catch (err) {
+        console.error("Custom JS error:", err);
+      }
+    }
+
+
+function normalizeAction(action = {}, fallbackLink = "#") {
+  const type = ["none", "url", "page", "anchor", "email", "phone", "whatsapp", "download"].includes(action?.type)
+    ? action.type
+    : "url";
+
+  return {
+    type,
+    url: normalizeLink(action?.url, normalizeLink(fallbackLink, "#")),
+    anchor: String(action?.anchor || "").trim(),
+    email: String(action?.email || "").trim(),
+    phone: String(action?.phone || "").trim(),
+    whatsapp: String(action?.whatsapp || "").trim(),
+    downloadUrl: normalizeLink(action?.downloadUrl, ""),
+    newTab: !!action?.newTab
+  };
+}
+
+function resolveActionHref(action = {}, fallbackLink = "#") {
+  const safe = normalizeAction(action, fallbackLink);
+  if (safe.type === "none") return "#";
+  if (safe.type === "anchor") {
+    const anchor = safe.anchor.replace(/^#+/, "");
+    return anchor ? "#" + anchor : "#";
+  }
+  if (safe.type === "email") return safe.email ? "mailto:" + safe.email : "#";
+  if (safe.type === "phone") return safe.phone ? "tel:" + safe.phone : "#";
+  if (safe.type === "whatsapp") {
+    const digits = safe.whatsapp.replace(/[^\d]/g, "");
+    return digits ? "https://wa.me/" + digits : "#";
+  }
+  if (safe.type === "download") return normalizeLink(safe.downloadUrl, "#");
+  return normalizeLink(safe.url, normalizeLink(fallbackLink, "#"));
+}
+
+function actionAttrs(action = {}, href = "#") {
+  const safe = normalizeAction(action, href);
+  if (safe.type === "none" || href === "#") return "";
+  if (safe.newTab || isExternalLink(href) || safe.type === "download") {
+    return ' target="_blank" rel="noopener noreferrer"';
+  }
+  return "";
+}
+
+function renderMenuItems(items) {
+  if (!Array.isArray(items)) return "";
+
+  return items
+    .filter((item) => item && item.text)
+    .map((item) => {
+      const href = resolveActionHref(item.action, item.link || "#");
+      const activeClass = isActivePath(href) ? "active" : "";
+      const extraAttrs = actionAttrs(item.action, href);
+      return `<a class="${activeClass}" href="${escapeHtml(href)}"${extraAttrs}>${escapeHtml(item.text)}</a>`;
+    })
+    .join("");
+}
+
+    function applySiteSettings(settings = {}, pageOptions = {}) {
+      const showHeader = settings.showHeader !== false && pageOptions.showHeader !== false;
+      const showFooter = settings.showFooter !== false && pageOptions.showFooter !== false;
+
+      const header = document.getElementById("siteHeader");
+      const footer = document.getElementById("siteFooter");
+      const brand = document.getElementById("siteBrand");
+      const nav = document.getElementById("siteNav");
       const cta = document.getElementById("topCta");
+
+      header.style.display = showHeader ? "block" : "none";
+      footer.style.display = showFooter ? "block" : "none";
+
+      brand.textContent = settings.logoText || settings.siteName || "Vera";
+      brand.href = normalizeLink(settings.logoLink, "/");
+      nav.innerHTML = renderMenuItems(settings.menuItems || []);
+
       if (settings.showTopCta && settings.topCtaText) {
-        const attrs = actionAttrs(settings.topCtaAction, pages);
+        const ctaHref = resolveActionHref(settings.topCtaAction, settings.topCtaLink || "#");
         cta.style.display = "inline-flex";
         cta.textContent = settings.topCtaText;
-        cta.href = attrs.href;
-        if (attrs.extra) {
-          cta.setAttribute("target", "_blank");
-          cta.setAttribute("rel", "noopener noreferrer");
+        cta.href = ctaHref;
+
+        if (actionAttrs(settings.topCtaAction, ctaHref)) {
+          cta.target = "_blank";
+          cta.rel = "noopener noreferrer";
         } else {
           cta.removeAttribute("target");
           cta.removeAttribute("rel");
@@ -409,60 +575,72 @@
       } else {
         cta.style.display = "none";
       }
+
       document.getElementById("footerText").textContent = settings.footerText || "";
-      document.getElementById("footerContact").textContent = [settings.contactEmail, settings.contactPhone].filter(Boolean).join(" • ");
-      document.body.className = page.pageOptions?.customBodyClass || "";
-      document.getElementById("beforeBodyHtml").innerHTML = settings.custom.beforeBodyHtml || "";
-      document.getElementById("afterBodyHtml").innerHTML = settings.custom.afterBodyHtml || "";
-      document.getElementById("pageCss").textContent = page.overrides?.css || "";
-      document.getElementById("pageHtml").innerHTML = page.overrides?.html || "";
-      if (settings.custom.headHtml) {
-        const wrap = document.createElement("div");
-        wrap.innerHTML = settings.custom.headHtml;
-        wrap.querySelectorAll("style").forEach((styleEl) => document.head.appendChild(styleEl));
-      }
+
+      const contactParts = [settings.contactEmail, settings.contactPhone].filter(Boolean);
+      document.getElementById("footerContact").textContent = contactParts.join(" • ");
+
+      document.body.className = pageOptions.customBodyClass || "";
     }
-    function runPageJs(page) {
+
+    async function loadContent() {
       try {
-        const code = (page.overrides?.js || "") + "\n" + (page.editorMode === "code" ? (page.code?.js || "") : "");
-        if (code.trim()) new Function(code)();
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    async function loadHome() {
-      try {
-        const [pagesRes, settingsRes] = await Promise.all([
-          fetch("/api/pages?slug=", { headers: { Accept: "application/json" } }),
-          fetch("/api/site-settings", { headers: { Accept: "application/json" } })
-        ]);
-        if (!pagesRes.ok || !settingsRes.ok) throw new Error("API");
-        const [pageData, settingsData, allPagesData] = await Promise.all([
-          pagesRes.json(),
-          settingsRes.json(),
-          fetch("/api/pages", { headers: { Accept: "application/json" } }).then(r => r.ok ? r.json() : { pages: [] })
+        const [contentRes, settingsRes] = await Promise.all([
+          fetch("/api/site-content", {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+          }),
+          fetch("/api/site-settings", {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+          })
         ]);
 
-        const page = pageData.page || {};
-        const settings = normalizeSiteSettings(settingsData.settings || {});
-        const pages = Array.isArray(allPagesData.pages) ? allPagesData.pages : [];
-        page.blocks = Array.isArray(page.blocks) ? page.blocks : [];
-        page.pageOptions = page.pageOptions || {};
-        page.overrides = page.overrides || {};
-        page.theme = page.theme || {};
+        if (!contentRes.ok || !settingsRes.ok) {
+          throw new Error("API response error");
+        }
 
-        applyMeta(page, settings);
-        applyTheme(page, settings);
-        applyChrome(settings, page, pages);
+        const contentData = await contentRes.json();
+        const settingsData = await settingsRes.json();
 
-        const html = (page.editorMode === "code" ? (page.code?.html || "") : page.blocks.map((block, index) => renderBlock(normalizeBlock(block, index), pages)).join(""));
-        document.getElementById("content").innerHTML = html || `<div class="error-box"><h2>İçerik bulunamadı</h2><p>Bu sayfada henüz blok yok.</p></div>`;
-        runPageJs(page);
+        const content = contentData.content || {};
+        const settings = settingsData.settings || {};
+        const blocks = Array.isArray(content.blocks) ? content.blocks : [];
+        const overrides = content.overrides || {};
+        const pageOptions = content.pageOptions || {};
+
+        applyMeta(content, settings);
+        applyTheme(content.theme || {});
+        applySiteSettings(settings, pageOptions);
+
+        document.getElementById("content").innerHTML =
+          blocks.map(renderBlock).join("") + (overrides.html || "");
+
+        document.getElementById("customCss").textContent = overrides.css || "";
+        document.getElementById("beforeBodyHtml").innerHTML = settings.custom?.beforeBodyHtml || "";
+        document.getElementById("afterBodyHtml").innerHTML = settings.custom?.afterBodyHtml || "";
+
+        if (settings.custom?.headHtml) {
+          const temp = document.createElement("div");
+          temp.innerHTML = settings.custom.headHtml;
+          temp.querySelectorAll("style").forEach((styleEl) => document.head.appendChild(styleEl));
+        }
+
+        runCustomJs(overrides.js || "");
       } catch (err) {
-        document.getElementById("content").innerHTML = `<div class="error-box"><h2>İçerik yüklenemedi</h2><p>Veriler alınırken bir hata oluştu.</p></div>`;
+        document.getElementById("content").innerHTML = `
+          <section class="block-shell">
+            <div class="error-box">
+              <h2>İçerik yüklenemedi</h2>
+              <p>Veriler alınırken bir hata oluştu.</p>
+            </div>
+          </section>
+        `;
       }
     }
-    loadHome();
+
+    loadContent();
   </script>
 </body>
 </html>
