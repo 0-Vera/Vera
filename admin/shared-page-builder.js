@@ -81,6 +81,10 @@ window.VeraPageBuilder = (() => {
       ...baseBlock("button", order),
       text: "Buton",
       link: "#",
+      actionType: "url",
+      actionValue: "#",
+      actionPageId: "",
+      actionNewTab: false,
       style: "primary",
       colStartDesktop: 1,
       colSpanDesktop: 4
@@ -120,6 +124,64 @@ window.VeraPageBuilder = (() => {
     };
   }
 
+  function newSection(order = 0) {
+    return {
+      ...baseBlock("section", order),
+      title: "Bölüm Başlığı",
+      text: "Bölüm açıklaması",
+      fullWidth: true,
+      padding: 28,
+      radius: 22,
+      contentWidthMode: "boxed",
+      innerMaxWidth: 86
+    };
+  }
+
+  function newFeatures(order = 0) {
+    return {
+      ...baseBlock("features", order),
+      title: "Özellikler",
+      text: "Öne çıkan maddeler",
+      items: "Hızlı teslimat\nEsnek üretim\nKurumsal destek",
+      colStartDesktop: 1,
+      colSpanDesktop: 6
+    };
+  }
+
+  function newCards(order = 0) {
+    return {
+      ...baseBlock("cards", order),
+      title: "Kart Alanı",
+      text: "Kart açıklaması",
+      items: "Başlık 1|Açıklama 1\nBaşlık 2|Açıklama 2\nBaşlık 3|Açıklama 3",
+      colStartDesktop: 1,
+      colSpanDesktop: 12
+    };
+  }
+
+  function newStats(order = 0) {
+    return {
+      ...baseBlock("stats", order),
+      title: "İstatistikler",
+      text: "Rakamlarla özet alanı",
+      items: "1200+|Teslimat\n98%|Memnuniyet\n16 Yıl|Deneyim\n7/24|Destek",
+      fullWidth: true,
+      padding: 20,
+      radius: 22
+    };
+  }
+
+  function newFaq(order = 0) {
+    return {
+      ...baseBlock("faq", order),
+      title: "Sık Sorulan Sorular",
+      text: "Soru ve cevapları satır satır gir.",
+      items: "Soru 1?|Cevap 1\nSoru 2?|Cevap 2",
+      colStartDesktop: 1,
+      colSpanDesktop: 12
+    };
+  }
+
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
   }
@@ -149,7 +211,12 @@ window.VeraPageBuilder = (() => {
       fullWidth: !!block.fullWidth,
       visible: block.visible !== false,
       layoutMode: block.layoutMode === "free" ? "free" : "grid",
-      contentWidthMode: block.contentWidthMode === "boxed" ? "boxed" : "full"
+      contentWidthMode: block.contentWidthMode === "boxed" ? "boxed" : "full",
+      items: String(block.items || ""),
+      actionType: ["none","url","page","anchor","email","phone","whatsapp","download"].includes(block.actionType) ? block.actionType : "url",
+      actionValue: String(block.actionValue || block.link || ""),
+      actionPageId: String(block.actionPageId || ""),
+      actionNewTab: !!block.actionNewTab
     };
 
     const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, 12);
@@ -265,6 +332,11 @@ window.VeraPageBuilder = (() => {
       else if (type === "image") block = newImage(order);
       else if (type === "html") block = newHtml(order);
       else if (type === "spacer") block = newSpacer(order);
+      else if (type === "section") block = newSection(order);
+      else if (type === "features") block = newFeatures(order);
+      else if (type === "cards") block = newCards(order);
+      else if (type === "stats") block = newStats(order);
+      else if (type === "faq") block = newFaq(order);
       else return;
 
       const normalized = normalizeBlock(block, order);
@@ -364,6 +436,57 @@ window.VeraPageBuilder = (() => {
       renderBlocks();
     }
 
+
+    function pageOptionsHtml(currentValue = "") {
+      const pages = Array.isArray(window.VERA_PAGES_FOR_EDITOR) ? window.VERA_PAGES_FOR_EDITOR : [];
+      return pages.map((page) => {
+        const value = String(page.id || "");
+        const label = page.isHome ? `${page.title || "Ana Sayfa"} (/)` : `${page.title || "Sayfa"} (/${page.slug || ""})`;
+        return `<option value="${escapeHtml(value)}"${value === String(currentValue || "") ? " selected" : ""}>${escapeHtml(label)}</option>`;
+      }).join("");
+    }
+
+    function renderActionEditor(block) {
+      const currentType = block.actionType || "url";
+      const currentValue = block.actionValue || block.link || "";
+      const currentPageId = block.actionPageId || "";
+      const showValue = currentType !== "none" && currentType !== "page";
+      const valueLabelMap = {
+        url: "URL",
+        anchor: "Anchor",
+        email: "E-posta",
+        phone: "Telefon",
+        whatsapp: "WhatsApp",
+        download: "Dosya URL"
+      };
+      const valueLabel = valueLabelMap[currentType] || "Değer";
+      return `
+        <label>Eylem</label>
+        <select data-key="actionType">
+          <option value="url"${currentType === "url" ? " selected" : ""}>URL</option>
+          <option value="page"${currentType === "page" ? " selected" : ""}>Sayfa</option>
+          <option value="anchor"${currentType === "anchor" ? " selected" : ""}>Anchor</option>
+          <option value="email"${currentType === "email" ? " selected" : ""}>E-posta</option>
+          <option value="phone"${currentType === "phone" ? " selected" : ""}>Telefon</option>
+          <option value="whatsapp"${currentType === "whatsapp" ? " selected" : ""}>WhatsApp</option>
+          <option value="download"${currentType === "download" ? " selected" : ""}>Dosya</option>
+          <option value="none"${currentType === "none" ? " selected" : ""}>Yok</option>
+        </select>
+        ${currentType === "page" ? `
+          <label>Sayfa Seç</label>
+          <select data-key="actionPageId">
+            <option value="">Sayfa seç</option>
+            ${pageOptionsHtml(currentPageId)}
+          </select>
+        ` : ""}
+        ${showValue ? `
+          <label>${valueLabel}</label>
+          <input data-key="actionValue" value="${escapeHtml(currentValue)}">
+        ` : ""}
+        <label><input data-key="actionNewTab" data-bool="1" type="checkbox"${block.actionNewTab ? " checked" : ""}> Yeni sekme</label>
+      `;
+    }
+
     function renderBlockFields(block) {
       if (block.type === "hero") {
         return `
@@ -395,13 +518,65 @@ window.VeraPageBuilder = (() => {
         return `
           <label>Buton</label>
           <input data-key="text" value="${escapeHtml(block.text)}">
-          <label>Link</label>
-          <input data-key="link" value="${escapeHtml(block.link)}">
+          ${renderActionEditor(block)}
           <label>Stil</label>
           <select data-key="style">
             <option value="primary" ${block.style === "primary" ? "selected" : ""}>Primary</option>
             <option value="secondary" ${block.style === "secondary" ? "selected" : ""}>Secondary</option>
+            <option value="ghost" ${block.style === "ghost" ? "selected" : ""}>Ghost</option>
           </select>
+        `;
+      }
+
+      if (block.type === "section") {
+        return `
+          <h4>${escapeHtml(block.title)}</h4>
+          <p>${escapeHtml(block.text)}</p>
+        `;
+      }
+
+      if (block.type === "features") {
+        return `
+          <h4>${escapeHtml(block.title)}</h4>
+          <p>${escapeHtml(block.text)}</p>
+          <ul style="margin:12px 0 0;padding-left:18px;display:grid;gap:6px">
+            ${String(block.items || "").split(/\r?\n/).filter(Boolean).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          </ul>
+        `;
+      }
+
+      if (block.type === "cards") {
+        return `
+          <h4>${escapeHtml(block.title)}</h4>
+          <p>${escapeHtml(block.text)}</p>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px">
+            ${String(block.items || "").split(/\r?\n/).filter(Boolean).map((line) => {
+              const [title, ...rest] = String(line).split("|");
+              return `<div style="border:1px solid ${state.theme.borderColor || "#cbd5e1"};border-radius:12px;padding:12px"><strong style="display:block;margin-bottom:6px">${escapeHtml(title || "")}</strong><span style="color:#64748b">${escapeHtml(rest.join("|") || "")}</span></div>`;
+            }).join("")}
+          </div>
+        `;
+      }
+
+      if (block.type === "stats") {
+        return `
+          <label>Başlık</label>
+          <input data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Açıklama</label>
+          <textarea data-key="text">${escapeHtml(block.text || "")}</textarea>
+          <label>İstatistikler (Değer|Açıklama)</label>
+          <textarea data-key="items">${escapeHtml(block.items || "")}</textarea>
+        `;
+      }
+
+      if (block.type === "faq") {
+        return `
+          <label>Başlık</label>
+          <input data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Açıklama</label>
+          <textarea data-key="text">${escapeHtml(block.text || "")}</textarea>
+          <label>SSS (Soru|Cevap)</label>
+          <textarea data-key="items">${escapeHtml(block.items || "")}</textarea>
         `;
       }
 
@@ -543,6 +718,58 @@ window.VeraPageBuilder = (() => {
           <div class="builder-preview-actions" style="justify-content:${block.align === "center" ? "center" : block.align === "right" ? "flex-end" : "flex-start"}">
             <span style="${block.style === "primary" ? `background:${state.theme.primaryColor};border-color:${state.theme.primaryColor};color:#fff;` : ""}">${escapeHtml(block.text)}</span>
           </div>
+        `;
+      }
+
+      if (block.type === "section") {
+        return `
+          <h4>${escapeHtml(block.title)}</h4>
+          <p>${escapeHtml(block.text)}</p>
+        `;
+      }
+
+      if (block.type === "features") {
+        return `
+          <h4>${escapeHtml(block.title)}</h4>
+          <p>${escapeHtml(block.text)}</p>
+          <ul style="margin:12px 0 0;padding-left:18px;display:grid;gap:6px">
+            ${String(block.items || "").split(/\r?\n/).filter(Boolean).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+          </ul>
+        `;
+      }
+
+      if (block.type === "cards") {
+        return `
+          <h4>${escapeHtml(block.title)}</h4>
+          <p>${escapeHtml(block.text)}</p>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px">
+            ${String(block.items || "").split(/\r?\n/).filter(Boolean).map((line) => {
+              const [title, ...rest] = String(line).split("|");
+              return `<div style="border:1px solid ${state.theme.borderColor || "#cbd5e1"};border-radius:12px;padding:12px"><strong style="display:block;margin-bottom:6px">${escapeHtml(title || "")}</strong><span style="color:#64748b">${escapeHtml(rest.join("|") || "")}</span></div>`;
+            }).join("")}
+          </div>
+        `;
+      }
+
+      if (block.type === "stats") {
+        return `
+          <label>Başlık</label>
+          <input data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Açıklama</label>
+          <textarea data-key="text">${escapeHtml(block.text || "")}</textarea>
+          <label>İstatistikler (Değer|Açıklama)</label>
+          <textarea data-key="items">${escapeHtml(block.items || "")}</textarea>
+        `;
+      }
+
+      if (block.type === "faq") {
+        return `
+          <label>Başlık</label>
+          <input data-key="title" value="${escapeHtml(block.title || "")}">
+          <label>Açıklama</label>
+          <textarea data-key="text">${escapeHtml(block.text || "")}</textarea>
+          <label>SSS (Soru|Cevap)</label>
+          <textarea data-key="items">${escapeHtml(block.items || "")}</textarea>
         `;
       }
 
