@@ -844,14 +844,16 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const pathname = url.pathname;
+  const normalizedPathname =
+    pathname !== "/" ? pathname.replace(/\/+$/, "") : "/";
   const isDesigner = url.searchParams.get("vera_designer") === "1";
 
   if (
-    pathname.startsWith("/api/") ||
-    pathname.startsWith("/admin") ||
-    pathname === "/login" ||
-    pathname === "/login.html" ||
-    pathname.startsWith("/functions/") ||
+    normalizedPathname.startsWith("/api/") ||
+    normalizedPathname.startsWith("/admin") ||
+    normalizedPathname === "/login" ||
+    normalizedPathname === "/login.html" ||
+    normalizedPathname.startsWith("/functions/") ||
     pathname.includes(".")
   ) {
     return context.next();
