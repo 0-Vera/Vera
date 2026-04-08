@@ -25,6 +25,18 @@ async function checkSession(request, env) {
   return !!raw;
 }
 
+function ensureSameOrigin(request) {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  try {
+    const requestUrl = new URL(request.url);
+    return origin === requestUrl.origin;
+  } catch {
+    return false;
+  }
+}
+
 function normalizeText(value, fallback = "") {
   const v = String(value || "").trim();
   return v || fallback;
@@ -86,7 +98,12 @@ function defaultSettings() {
         link: "/admin",
         pageId: ""
       }
-    ]
+    ],
+    custom: {
+      headHtml: "",
+      beforeBodyHtml: "",
+      afterBodyHtml: ""
+    }
   };
 }
 
@@ -156,33 +173,69 @@ function normalizeMenuItems(items, pages = []) {
   return out.length ? out : fallback;
 }
 
-function normalizePayload(body = {}, pages = []) {
-  const base = defaultSettings();
+function normalizeCustom(custom = {}, fallback = {}) {
+  return {
+    headHtml: String(custom.headHtml ?? fallback.headHtml ?? ""),
+    beforeBodyHtml: String(custom.beforeBodyHtml ?? fallback.beforeBodyHtml ?? ""),
+    afterBodyHtml: String(custom.afterBodyHtml ?? fallback.afterBodyHtml ?? "")
+  };
+}
 
+function normalizePayload(body = {}, pages = [], base = defaultSettings()) {
   return {
     siteName: normalizeText(body.siteName, base.siteName),
     logoText: normalizeText(body.logoText, base.logoText),
     logoLink: normalizeLink(body.logoLink, base.logoLink),
-    contactEmail: normalizeText(body.contactEmail),
-    contactPhone: normalizeText(body.contactPhone),
+    contactEmail: normalizeText(body.contactEmail, base.contactEmail),
+    contactPhone: normalizeText(body.contactPhone, base.contactPhone),
     footerText: normalizeText(body.footerText, base.footerText),
     showHeader: normalizeBool(body.showHeader, base.showHeader),
     showFooter: normalizeBool(body.showFooter, base.showFooter),
     showTopCta: normalizeBool(body.showTopCta, base.showTopCta),
     topCtaText: normalizeText(body.topCtaText, base.topCtaText),
     topCtaLink: normalizeLink(body.topCtaLink, base.topCtaLink),
-    menuItems: normalizeMenuItems(body.menuItems, pages)
+    menuItems: normalizeMenuItems(body.menuItems, pages),
+    custom: normalizeCustom(body.custom, base.custom)
   };
 }
 
-export async function onRequestGet({ env }) {
+function toPublicSettings(settings = {}) {
+  return {
+    siteName: settings.siteName,
+    logoText: settings.logoText,
+    logoLink: settings.logoLink,
+    contactEmail: settings.contactEmail,
+    contactPhone: settings.contactPhone,
+    footerText: settings.footerText,
+    showHeader: settings.showHeader,
+    showFooter: settings.showFooter,
+    showTopCta: settings.showTopCta,
+    topCtaText: settings.topCtaText,
+    topCtaLink: settings.topCtaLink,
+    menuItems: Array.isArray(settings.menuItems) ? settings.menuItems : [],
+    custom: normalizeCustom(settings.custom)
+  };
+}
+
+export async function onRequestGet({ request, env }) {
   const pages = await readPages(env);
+  const defaults = defaultSettings();
   const raw = await env.AUTH_KV.get("site:settings", { type: "json" });
-  const settings = raw ? normalizePayload(raw, pages) : defaultSettings();
-  return json({ ok: true, settings });
+  const settings = raw ? normalizePayload(raw, pages, { ...defaults, ...raw, custom: normalizeCustom(raw.custom, defaults.custom) }) : defaults;
+  const authorized = await checkSession(request, env);
+
+  if (authorized) {
+    return json({ ok: true, settings });
+  }
+
+  return json({ ok: true, settings: toPublicSettings(settings) });
 }
 
 export async function onRequestPost({ request, env }) {
+  if (!ensureSameOrigin(request)) {
+    return json({ ok: false, error: "Geçersiz istek kaynağı" }, 403);
+  }
+
   const authorized = await checkSession(request, env);
   if (!authorized) {
     return json({ ok: false, error: "Yetkisiz" }, 401);
@@ -196,8 +249,22 @@ export async function onRequestPost({ request, env }) {
   }
 
   const pages = await readPages(env);
-  const settings = normalizePayload(body, pages);
+  const defaults = defaultSettings();
+  const existingRaw = await env.AUTH_KV.get("site:settings", { type: "json" });
+  const existing = existingRaw
+    ? normalizePayload(existingRaw, pages, { ...defaults, ...existingRaw, custom: normalizeCustom(existingRaw.custom, defaults.custom) })
+    : defaults;
 
+  const merged = {
+    ...existing,
+    ...body,
+    custom: {
+      ...existing.custom,
+      ...(body.custom || {})
+    }
+  };
+
+  const settings = normalizePayload(merged, pages, existing);
   await env.AUTH_KV.put("site:settings", JSON.stringify(settings));
 
   return json({ ok: true, settings });
