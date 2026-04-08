@@ -22,6 +22,7 @@
       --radius-sm:12px;
       --radius-xs:10px;
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -34,6 +35,7 @@
         var(--bg);
       overflow:hidden;
     }
+
     .loading{
       min-height:100vh;
       display:flex;
@@ -46,7 +48,6 @@
 
     .app{
       height:100vh;
-      min-height:100vh;
       display:grid;
       grid-template-columns:340px minmax(0,1fr) 390px;
       gap:18px;
@@ -61,33 +62,27 @@
       border-radius:24px;
       box-shadow:var(--shadow);
       overflow:hidden;
-      min-height:0;
       height:calc(100vh - 36px);
+      min-height:0;
     }
 
     .sidebar, .inspector-shell{
       display:grid;
+      height:100%;
       min-height:0;
-      height:calc(100vh - 36px);
       overflow:hidden;
-      position:sticky;
-      top:18px;
+      position:relative;
     }
 
-    .sidebar{
-      grid-template-rows:auto auto auto 1fr auto;
-    }
-
-    .inspector-shell{
-      grid-template-rows:auto auto 1fr auto;
-    }
+    .sidebar{ grid-template-rows:auto auto auto minmax(0,1fr) auto; }
+    .inspector-shell{ grid-template-rows:auto auto minmax(0,1fr) auto; }
 
     .panel-head{
       padding:18px 18px 14px;
       border-bottom:1px solid var(--line-2);
-      background:linear-gradient(180deg,#fff, #fbfdff);
+      background:linear-gradient(180deg,#fff,#fbfdff);
+      flex:0 0 auto;
     }
-
     .panel-head h1,
     .panel-head h2{
       margin:0;
@@ -105,6 +100,7 @@
       padding:14px 16px;
       border-bottom:1px solid var(--line-2);
       background:#fff;
+      flex:0 0 auto;
     }
 
     .toolbar-title{
@@ -121,20 +117,14 @@
       letter-spacing:.2px;
     }
 
-    .btn-row{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .btn, .tiny-btn, .ghost-btn, .icon-btn, .seg-btn{
+    .btn, .tiny-btn, .seg-btn{
       border:1px solid transparent;
       border-radius:12px;
       font:inherit;
       cursor:pointer;
       transition:.18s ease;
     }
-    .btn:disabled, .tiny-btn:disabled, .ghost-btn:disabled, .icon-btn:disabled, .seg-btn:disabled{
+    .btn:disabled, .tiny-btn:disabled, .seg-btn:disabled{
       opacity:.45;
       cursor:not-allowed;
     }
@@ -164,6 +154,9 @@
       color:#1e293b;
       border-color:var(--line);
       text-align:left;
+      min-width:0;
+      white-space:normal;
+      overflow-wrap:anywhere;
     }
     .tiny-btn:hover{
       background:#eef4ff;
@@ -190,6 +183,7 @@
       background:#fff;
       outline:none;
     }
+
     .search-input:focus,
     .field input:focus,
     .field textarea:focus,
@@ -198,12 +192,19 @@
       box-shadow:0 0 0 4px rgba(37,99,235,.10);
     }
 
-    .block-list{
+    .block-list,
+    .inspector-body{
       min-height:0;
       overflow:auto;
-      padding:14px;
+      overscroll-behavior:contain;
+      scrollbar-gutter:stable both-edges;
+    }
+
+    .block-list{
+      padding:14px 14px 24px;
       background:linear-gradient(180deg,#fff,#fbfdff);
     }
+
     .block-item{
       border:1px solid var(--line);
       border-radius:16px;
@@ -218,7 +219,7 @@
     }
     .block-head{
       display:grid;
-      grid-template-columns:auto 1fr auto;
+      grid-template-columns:auto minmax(0,1fr) auto;
       gap:10px;
       align-items:center;
       padding:10px 12px;
@@ -230,16 +231,20 @@
       cursor:pointer;
     }
     .block-arrow{
-      width:24px;height:24px;border-radius:8px;
+      width:24px;
+      height:24px;
+      border-radius:8px;
       background:#f1f5f9;
       color:#334155;
       font-size:12px;
       font-weight:800;
+      flex:0 0 auto;
     }
     .block-name{
       text-align:left;
       display:grid;
       gap:3px;
+      min-width:0;
     }
     .block-name strong{
       font-size:12px;
@@ -287,16 +292,12 @@
       grid-template-columns:repeat(2,minmax(0,1fr));
       gap:10px;
     }
-    .field-grid.three{
-      grid-template-columns:repeat(3,minmax(0,1fr));
-    }
     .field{
       display:grid;
       gap:5px;
       min-width:0;
     }
     .field.span-2{grid-column:span 2}
-    .field.span-3{grid-column:span 3}
     .field label{
       font-size:11px;
       color:#475569;
@@ -314,6 +315,7 @@
       font-size:13px;
       outline:none;
       resize:vertical;
+      min-width:0;
     }
     .field textarea{min-height:94px}
 
@@ -327,14 +329,14 @@
       flex-wrap:wrap;
     }
     .seg-btn{
-      flex:1;
+      flex:1 1 0;
+      min-width:68px;
       padding:8px 10px;
       font-size:12px;
       font-weight:800;
       background:transparent;
       color:#334155;
       border-color:transparent;
-      min-width:72px;
     }
     .seg-btn.active{
       background:#fff;
@@ -344,10 +346,9 @@
     }
 
     .inspector-body{
-      min-height:0;
-      overflow:auto;
-      padding:14px;
+      padding:14px 14px 24px;
       display:grid;
+      align-content:start;
       gap:12px;
       background:linear-gradient(180deg,#fff,#fbfdff);
     }
@@ -358,6 +359,7 @@
       background:#fff;
       overflow:hidden;
       box-shadow:0 6px 14px rgba(15,23,42,.03);
+      min-height:fit-content;
     }
     .card-head{
       padding:12px 14px;
@@ -378,6 +380,7 @@
       padding:14px;
       display:grid;
       gap:10px;
+      min-height:fit-content;
     }
 
     .status-row{
@@ -398,6 +401,7 @@
       font-weight:800;
       color:#334155;
       white-space:nowrap;
+      max-width:100%;
     }
     .chip.soft{
       background:var(--primary-soft);
@@ -414,6 +418,7 @@
       border:1px solid var(--line);
       border-radius:14px;
       background:#fff;
+      min-width:0;
     }
     .switch strong{
       display:block;
@@ -424,12 +429,14 @@
       margin-top:2px;
       font-size:11px;
       color:var(--muted);
+      line-height:1.45;
     }
     .switch input{
       width:18px;
       height:18px;
       accent-color:var(--primary);
       cursor:pointer;
+      flex:0 0 auto;
     }
 
     .shared-list{
@@ -443,15 +450,21 @@
       padding:10px;
       display:grid;
       gap:7px;
+      min-width:0;
     }
     .shared-item h4{
       margin:0;
       font-size:12px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .shared-item p{
       margin:0;
       font-size:11px;
       color:var(--muted);
+      line-height:1.45;
+      overflow-wrap:anywhere;
     }
     .shared-actions{
       display:grid;
@@ -465,6 +478,7 @@
       background:#fff;
       display:grid;
       gap:8px;
+      flex:0 0 auto;
     }
 
     .stage{
@@ -472,7 +486,7 @@
       min-height:0;
       height:calc(100vh - 36px);
       display:grid;
-      grid-template-rows:auto 1fr;
+      grid-template-rows:auto minmax(0,1fr);
       gap:14px;
     }
     .stage-head{
@@ -495,6 +509,7 @@
       flex-wrap:wrap;
       min-width:0;
     }
+
     .stage-main{
       min-width:0;
       min-height:0;
@@ -504,6 +519,7 @@
       box-shadow:var(--shadow);
       padding:16px;
       overflow:auto;
+      overscroll-behavior:contain;
     }
 
     .preview-viewport{
@@ -549,7 +565,9 @@
     }
     .preview-dots i{
       display:block;
-      width:10px;height:10px;border-radius:999px;
+      width:10px;
+      height:10px;
+      border-radius:999px;
       background:#d1d5db;
     }
     .preview-url{
@@ -565,7 +583,6 @@
       text-overflow:ellipsis;
       background:#fff;
     }
-
     .preview-frame{
       display:block;
       width:100%;
@@ -579,24 +596,7 @@
       color:var(--muted);
       font-size:13px;
       line-height:1.55;
-    }
-    .kbd{
-      display:inline-flex;
-      min-width:22px;
-      justify-content:center;
-      padding:2px 6px;
-      border-radius:7px;
-      background:#eef2f7;
-      border:1px solid #dbe4ef;
-      font-size:11px;
-      font-weight:800;
-      color:#334155;
-    }
-
-    .block-list,
-    .inspector-body{
-      min-height:0;
-      overflow:auto;
+      overflow-wrap:anywhere;
     }
 
     @media (max-width: 1500px){
@@ -613,25 +613,40 @@
         grid-template-columns:1fr;
         overflow:visible;
       }
-      .sidebar,.inspector-shell{
-        position:relative;
-        top:auto;
-        height:auto;
-      }
       .panel,
       .stage{
         height:auto;
+      }
+      .sidebar,
+      .inspector-shell{
+        overflow:visible;
+      }
+      .block-list,
+      .inspector-body,
+      .stage-main{
+        overflow:visible;
+      }
+      .preview-canvas{
+        width:100%;
+        flex:1 1 auto;
+        transform:none !important;
+        height:auto !important;
+      }
+      .preview-shell{
+        width:100%;
+        max-width:100%;
       }
     }
 
     @media (max-width: 700px){
       .app{padding:12px;gap:12px}
-      .field-grid,.field-grid.three,.shared-actions,.tiny-grid,.quick-tools{
+      .field-grid,.shared-actions,.tiny-grid,.quick-tools{
         grid-template-columns:1fr;
       }
-      .field.span-2,.field.span-3{grid-column:span 1}
+      .field.span-2{grid-column:span 1}
       .stage-main{padding:10px}
       .preview-topbar{padding:0 10px}
+      .seg-btn{min-width:calc(50% - 4px)}
     }
   </style>
 </head>
@@ -693,6 +708,7 @@
           <span class="chip soft" id="pagePathChip">/</span>
           <span class="chip" id="pageModeChip">blocks</span>
           <span class="chip" id="previewMatchChip">Orijinal görünümle uyumlu önizleme</span>
+          <span class="chip" id="gridInfoChip">Grid: 24</span>
         </div>
         <div class="stage-head-right">
           <span class="chip">Preview iframe korunuyor</span>
@@ -772,6 +788,13 @@
       return Math.max(min, Math.min(max, n));
     }
 
+    function getGridColumns() {
+      const pageGrid = Number(pageData?.maxGrid || pageData?.gridColumns || 0);
+      const siteGrid = Number(siteSettings?.maxGrid || siteSettings?.gridColumns || 0);
+      const fallback = 24;
+      return Math.min(240, Math.max(1, pageGrid || siteGrid || fallback));
+    }
+
     function normalizeStartSpan(start, span, maxCols) {
       let safeSpan = clamp(span, 1, maxCols, maxCols);
       let safeStart = clamp(start, 1, maxCols, 1);
@@ -779,13 +802,6 @@
         safeStart = Math.max(1, maxCols - safeSpan + 1);
       }
       return { start: safeStart, span: safeSpan };
-    }
-
-    function getGridColumns() {
-      const pageGrid = Number(pageData?.maxGrid || pageData?.gridColumns || 0);
-      const siteGrid = Number(siteSettings?.maxGrid || siteSettings?.gridColumns || 0);
-      const fallback = 24;
-      return Math.min(240, Math.max(1, pageGrid || siteGrid || fallback));
     }
 
     function blockSummary(block = {}) {
@@ -870,8 +886,8 @@
         colSpanTablet: tablet.span,
         colStartMobile: mobile.start,
         colSpanMobile: mobile.span,
-        rowStartDesktop: clamp(block.rowStartDesktop, 1, 500, 1),
-        rowSpan: clamp(block.rowSpan, 1, 50, 1),
+        rowStartDesktop: clamp(block.rowStartDesktop, 1, 1000, 1),
+        rowSpan: clamp(block.rowSpan, 1, 100, 1),
         minHeight: clamp(block.minHeight, 0, 2000, 0),
         contentWidthMode: block.contentWidthMode === "boxed" ? "boxed" : "full",
         innerMaxWidth: clamp(block.innerMaxWidth, 20, 100, 100),
@@ -1138,9 +1154,7 @@
       }
 
       if (block.type === "global-section-ref") {
-        return `
-          <p class="empty-note">Bu blok bir global bölüm referansıdır. İçeriği doğrudan burada değil, sağ paneldeki global bölüm araçlarıyla yönetilmelidir.</p>
-        `;
+        return `<p class="empty-note">Bu blok bir global bölüm referansıdır. İçeriği doğrudan burada değil, sağ paneldeki global bölüm araçlarıyla yönetilmelidir.</p>`;
       }
 
       return "";
@@ -1363,10 +1377,16 @@
       `;
     }
 
+    function renderWidthPresetButtons(block) {
+      const maxCols = getGridColumns();
+      const spans = [...new Set([0.25, 0.33, 0.5, 0.66, 1].map((r) => Math.max(1, Math.round(maxCols * r))))];
+      return spans.map((span) => `
+        <button class="seg-btn ${block.colSpanDesktop === span ? "active" : ""}" data-width="${span}" type="button">${span}/${maxCols}</button>
+      `).join("");
+    }
+
     function renderInspector() {
       const block = getSelectedBlock();
-      const activeGrid = getGridColumns();
-
       selectedTypeChip.textContent = block ? (BLOCK_LABELS[block.type] || block.type) : "Blok seçilmedi";
       selectedPositionChip.textContent = block ? `D:${block.colStartDesktop}/${block.colSpanDesktop} · S:${block.rowStartDesktop}/${block.rowSpan}` : "—";
 
@@ -1384,11 +1404,6 @@
           ${renderSharedSections()}
         `;
       } else {
-        const widthPresets = [0.25, 0.33, 0.5, 0.66, 1].map((r) => {
-          const span = Math.max(1, Math.round(activeGrid * r));
-          return `<button class="seg-btn ${block.colSpanDesktop === span ? "active" : ""}" data-width="${span}" type="button">${span}/${activeGrid}</button>`;
-        }).join("");
-
         inspectorBody.innerHTML = `
           <div class="card">
             <div class="card-head">
@@ -1402,7 +1417,7 @@
               </div>
               ${renderField({ id: "fVisible", label: "Blok görünür", type: "checkbox", checked: block.visible !== false, placeholder: "Kapalıysa blok veri içinde kalır ama önizlemede görünmez." })}
               ${renderField({ id: "fSurface", label: "Yüzey kartı kullan", type: "checkbox", checked: block.surface !== false, placeholder: "Açıkken blok çevresel panel görünümünü kullanabilir." })}
-              ${renderField({ id: "fFullWidth", label: "Tam genişlik", type: "checkbox", checked: !!block.fullWidth, placeholder: "Açıkken blok tüm kolonları kaplar." })}
+              ${renderField({ id: "fFullWidth", label: "Tam genişlik", type: "checkbox", checked: !!block.fullWidth, placeholder: "Açıkken blok aktif gridin tüm kolonlarını kaplar." })}
             </div>
           </div>
 
@@ -1413,10 +1428,10 @@
             </div>
             <div class="card-body">
               <div class="field-grid">
-                ${renderField({ id: "fColStart", label: "Masaüstü başlangıç", type: "number", value: block.colStartDesktop, min: 1, max: activeGrid })}
-                ${renderField({ id: "fColSpan", label: "Masaüstü genişlik", type: "number", value: block.colSpanDesktop, min: 1, max: activeGrid })}
-                ${renderField({ id: "fRowStart", label: "Satır başlangıç", type: "number", value: block.rowStartDesktop, min: 1, max: 500 })}
-                ${renderField({ id: "fRowSpan", label: "Satır yüksekliği", type: "number", value: block.rowSpan, min: 1, max: 50 })}
+                ${renderField({ id: "fColStart", label: "Masaüstü başlangıç", type: "number", value: block.colStartDesktop, min: 1, max: getGridColumns() })}
+                ${renderField({ id: "fColSpan", label: "Masaüstü genişlik", type: "number", value: block.colSpanDesktop, min: 1, max: getGridColumns() })}
+                ${renderField({ id: "fRowStart", label: "Satır başlangıç", type: "number", value: block.rowStartDesktop, min: 1, max: 1000 })}
+                ${renderField({ id: "fRowSpan", label: "Satır yüksekliği", type: "number", value: block.rowSpan, min: 1, max: 100 })}
                 ${renderField({ id: "fMinHeight", label: "Min yükseklik", type: "number", value: block.minHeight, min: 0, max: 2000 })}
                 ${renderField({ id: "fAlign", label: "İç hizalama", type: "select", value: block.align, options: [
                   { value: "left", label: "Sol" },
@@ -1426,17 +1441,19 @@
               </div>
 
               <div class="field-grid">
-                ${renderField({ id: "fTabletStart", label: "Tablet başlangıç", type: "number", value: block.colStartTablet, min: 1, max: activeGrid })}
-                ${renderField({ id: "fTabletSpan", label: "Tablet genişlik", type: "number", value: block.colSpanTablet, min: 1, max: activeGrid })}
-                ${renderField({ id: "fMobileStart", label: "Mobil başlangıç", type: "number", value: block.colStartMobile, min: 1, max: activeGrid })}
-                ${renderField({ id: "fMobileSpan", label: "Mobil genişlik", type: "number", value: block.colSpanMobile, min: 1, max: activeGrid })}
+                ${renderField({ id: "fTabletStart", label: "Tablet başlangıç", type: "number", value: block.colStartTablet, min: 1, max: getGridColumns() })}
+                ${renderField({ id: "fTabletSpan", label: "Tablet genişlik", type: "number", value: block.colSpanTablet, min: 1, max: getGridColumns() })}
+                ${renderField({ id: "fMobileStart", label: "Mobil başlangıç", type: "number", value: block.colStartMobile, min: 1, max: getGridColumns() })}
+                ${renderField({ id: "fMobileSpan", label: "Mobil genişlik", type: "number", value: block.colSpanMobile, min: 1, max: getGridColumns() })}
               </div>
 
               <div class="toolbar-title" style="margin:2px 0 0">
                 <span>Hızlı genişlik seçimleri</span>
                 <span class="chip">Desktop</span>
               </div>
-              <div class="segmented">${widthPresets}</div>
+              <div class="segmented">
+                ${renderWidthPresetButtons(block)}
+              </div>
             </div>
           </div>
 
@@ -1518,6 +1535,7 @@
         inspectorBody.querySelectorAll("[data-width]").forEach((btn) => {
           btn.addEventListener("click", () => quickSetWidth(Number(btn.getAttribute("data-width"))));
         });
+
         inspectorBody.querySelectorAll("[data-align]").forEach((btn) => {
           btn.addEventListener("click", () => quickSetAlignment(btn.getAttribute("data-align")));
         });
@@ -1560,9 +1578,11 @@
       designerSub.textContent = (pageData.isHome ? "/" : "/" + (pageData.slug || "")) || "/";
       pagePathChip.textContent = (pageData.isHome ? "/" : "/" + (pageData.slug || "")) || "/";
       pageModeChip.textContent = pageData.editorMode || "blocks";
+      gridInfoChip.textContent = `Grid: ${getGridColumns()}`;
       previewUrlChip.textContent = buildPreviewUrl();
       sendSelectToPreview();
       sendLiveUpdateToPreview();
+      fitPreviewCanvas();
     }
 
     function buildPreviewUrl() {
@@ -1576,6 +1596,26 @@
     function loadPreview() {
       previewReady = false;
       previewFrame.src = buildPreviewUrl();
+    }
+
+    function fitPreviewCanvas() {
+      const viewport = document.querySelector(".preview-viewport");
+      const canvas = document.querySelector(".preview-canvas");
+      const shell = document.querySelector(".preview-shell");
+      if (!viewport || !canvas || !shell) return;
+
+      if (window.innerWidth <= 1240) {
+        canvas.style.transform = "none";
+        canvas.style.height = "auto";
+        return;
+      }
+
+      const baseWidth = 1920;
+      const availableWidth = Math.max(320, viewport.clientWidth - 24);
+      const scale = Math.min(1, availableWidth / baseWidth);
+
+      canvas.style.transform = `scale(${scale})`;
+      canvas.style.height = `${shell.offsetHeight * scale}px`;
     }
 
     function requestPreviewSnapshot() {
@@ -1663,28 +1703,6 @@
         alert("Global bölüm kaydedildi.");
       } catch (err) {
         alert(err.message || "Global bölüm kaydedilemedi.");
-      }
-    }
-
-    function fitPreviewCanvas() {
-      const canvas = document.querySelector(".preview-canvas");
-      const viewport = document.querySelector(".preview-viewport");
-      const frame = document.getElementById("previewFrame");
-      const topbar = document.querySelector(".preview-topbar");
-
-      if (!canvas || !viewport) return;
-
-      const baseWidth = 1920;
-      const availableWidth = Math.max(320, viewport.clientWidth - 8);
-      const scale = Math.min(1, availableWidth / baseWidth);
-
-      canvas.style.transform = "scale(" + scale + ")";
-      canvas.style.margin = "0 auto";
-
-      if (frame) {
-        const frameHeight = Math.max(920, Number(parseFloat(frame.style.height || frame.offsetHeight || 920)));
-        const topbarHeight = topbar ? topbar.offsetHeight : 0;
-        canvas.style.height = ((frameHeight + topbarHeight) * scale) + "px";
       }
     }
 
@@ -1820,6 +1838,7 @@
 
     window.addEventListener("message", (event) => {
       const data = event.data || {};
+
       if (data.type === "vera:ready") {
         previewReady = true;
         sendSelectToPreview();
@@ -1847,6 +1866,7 @@
     });
 
     saveBtn.addEventListener("click", saveDesigner);
+
     reloadPreviewBtn.addEventListener("click", () => {
       loadPreview();
       fitPreviewCanvas();
@@ -1865,6 +1885,8 @@
     duplicateBtn.addEventListener("click", duplicateSelected);
     deleteBtn.addEventListener("click", deleteSelected);
 
+    window.addEventListener("resize", fitPreviewCanvas);
+
     (async function init() {
       await loadSiteSettings();
       const ok = await loadPageOnly();
@@ -1875,8 +1897,6 @@
       loadPreview();
       fitPreviewCanvas();
     })();
-
-    window.addEventListener("resize", fitPreviewCanvas);
   </script>
 </body>
 </html>
