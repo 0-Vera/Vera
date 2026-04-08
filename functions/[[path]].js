@@ -46,19 +46,90 @@ function isExternalLink(href) {
   return /^(https?:\/\/)/i.test(String(href || ""));
 }
 
-function resolveMenuItems(items) {
+
+function normalizeAction(action = {}, fallbackLink = "#") {
+  const type = [
+    "none",
+    "url",
+    "page",
+    "anchor",
+    "email",
+    "phone",
+    "whatsapp",
+    "download"
+  ].includes(action?.type)
+    ? action.type
+    : "url";
+
+  return {
+    type,
+    url: normalizeLink(action?.url, normalizeLink(fallbackLink, "#")),
+    pageId: normalizeText(action?.pageId),
+    anchor: normalizeText(action?.anchor),
+    email: normalizeText(action?.email),
+    phone: normalizeText(action?.phone),
+    whatsapp: normalizeText(action?.whatsapp),
+    downloadUrl: normalizeLink(action?.downloadUrl, ""),
+    newTab: !!action?.newTab
+  };
+}
+
+function resolveActionHref(action = {}, pages = [], fallbackLink = "#") {
+  const safe = normalizeAction(action, fallbackLink);
+
+  if (safe.type === "none") return "#";
+  if (safe.type === "page") {
+    const page = pages.find((entry) => entry.id === safe.pageId);
+    if (!page) return normalizeLink(fallbackLink, "#");
+    return page.isHome ? "/" : `/${String(page.slug || "").replace(/^\/+/, "")}`;
+  }
+  if (safe.type === "anchor") {
+    const anchor = String(safe.anchor || "").replace(/^#+/, "");
+    return anchor ? `#${anchor}` : "#";
+  }
+  if (safe.type === "email") {
+    return safe.email ? `mailto:${safe.email}` : "#";
+  }
+  if (safe.type === "phone") {
+    return safe.phone ? `tel:${safe.phone}` : "#";
+  }
+  if (safe.type === "whatsapp") {
+    const raw = String(safe.whatsapp || "").replace(/[^\d]/g, "");
+    return raw ? `https://wa.me/${raw}` : "#";
+  }
+  if (safe.type === "download") {
+    return normalizeLink(safe.downloadUrl, "#");
+  }
+  return normalizeLink(safe.url, normalizeLink(fallbackLink, "#"));
+}
+
+function actionAttrs(action = {}, href = "#") {
+  const safe = normalizeAction(action, href);
+  if (safe.type === "none" || href === "#") return '';
+  if (safe.newTab || isExternalLink(href) || safe.type === "download") {
+    return ' target="_blank" rel="noopener noreferrer"';
+  }
+  return '';
+}
+
+function resolveMenuItems(items, pages = []) {
   if (!Array.isArray(items)) return [];
   return items
     .filter((item) => item && item.text)
-    .map((item) => ({
-      text: normalizeText(item.text),
-      link: normalizeLink(item.link, "#")
-    }))
+    .map((item) => {
+      const action = normalizeAction(item.action, item.link);
+      const link = resolveActionHref(action, pages, item.link);
+      return {
+        text: normalizeText(item.text),
+        link,
+        action
+      };
+    })
     .filter((item) => item.text);
 }
 
-function renderMenuItems(items, currentPath = "/") {
-  return resolveMenuItems(items)
+function renderMenuItems(items, currentPath = "/", pages = []) {
+  return resolveMenuItems(items, pages)
     .map((item) => {
       const normalizedCurrent = currentPath.replace(/\/+$/, "") || "/";
       const normalizedTarget = item.link.replace(/\/+$/, "") || "/";
@@ -69,11 +140,8 @@ function renderMenuItems(items, currentPath = "/") {
           ? "active"
           : "";
 
-      const externalAttrs = isExternalLink(item.link)
-        ? ` target="_blank" rel="noopener noreferrer"`
-        : "";
-
-      return `<a class="${activeClass}" href="${escapeHtml(item.link)}"${externalAttrs}>${escapeHtml(item.text)}</a>`;
+      const extraAttrs = actionAttrs(item.action, item.link);
+      return `<a class="${activeClass}" href="${escapeHtml(item.link)}"${extraAttrs}>${escapeHtml(item.text)}</a>`;
     })
     .join("");
 }
@@ -95,6 +163,7 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
 
   const rowStart = Number(block.rowStartDesktop || 1);
   const rowSpan = Number(block.rowSpan || 1);
+  const hasManualRow = block.layoutMode === "free" || rowStart > 1;
   const minHeight = Number(block.minHeight || 0);
   const innerMaxWidth = Number(block.innerMaxWidth || 100);
 
@@ -124,7 +193,7 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
         --row-start-desktop:${rowStart};
         --row-span:${rowSpan};
         grid-column: var(--col-start-desktop) / span var(--col-span-desktop);
-        grid-row: var(--row-start-desktop) / span var(--row-span);
+        ${'${hasManualRow ? `grid-row: var(--row-start-desktop) / span var(--row-span);` : ""}'}
         justify-content:${justify};
       "
     >
@@ -153,15 +222,18 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
 }
 function renderBlock(block, pageOptions = {}, renderMeta = {}) {
   if (!block || block.visible === false) return "";
+  const pages = Array.isArray(renderMeta.pages) ? renderMeta.pages : [];
 
   if (block.type === "hero") {
+    const primaryHref = resolveActionHref(block.primaryAction, pages, block.primaryLink || "#");
+    const secondaryHref = resolveActionHref(block.secondaryAction, pages, block.secondaryLink || "#");
     return blockWrapper(block, `
       <div class="hero">
         <h1>${escapeHtml(block.title)}</h1>
         <p>${escapeHtml(block.text)}</p>
         <div class="actions">
-          ${block.primaryText ? `<a class="btn primary" href="${escapeHtml(normalizeLink(block.primaryLink, "#"))}">${escapeHtml(block.primaryText)}</a>` : ""}
-          ${block.secondaryText ? `<a class="btn" href="${escapeHtml(normalizeLink(block.secondaryLink, "#"))}">${escapeHtml(block.secondaryText)}</a>` : ""}
+          ${block.primaryText ? `<a class="btn primary" href="${escapeHtml(primaryHref)}"${actionAttrs(block.primaryAction, primaryHref)}>${escapeHtml(block.primaryText)}</a>` : ""}
+          ${block.secondaryText ? `<a class="btn" href="${escapeHtml(secondaryHref)}"${actionAttrs(block.secondaryAction, secondaryHref)}>${escapeHtml(block.secondaryText)}</a>` : ""}
         </div>
       </div>
     `, pageOptions, renderMeta);
@@ -177,23 +249,24 @@ function renderBlock(block, pageOptions = {}, renderMeta = {}) {
   }
 
   if (block.type === "button") {
+    const href = resolveActionHref(block.action, pages, block.link || "#");
     return blockWrapper(block, `
       <div class="button-block ${block.align || "left"}">
-        <a class="btn ${block.style === "primary" ? "primary" : ""}" href="${escapeHtml(normalizeLink(block.link, "#"))}">${escapeHtml(block.text)}</a>
+        <a class="btn ${block.style === "primary" ? "primary" : ""}" href="${escapeHtml(href)}"${actionAttrs(block.action, href)}>${escapeHtml(block.text)}</a>
       </div>
     `, pageOptions, renderMeta);
   }
 
   if (block.type === "image") {
     const safeSrc = normalizeImageSrc(block.src);
-    const safeLink = normalizeLink(block.link, "");
+    const safeLink = resolveActionHref(block.action, pages, block.link || "");
     const imageHtml = safeSrc
       ? `<img src="${escapeHtml(safeSrc)}" alt="${escapeHtml(block.alt || "")}" loading="lazy" decoding="async" style="max-width:${escapeHtml(block.width || "100%")};width:100%;height:auto;">`
       : `<p>Görsel URL girilmedi.</p>`;
 
     return blockWrapper(block, `
       <div class="image-block">
-        ${safeLink ? `<a href="${escapeHtml(safeLink)}">${imageHtml}</a>` : imageHtml}
+        ${safeLink && safeLink !== "#" ? `<a href="${escapeHtml(safeLink)}"${actionAttrs(block.action, safeLink)}>${imageHtml}</a>` : imageHtml}
       </div>
     `, pageOptions, renderMeta);
   }
@@ -239,8 +312,11 @@ function renderBlock(block, pageOptions = {}, renderMeta = {}) {
       renderMeta.isDesigner
         ? ` data-block-id="${escapeHtml(block.id || "")}" data-block-type="${escapeHtml(block.type || "")}"`
         : "";
+    const rowStart = Number(block.rowStartDesktop || 1);
+    const rowSpan = Number(block.rowSpan || 1);
+    const manualRow = block.layoutMode === "free" || rowStart > 1;
     return `
-      <div ${designerAttrs} style="grid-column:1 / span 12;grid-row:${Number(block.rowStartDesktop || 1)} / span ${Number(block.rowSpan || 1)};height:${Number(block.height || 32)}px"></div>
+      <div ${designerAttrs} style="grid-column:1 / span 12;${manualRow ? `grid-row:${rowStart} / span ${rowSpan};` : ""}height:${Number(block.height || 32)}px"></div>
     `;
   }
 
@@ -427,6 +503,7 @@ function renderDesignerBridge(page, currentPath) {
 
         const rowStart = Number(block.rowStartDesktop || 1);
         const rowSpan = Number(block.rowSpan || 1);
+        const manualRow = block.layoutMode === 'free' || rowStart > 1;
         const minHeight = Number(block.minHeight || 0);
         const innerMaxWidth = Number(block.innerMaxWidth || 100);
         const useSurface = block.surface !== false && block.type !== "spacer";
@@ -443,7 +520,7 @@ function renderDesignerBridge(page, currentPath) {
             data-block-type="\${escapeHtml(block.type || "")}"
             style="
               grid-column:\${desktopStart} / span \${desktopSpan};
-              grid-row:\${rowStart} / span \${rowSpan};
+              ${"${manualRow ? `grid-row:${rowStart} / span ${rowSpan};` : ``}"}
               justify-content:\${justify};
             "
           >
@@ -555,7 +632,7 @@ function renderDesignerBridge(page, currentPath) {
         }
 
         if (block.type === "spacer") {
-          return '<div data-block-id="' + escapeHtml(block.id || "") + '" data-block-type="' + escapeHtml(block.type || "") + '" style="grid-column:1 / span 12;grid-row:' + Number(block.rowStartDesktop || 1) + ' / span ' + Number(block.rowSpan || 1) + ';height:' + Number(block.height || 32) + 'px"></div>';
+          return '<div data-block-id="' + escapeHtml(block.id || "") + '" data-block-type="' + escapeHtml(block.type || "") + '" style="grid-column:1 / span 12;' + ((block.layoutMode === 'free' || Number(block.rowStartDesktop || 1) > 1) ? ('grid-row:' + Number(block.rowStartDesktop || 1) + ' / span ' + Number(block.rowSpan || 1) + ';') : '') + 'height:' + Number(block.height || 32) + 'px"></div>';
         }
 
         return "";
@@ -686,7 +763,7 @@ function renderPage({ siteSettings, page, currentPath, isDesigner }) {
 
   const contentHtml = isCodeMode
     ? `${code.html || ""}`
-    : blocks.map((block) => renderBlock(block, pageOptions, { isDesigner })).join("") + (overrides.html || "");
+    : blocks.map((block) => renderBlock(block, pageOptions, { isDesigner, pages })).join("") + (overrides.html || "");
 
   return `<!DOCTYPE html>
 <html lang="tr">
@@ -736,6 +813,9 @@ function renderPage({ siteSettings, page, currentPath, isDesigner }) {
       display:grid;
       grid-template-columns:repeat(${Number(pageOptions.gridColumns || 12)}, minmax(0,1fr));
       gap:${Number(pageOptions.sectionGap || 18)}px;
+      grid-auto-flow:dense;
+      grid-auto-rows:minmax(24px, auto);
+      align-items:start;
       min-height:40vh;
     }
     .block-shell{
@@ -797,8 +877,11 @@ function renderPage({ siteSettings, page, currentPath, isDesigner }) {
   <header class="site-header">
     <div class="site-header-inner">
       <a class="site-brand" href="${escapeHtml(normalizeLink(siteSettings.logoLink || "/", "/"))}">${escapeHtml(siteSettings.logoText || siteSettings.siteName || "Vera")}</a>
-      <nav class="site-nav" aria-label="Site menüsü">${renderMenuItems(siteSettings.menuItems || [], currentPath)}</nav>
-      ${siteSettings.showTopCta && siteSettings.topCtaText ? `<a class="top-cta" href="${escapeHtml(normalizeLink(siteSettings.topCtaLink || "#", "#"))}"${isExternalLink(siteSettings.topCtaLink) ? ` target="_blank" rel="noopener noreferrer"` : ""}>${escapeHtml(siteSettings.topCtaText)}</a>` : ""}
+      <nav class="site-nav" aria-label="Site menüsü">${renderMenuItems(siteSettings.menuItems || [], currentPath, pages)}</nav>
+      ${siteSettings.showTopCta && siteSettings.topCtaText ? (() => {
+        const ctaHref = resolveActionHref(siteSettings.topCtaAction, pages, siteSettings.topCtaLink || "#");
+        return `<a class="top-cta" href="${escapeHtml(ctaHref)}"${actionAttrs(siteSettings.topCtaAction, ctaHref)}>${escapeHtml(siteSettings.topCtaText)}</a>`;
+      })() : ""}
     </div>
   </header>` : ""}
 
@@ -844,8 +927,7 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
   const pathname = url.pathname;
-  const normalizedPathname =
-    pathname !== "/" ? pathname.replace(/\/+$/, "") : "/";
+  const normalizedPathname = pathname !== "/" ? pathname.replace(/\/+$/, "") : "/";
   const isDesigner = url.searchParams.get("vera_designer") === "1";
 
   if (
