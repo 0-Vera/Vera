@@ -588,6 +588,37 @@
       .stage-main{padding:10px}
       .preview-topbar{padding:0 10px}
     }
+    .preview-viewport{
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  overflow:auto;
+}
+
+.preview-canvas{
+  width:1920px;
+  flex:0 0 1920px;
+  transform-origin:top center;
+}
+
+.preview-shell{
+  width:1920px;
+  max-width:none;
+  margin:0 auto;
+}
+    .sidebar{
+  overflow:auto;
+}
+
+.inspector-shell{
+  overflow:auto;
+}
+
+.stage-main{
+  overflow:auto;
+}
   </style>
 </head>
 <body>
@@ -654,13 +685,17 @@
         </div>
       </div>
 
-      <div class="stage-main">
-        <div class="preview-shell">
+<div class="stage-main">
+  <div class="preview-viewport">
+    <div class="preview-canvas">
+      <div class="preview-shell">
           <div class="preview-topbar">
             <div class="preview-dots"><i></i><i></i><i></i></div>
             <div class="preview-url" id="previewUrlChip">/</div>
           </div>
           <iframe id="previewFrame" class="preview-frame" title="Sayfa önizleme"></iframe>
+              </div>
+    </div>
         </div>
       </div>
     </main>
@@ -1599,7 +1634,20 @@
         alert(err.message || "Global bölüm kaydedilemedi.");
       }
     }
+function fitPreviewCanvas() {
 
+  const canvas = document.querySelector(".preview-canvas");
+  const viewport = document.querySelector(".preview-viewport");
+
+  if(!canvas || !viewport) return;
+
+  const baseWidth = 1920;
+  const availableWidth = viewport.clientWidth;
+
+  const scale = Math.min(1, availableWidth / baseWidth);
+
+  canvas.style.transform = "scale(" + scale + ")";
+}
     function insertReusableSection(sectionId) {
       const section = (siteSettings?.reusableSections || []).find((item) => item.id === sectionId && item.block);
       if (!section) {
@@ -1723,6 +1771,7 @@
 
         renderLocalUi();
         loadPreview();
+        fitPreviewCanvas();
         alert("Kaydedildi.");
       } catch {
         alert("İstek sırasında hata oluştu.");
@@ -1781,6 +1830,7 @@
       renderLocalUi();
       loadPreview();
     })();
+    window.addEventListener("resize", fitPreviewCanvas);
   </script>
 </body>
 </html>
