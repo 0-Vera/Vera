@@ -270,13 +270,13 @@
         });
         const data = await res.json();
         if (!data.ok || !data.authenticated) {
-          location.replace('/login');
+          location.replace('/login/index.html');
           return;
         }
         loading.classList.add('hidden');
         app.classList.remove('hidden');
       } catch {
-        location.replace('/login');
+        location.replace('/login/index.html');
       }
     }
 
@@ -345,7 +345,7 @@
           headers: { Accept: 'application/json' }
         });
       } catch {}
-      location.replace('/login');
+      location.replace('/login/index.html');
     }
 
     addMenuBtn.addEventListener('click', function() {
