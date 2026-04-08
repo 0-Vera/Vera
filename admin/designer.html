@@ -6,15 +6,19 @@
   <title>Vera Admin - Tasarım Düzenleyici</title>
   <style>
     *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#0f172a}
-
-    .loading{
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#64748b
+    :root{
+      --body-bg:#f8fafc;
+      --body-text:#0f172a;
+      --border-color:#e2e8f0;
+      --primary-color:#2563eb;
+      --container-width:1200px;
+      --page-content-width:1200px;
+      --page-padding-x:24px;
+      --section-gap:18px;
+      --grid-columns:12;
     }
+    body{margin:0;font-family:Arial,sans-serif;background:#eef3f8;color:#0f172a}
+    .loading{min-height:100vh;display:flex;align-items:center;justify-content:center;color:#64748b}
 
     .app{
       min-height:100vh;
@@ -26,35 +30,26 @@
       background:#ffffff;
       border-right:1px solid #e2e8f0;
       display:grid;
-      grid-template-rows:auto auto 1fr auto;
+      grid-template-rows:auto auto auto 1fr auto;
       min-height:100vh;
       position:sticky;
       top:0;
     }
 
-    .side-top{
-      padding:12px;
-      border-bottom:1px solid #eef2f7;
-    }
+    .side-top{padding:12px;border-bottom:1px solid #eef2f7}
+    .side-top h1{margin:0 0 4px;font-size:16px}
+    .side-top p{margin:0;font-size:12px;color:#64748b}
 
-    .side-top h1{
-      margin:0 0 4px;
-      font-size:16px;
-    }
-
-    .side-top p{
-      margin:0;
-      font-size:12px;
-      color:#64748b;
-    }
-
+    .add-toolbar,
     .mini-toolbar{
       padding:10px;
       border-bottom:1px solid #eef2f7;
       display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
       gap:6px;
     }
+
+    .add-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+    .mini-grid-toolbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 
     .tiny-btn{
       border:0;
@@ -68,192 +63,39 @@
       min-width:0;
     }
 
-    .inspector{
-      padding:10px;
-      border-bottom:1px solid #eef2f7;
-    }
+    .inspector{padding:10px;border-bottom:1px solid #eef2f7}
+    .mini-card{border:1px solid #e2e8f0;border-radius:10px;padding:8px;background:#fff}
+    .mini-card-title{font-size:11px;font-weight:700;margin-bottom:8px;color:#334155}
+    .mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+    .mini-grid label{display:block;margin-bottom:3px;font-size:10px;color:#475569}
+    .mini-grid input{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:7px 8px;font-size:11px;background:#fff}
 
-    .mini-card{
-      border:1px solid #e2e8f0;
-      border-radius:10px;
-      padding:8px;
-      background:#fff;
+    .block-list{min-height:0;overflow:auto;padding:8px}
+    .block-item{border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;overflow:hidden;background:#fff}
+    .block-item.selected{border-color:#2563eb;box-shadow:0 0 0 1px rgba(37,99,235,.10)}
+    .block-head{display:grid;grid-template-columns:18px 1fr auto;gap:6px;align-items:center;padding:6px}
+    .block-arrow,.block-name,.block-mini{border:0;background:transparent;cursor:pointer;padding:0}
+    .block-arrow{font-size:11px;color:#475569;width:18px;height:18px}
+    .block-name{text-align:left;font-size:11px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .block-actions{display:flex;gap:4px}
+    .block-mini{width:18px;height:18px;border-radius:6px;background:#e2e8f0;font-size:10px;font-weight:700;color:#0f172a}
+    .block-mini.danger{background:#fee2e2;color:#991b1b}
+    .block-body{padding:6px;border-top:1px solid #eef2f7;background:#fafcff}
+    .block-body label{display:block;margin-bottom:3px;font-size:10px;color:#475569}
+    .block-body input,.block-body select,.block-body textarea{
+      width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:7px 8px;font-size:11px;background:#fff;margin-bottom:7px
     }
+    .block-body textarea{min-height:64px;resize:vertical}
 
-    .mini-card-title{
-      font-size:11px;
-      font-weight:700;
-      margin-bottom:8px;
-      color:#334155;
-    }
-
-    .mini-grid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:6px;
-    }
-
-    .mini-grid label{
-      display:block;
-      margin-bottom:3px;
-      font-size:10px;
-      color:#475569;
-    }
-
-    .mini-grid input{
-      width:100%;
-      border:1px solid #cbd5e1;
-      border-radius:8px;
-      padding:7px 8px;
-      font-size:11px;
-      background:#fff;
-    }
-
-    .block-list{
-      min-height:0;
-      overflow:auto;
-      padding:8px;
-    }
-
-    .block-item{
-      border:1px solid #e2e8f0;
-      border-radius:10px;
-      margin-bottom:8px;
-      overflow:hidden;
-      background:#fff;
-    }
-
-    .block-item.selected{
-      border-color:#2563eb;
-      box-shadow:0 0 0 1px rgba(37,99,235,.10);
-    }
-
-    .block-head{
-      display:grid;
-      grid-template-columns:18px 1fr auto;
-      gap:6px;
-      align-items:center;
-      padding:6px;
-    }
-
-    .block-arrow,.block-name,.block-mini{
-      border:0;
-      background:transparent;
-      cursor:pointer;
-      padding:0;
-    }
-
-    .block-arrow{
-      font-size:11px;
-      color:#475569;
-      width:18px;
-      height:18px;
-    }
-
-    .block-name{
-      text-align:left;
-      font-size:11px;
-      font-weight:700;
-      color:#0f172a;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .block-actions{
-      display:flex;
-      gap:4px;
-    }
-
-    .block-mini{
-      width:18px;
-      height:18px;
-      border-radius:6px;
-      background:#e2e8f0;
-      font-size:10px;
-      font-weight:700;
-      color:#0f172a;
-    }
-
-    .block-mini.danger{
-      background:#fee2e2;
-      color:#991b1b;
-    }
-
-    .block-body{
-      padding:6px;
-      border-top:1px solid #eef2f7;
-      background:#fafcff;
-    }
-
-    .block-body label{
-      display:block;
-      margin-bottom:3px;
-      font-size:10px;
-      color:#475569;
-    }
-
-    .block-body input,
-    .block-body select,
-    .block-body textarea{
-      width:100%;
-      border:1px solid #cbd5e1;
-      border-radius:8px;
-      padding:7px 8px;
-      font-size:11px;
-      background:#fff;
-      margin-bottom:7px;
-    }
-
-    .block-body textarea{
-      min-height:64px;
-      resize:vertical;
-    }
-
-    .side-bottom{
-      padding:10px;
-      border-top:1px solid #eef2f7;
-      display:grid;
-      gap:8px;
-    }
-
-    .btn{
-      border:0;
-      border-radius:10px;
-      padding:10px 12px;
-      font-size:12px;
-      font-weight:700;
-      cursor:pointer;
-    }
-
+    .side-bottom{padding:10px;border-top:1px solid #eef2f7;display:grid;gap:8px}
+    .btn{border:0;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:700;cursor:pointer}
     .btn-primary{background:#2563eb;color:#fff}
     .btn-secondary{background:#e2e8f0;color:#0f172a}
     .btn-danger{background:#dc2626;color:#fff}
 
-    .stage-wrap{
-      min-width:0;
-      overflow:auto;
-      padding:18px;
-    }
-
-    .stage-toolbar{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-bottom:12px;
-    }
-
-    .chip{
-      display:inline-flex;
-      align-items:center;
-      padding:8px 10px;
-      border-radius:999px;
-      background:#fff;
-      border:1px solid #dbe3ee;
-      font-size:12px;
-      font-weight:700;
-      color:#334155;
-    }
+    .stage-wrap{min-width:0;overflow:auto;padding:18px}
+    .stage-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .chip{display:inline-flex;align-items:center;padding:8px 10px;border-radius:999px;background:#fff;border:1px solid #dbe3ee;font-size:12px;font-weight:700;color:#334155}
 
     .page-frame{
       width:min(100%, 1800px);
@@ -266,19 +108,19 @@
     }
 
     .site-header{
-      border-bottom:1px solid #e2e8f0;
+      border-bottom:1px solid var(--border-color);
       background:rgba(255,255,255,.92);
       backdrop-filter:blur(10px);
+      position:sticky;
+      top:0;
+      z-index:10;
     }
-
-    .site-header-inner,
-    .site-footer-inner{
+    .site-header-inner,.site-footer-inner{
       max-width:var(--container-width);
       margin:0 auto;
       padding-left:24px;
       padding-right:24px;
     }
-
     .site-header-inner{
       min-height:72px;
       display:flex;
@@ -286,21 +128,8 @@
       justify-content:space-between;
       gap:16px;
     }
-
-    .site-brand{
-      text-decoration:none;
-      font-size:24px;
-      font-weight:800;
-      color:inherit;
-    }
-
-    .site-nav{
-      display:flex;
-      align-items:center;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-
+    .site-brand{text-decoration:none;font-size:24px;font-weight:800;color:inherit}
+    .site-nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .site-nav a{
       text-decoration:none;
       color:#334155;
@@ -310,12 +139,7 @@
       border-radius:10px;
       transition:background .18s ease,color .18s ease;
     }
-
-    .site-nav a:hover,.site-nav a.active{
-      background:#eff6ff;
-      color:#1d4ed8;
-    }
-
+    .site-nav a:hover,.site-nav a.active{background:#eff6ff;color:#1d4ed8}
     .top-cta{
       display:inline-flex;
       align-items:center;
@@ -336,6 +160,8 @@
       padding-bottom:24px;
       padding-left:var(--page-padding-x);
       padding-right:var(--page-padding-x);
+      background:var(--body-bg);
+      color:var(--body-text);
     }
 
     .grid-canvas{
@@ -343,56 +169,56 @@
       grid-template-columns:repeat(var(--grid-columns), minmax(0,1fr));
       gap:var(--section-gap);
       min-height:60vh;
-      background:
-        linear-gradient(to right, rgba(37,99,235,.08) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(37,99,235,.05) 1px, transparent 1px),
-        var(--body-bg);
-      background-size:calc(100% / var(--grid-columns)) 100%, 100% 48px, auto;
-      border-radius:12px;
+      background:var(--body-bg);
     }
 
-    .design-item{
-      min-width:0;
-      padding:4px;
-      cursor:pointer;
-    }
-
-    .design-item.selected .design-card{
-      outline:2px solid #2563eb;
-      outline-offset:0;
-    }
-
+    .design-item{min-width:0;padding:4px;cursor:pointer}
+    .design-item.selected .design-card{outline:2px solid #2563eb;outline-offset:0}
     .design-card{
       width:100%;
       min-width:0;
-      border:1px dashed var(--border-color);
+      border:1px solid var(--border-color);
       background:#fff;
-      box-shadow:0 1px 2px rgba(15,23,42,.04);
+      box-shadow:0 1px 2px rgba(15,23,42,.05);
+      overflow-wrap:anywhere;
     }
 
-    .design-card h2,.design-card h4{margin:0 0 10px}
-    .design-card p{margin:0 0 10px;line-height:1.7}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .actions span,.actions a{
+    .hero h1{margin:0 0 12px;font-size:38px;line-height:1.15}
+    .hero p{margin:0 0 24px;line-height:1.7;font-size:16px}
+    .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .actions a,.actions span{
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:8px 10px;
-      border-radius:8px;
-      font-size:11px;
+      text-decoration:none;
+      border-radius:12px;
+      padding:12px 18px;
       font-weight:700;
       border:1px solid #cbd5e1;
-      background:#fff;
-      text-decoration:none;
-      color:inherit;
+      color:#0f172a;
+      background:#ffffff;
+      min-width:120px;
     }
+    .actions .primary{
+      background:var(--primary-color);
+      color:#ffffff;
+      border-color:var(--primary-color);
+    }
+
+    .text-block h2{margin:0 0 10px;font-size:24px}
+    .text-block p{margin:0;line-height:1.8;white-space:pre-line}
+    .image-block img{max-width:100%;border-radius:12px;display:inline-block;height:auto}
+    .button-block{display:flex}
+    .button-block.left{justify-content:flex-start}
+    .button-block.center{justify-content:center}
+    .button-block.right{justify-content:flex-end}
+    .html-block{line-height:1.8}
 
     .site-footer{
       margin-top:28px;
-      border-top:1px solid #e2e8f0;
+      border-top:1px solid var(--border-color);
       background:#ffffff;
     }
-
     .site-footer-inner{
       padding-top:18px;
       padding-bottom:18px;
@@ -402,25 +228,38 @@
       gap:18px;
       flex-wrap:wrap;
     }
-
-    .footer-muted{
-      color:#64748b;
-      font-size:14px;
-    }
+    .footer-muted{color:#64748b;font-size:14px}
 
     @media(max-width:1200px){
       .app{grid-template-columns:1fr}
       .side{position:relative;min-height:auto}
     }
+
+    @media(max-width:900px){
+      .site-header-inner,.site-footer-inner{flex-direction:column;align-items:flex-start}
+      .hero h1{font-size:30px}
+    }
   </style>
 </head>
 <body>
   <div id="loading" class="loading">Tasarım düzenleyici yükleniyor...</div>
+
   <div id="app" class="app" style="display:none">
     <aside class="side">
       <div class="side-top">
         <h1 id="designerTitle">Tasarım Düzenleyici</h1>
         <p id="designerSub">Sayfa yükleniyor...</p>
+      </div>
+
+      <div class="add-toolbar">
+        <div class="add-grid">
+          <button class="tiny-btn" data-add="hero" type="button">Hero</button>
+          <button class="tiny-btn" data-add="text" type="button">Metin</button>
+          <button class="tiny-btn" data-add="button" type="button">Buton</button>
+          <button class="tiny-btn" data-add="image" type="button">Görsel</button>
+          <button class="tiny-btn" data-add="html" type="button">HTML</button>
+          <button class="tiny-btn" data-add="spacer" type="button">Boşluk</button>
+        </div>
       </div>
 
       <div id="miniToolbar" class="mini-toolbar"></div>
@@ -452,11 +291,12 @@
     let siteSettings = null;
     let selectedId = null;
     let expandedIds = new Set();
+    let contentTheme = null;
 
     function escapeHtml(value) {
       return String(value || "")
         .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
+        .replace(/</g, "&lt;')
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
     }
@@ -494,6 +334,43 @@
       if (/^https?:\/\//i.test(raw)) return raw;
       if (/^data:image\//i.test(raw)) return raw;
       return "";
+    }
+
+    function newBlock(type, order = 0) {
+      const base = {
+        id: "b-" + Math.random().toString(36).slice(2) + Date.now(),
+        order,
+        type,
+        visible: true,
+        background: "#ffffff",
+        color: "#0f172a",
+        padding: 24,
+        radius: 18,
+        align: "left",
+        maxWidth: 100,
+        cssClass: "",
+        htmlId: "",
+        layoutMode: "grid",
+        fullWidth: false,
+        colStartDesktop: 1,
+        colSpanDesktop: 12,
+        colStartTablet: 1,
+        colSpanTablet: 12,
+        colStartMobile: 1,
+        colSpanMobile: 12,
+        rowSpan: 1,
+        minHeight: 0,
+        contentWidthMode: "full",
+        innerMaxWidth: 100
+      };
+
+      if (type === "hero") return { ...base, title: "Başlık", text: "Açıklama", primaryText: "Buton", primaryLink: "#", secondaryText: "", secondaryLink: "", align: "center", padding: 32, radius: 20, fullWidth: true };
+      if (type === "text") return { ...base, title: "", text: "Metin", colStartDesktop: 1, colSpanDesktop: 6 };
+      if (type === "button") return { ...base, text: "Buton", link: "#", style: "primary", colStartDesktop: 1, colSpanDesktop: 4 };
+      if (type === "image") return { ...base, src: "", alt: "", width: "100%", link: "", align: "center", colStartDesktop: 7, colSpanDesktop: 6 };
+      if (type === "html") return { ...base, html: "<div>Özel HTML</div>" };
+      if (type === "spacer") return { ...base, height: 32, background: "transparent", padding: 0, radius: 0, fullWidth: true };
+      return base;
     }
 
     function normalizeBlock(block = {}, index = 0) {
@@ -590,15 +467,26 @@
       updateSelected({ fullWidth: !block.fullWidth });
     }
 
+    function addBlock(type) {
+      if (!pageData) return;
+      const block = normalizeBlock(newBlock(type, pageData.blocks.length), pageData.blocks.length);
+      pageData.blocks.push(block);
+      selectedId = block.id;
+      expandedIds.add(block.id);
+      renderDesigner();
+    }
+
     function renderToolbar() {
       miniToolbar.innerHTML = `
-        <button class="tiny-btn" data-action="left" type="button">←</button>
-        <button class="tiny-btn" data-action="right" type="button">→</button>
-        <button class="tiny-btn" data-action="shrink" type="button">－</button>
-        <button class="tiny-btn" data-action="grow" type="button">＋</button>
-        <button class="tiny-btn" data-action="rowless" type="button">▭－</button>
-        <button class="tiny-btn" data-action="rowmore" type="button">▭＋</button>
-        <button class="tiny-btn" data-action="full" type="button">□</button>
+        <div class="mini-grid-toolbar">
+          <button class="tiny-btn" data-action="left" type="button">←</button>
+          <button class="tiny-btn" data-action="right" type="button">→</button>
+          <button class="tiny-btn" data-action="shrink" type="button">－</button>
+          <button class="tiny-btn" data-action="grow" type="button">＋</button>
+          <button class="tiny-btn" data-action="rowless" type="button">▭－</button>
+          <button class="tiny-btn" data-action="rowmore" type="button">▭＋</button>
+          <button class="tiny-btn" data-action="full" type="button">□</button>
+        </div>
       `;
 
       miniToolbar.querySelectorAll("[data-action]").forEach((btn) => {
@@ -734,6 +622,7 @@
               <div class="block-actions">
                 <button class="block-mini" type="button" data-up="${index}">↑</button>
                 <button class="block-mini" type="button" data-down="${index}">↓</button>
+                <button class="block-mini danger" type="button" data-remove="${index}">×</button>
               </div>
             </div>
             ${expanded ? `<div class="block-body">${renderBlockFields(block, index)}</div>` : ""}
@@ -769,6 +658,16 @@
           const tmp = pageData.blocks[index];
           pageData.blocks[index] = pageData.blocks[target];
           pageData.blocks[target] = tmp;
+          renderDesigner();
+        });
+      });
+
+      blockList.querySelectorAll("[data-remove]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const index = Number(btn.getAttribute("data-remove"));
+          const removingId = pageData.blocks[index]?.id;
+          pageData.blocks.splice(index, 1);
+          if (selectedId === removingId) selectedId = pageData.blocks[0]?.id || null;
           renderDesigner();
         });
       });
@@ -840,31 +739,39 @@
 
       if (block.type === "hero") {
         inner = `
-          <h2>${escapeHtml(block.title || "")}</h2>
-          <p>${escapeHtml(block.text || "")}</p>
-          <div class="actions">
-            ${block.primaryText ? `<span style="background:var(--primary-color);border-color:var(--primary-color);color:#fff">${escapeHtml(block.primaryText)}</span>` : ""}
-            ${block.secondaryText ? `<span>${escapeHtml(block.secondaryText)}</span>` : ""}
+          <div class="hero">
+            <h1>${escapeHtml(block.title || "")}</h1>
+            <p>${escapeHtml(block.text || "")}</p>
+            <div class="actions">
+              ${block.primaryText ? `<span class="primary">${escapeHtml(block.primaryText)}</span>` : ""}
+              ${block.secondaryText ? `<span>${escapeHtml(block.secondaryText)}</span>` : ""}
+            </div>
           </div>
         `;
       } else if (block.type === "text") {
         inner = `
-          ${block.title ? `<h4>${escapeHtml(block.title)}</h4>` : ""}
-          <p>${escapeHtml(block.text || "")}</p>
+          <div class="text-block">
+            ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
+            <p>${escapeHtml(block.text || "")}</p>
+          </div>
         `;
       } else if (block.type === "button") {
         inner = `
-          <div class="actions" style="justify-content:${align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start"}">
-            <span style="${block.style === "primary" ? "background:var(--primary-color);border-color:var(--primary-color);color:#fff" : ""}">${escapeHtml(block.text || "")}</span>
+          <div class="button-block ${align}">
+            <div class="actions">
+              <span class="${block.style === "primary" ? "primary" : ""}">${escapeHtml(block.text || "")}</span>
+            </div>
           </div>
         `;
       } else if (block.type === "image") {
         const src = normalizeImageSrc(block.src);
-        inner = src
-          ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(block.alt || "")}" style="max-width:${escapeHtml(block.width || "100%")};width:100%;height:auto;border-radius:10px;">`
-          : `<p>Görsel URL girilmedi.</p>`;
+        inner = `
+          <div class="image-block">
+            ${src ? `<img src="${escapeHtml(src)}" alt="${escapeHtml(block.alt || "")}" style="width:100%;max-width:${escapeHtml(block.width || "100%")}">` : `<p>Görsel URL girilmedi.</p>`}
+          </div>
+        `;
       } else if (block.type === "html") {
-        inner = block.html || "";
+        inner = `<div class="html-block">${block.html || ""}</div>`;
       } else if (block.type === "spacer") {
         inner = `<div style="height:${Number(block.height || 32)}px"></div>`;
       }
@@ -897,54 +804,53 @@
       `;
     }
 
-    function renderPageFrame() {
+    function applyThemeVars() {
+      const theme = contentTheme || {};
       const pageOptions = pageData.pageOptions || {};
+
+      document.documentElement.style.setProperty("--body-bg", theme.bodyBg || "#f8fafc");
+      document.documentElement.style.setProperty("--body-text", theme.bodyText || "#0f172a");
+      document.documentElement.style.setProperty("--border-color", theme.borderColor || "#e2e8f0");
+      document.documentElement.style.setProperty("--primary-color", theme.primaryColor || "#2563eb");
+      document.documentElement.style.setProperty("--container-width", (Number(theme.containerWidth || 1200)) + "px");
+      document.documentElement.style.setProperty("--page-content-width", (Number(pageOptions.contentWidth || theme.containerWidth || 1200)) + "px");
+      document.documentElement.style.setProperty("--page-padding-x", (Number(pageOptions.pagePaddingX || 24)) + "px");
+      document.documentElement.style.setProperty("--section-gap", (Number(pageOptions.sectionGap || 18)) + "px");
+      document.documentElement.style.setProperty("--grid-columns", String(Number(pageOptions.gridColumns || 12)));
+    }
+
+    function renderPageFrame() {
+      applyThemeVars();
+
       const path = pageData.isHome ? "/" : "/" + (pageData.slug || "");
       pagePathChip.textContent = path || "/";
       pageModeChip.textContent = pageData.editorMode || "blocks";
 
-      const styleVars = `
-        --container-width:${Number(siteSettings?.containerWidth || 1200)}px;
-        --page-content-width:${Number(pageOptions.contentWidth || 1200)}px;
-        --page-padding-x:${Number(pageOptions.pagePaddingX || 24)}px;
-        --section-gap:${Number(pageOptions.sectionGap || 18)}px;
-        --grid-columns:${Number(pageOptions.gridColumns || 12)};
-        --body-bg:${escapeHtml(siteSettings?.theme?.bodyBg || "#f8fafc")};
-        --border-color:${escapeHtml(siteSettings?.theme?.borderColor || "#e2e8f0")};
-        --primary-color:${escapeHtml(siteSettings?.theme?.primaryColor || "#2563eb")};
-      `;
-
       if (pageData.editorMode === "code") {
         pageFrame.innerHTML = `
-          <div style="${styleVars}">
-            ${renderHeader()}
-            <main class="page-content">
-              <div style="border:1px dashed #cbd5e1;border-radius:12px;padding:16px;background:#fff">
-                ${pageData.code?.html || "<p>Kod görünümü aktif.</p>"}
-              </div>
-            </main>
-            ${renderFooter()}
-          </div>
+          ${renderHeader()}
+          <main class="page-content">
+            <div style="border:1px dashed #cbd5e1;border-radius:12px;padding:16px;background:#fff">
+              ${pageData.code?.html || "<p>Kod görünümü aktif.</p>"}
+            </div>
+          </main>
+          ${renderFooter()}
         `;
         return;
       }
 
       pageFrame.innerHTML = `
-        <div style="${styleVars}">
-          ${renderHeader()}
-          <main class="page-content">
-            <div class="grid-canvas">
-              ${(pageData.blocks || []).map(renderBlock).join("")}
-            </div>
-          </main>
-          ${renderFooter()}
-        </div>
+        ${renderHeader()}
+        <main class="page-content">
+          <div class="grid-canvas">
+            ${(pageData.blocks || []).map(renderBlock).join("")}
+          </div>
+        </main>
+        ${renderFooter()}
       `;
 
       pageFrame.querySelectorAll(".design-item").forEach((node) => {
-        node.addEventListener("click", () => {
-          setSelected(node.getAttribute("data-id"));
-        });
+        node.addEventListener("click", () => setSelected(node.getAttribute("data-id")));
       });
     }
 
@@ -986,7 +892,7 @@
         };
 
         siteSettings = settingsJson.settings || {};
-        siteSettings.theme = contentJson.content?.theme || {};
+        contentTheme = contentJson.content?.theme || {};
 
         selectedId = pageData.blocks?.[0]?.id || null;
         if (selectedId) expandedIds.add(selectedId);
@@ -1030,6 +936,10 @@
         alert("İstek sırasında hata oluştu.");
       }
     }
+
+    document.querySelectorAll("[data-add]").forEach((btn) => {
+      btn.addEventListener("click", () => addBlock(btn.getAttribute("data-add")));
+    });
 
     saveBtn.addEventListener("click", saveDesigner);
 
