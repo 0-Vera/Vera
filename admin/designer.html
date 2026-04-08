@@ -588,7 +588,7 @@
       .stage-main{padding:10px}
       .preview-topbar{padding:0 10px}
     }
-    .iframe-shell{
+.preview-shell{
   transform-origin: top center;
   transition: transform .15s ease;
 }
@@ -1789,28 +1789,22 @@
       app.style.display = "grid";
       renderLocalUi();
       loadPreview();
+      applyPreviewZoom(100);
     })();
-    function applyPreviewZoom(value) {
+function applyPreviewZoom(value) {
   const scale = Number(value) / 100;
-
-  const shell = document.querySelector(".iframe-shell");
+  const shell = document.querySelector(".preview-shell");
   const label = document.getElementById("previewZoomLabel");
 
-  if(shell){
-    shell.style.transform = "scale(" + scale + ")";
-    shell.style.width = (100 / scale) + "%";
+  if (shell) {
+    shell.style.transform = `scale(${scale})`;
+    shell.style.width = `${100 / scale}%`;
+    shell.style.margin = "0 auto";
   }
 
-  if(label){
+  if (label) {
     label.textContent = "%" + value;
   }
-}
-    const zoomSlider = document.getElementById("previewZoom");
-
-if(zoomSlider){
-  zoomSlider.addEventListener("input", function(){
-    applyPreviewZoom(this.value);
-  });
 }
   </script>
 </body>
