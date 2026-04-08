@@ -55,3 +55,12 @@
   - `page` türü buton bloklarında da seçilebilir oldu
 - `shared-page-builder.js` yeni blok tipleri ve gelişmiş buton eylemi ile hizalandı.
 - `functions/[[path]].js` canlı tarafta `stats` ve `faq` bloklarını render edecek şekilde genişletildi.
+# PROJE NOTLARI
+
+
+## 2026-04-08 / Rev5
+- Gerçek backend destekli global bölüm sistemi eklendi.
+- `site-settings` içine `reusableSections` alanı eklendi; admin oturumuyla okunup yazılıyor.
+- Tasarım düzenleyicide seçili bir blok global bölüm olarak kaydedilebiliyor, mevcut global bölüm seçili bloktan güncellenebiliyor ve sayfaya referans olarak eklenebiliyor.
+- Canlı render tarafı `global-section-ref` blok tipini destekliyor; paylaşılan bölüm güncellenince onu referanslayan tüm sayfalara yansıyor.
+- `functions/[[path]].js` içinde `/login/` ve benzeri trailing slash kaynaklı route ayrımı normalize edildi.
