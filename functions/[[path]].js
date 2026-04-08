@@ -1,4 +1,5 @@
 const MAX_GRID_COLUMNS = 24;
+
 function escapeHtml(value) {
   return String(value || "")
     .replace(/&/g, "&amp;")
@@ -46,7 +47,6 @@ function normalizeImageSrc(value) {
 function isExternalLink(href) {
   return /^(https?:\/\/)/i.test(String(href || ""));
 }
-
 
 function normalizeAction(action = {}, fallbackLink = "#") {
   const type = [
@@ -106,11 +106,11 @@ function resolveActionHref(action = {}, pages = [], fallbackLink = "#") {
 
 function actionAttrs(action = {}, href = "#") {
   const safe = normalizeAction(action, href);
-  if (safe.type === "none" || href === "#") return '';
+  if (safe.type === "none" || href === "#") return "";
   if (safe.newTab || isExternalLink(href) || safe.type === "download") {
     return ' target="_blank" rel="noopener noreferrer"';
   }
-  return '';
+  return "";
 }
 
 function resolveMenuItems(items, pages = []) {
@@ -128,7 +128,6 @@ function resolveMenuItems(items, pages = []) {
     })
     .filter((item) => item.text);
 }
-
 
 function splitLines(value) {
   return String(value || "")
@@ -211,23 +210,22 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
       : "";
 
   return `
-  <section
-    class="block-shell"
-    ${designerAttrs}
-    style="
-      --col-start-desktop:${desktopStart};
-      --col-span-desktop:${desktopSpan};
-      --col-start-tablet:${tabletStart};
-      --col-span-tablet:${tabletSpan};
-      --col-start-mobile:${mobileStart};
-      --col-span-mobile:${mobileSpan};
-      --row-start-desktop:${rowStart};
-      --row-span:${rowSpan};
-      grid-column: var(--col-start-desktop) / span var(--col-span-desktop);
-      ${hasManualRow ? `grid-row: var(--row-start-desktop) / span var(--row-span);` : ""}
-      justify-content:${justify};
-    "
-  >
+    <section
+      class="block-shell"
+      ${designerAttrs}
+      style="
+        --col-start-desktop:${desktopStart};
+        --col-span-desktop:${desktopSpan};
+        --col-start-tablet:${tabletStart};
+        --col-span-tablet:${tabletSpan};
+        --col-start-mobile:${mobileStart};
+        --col-span-mobile:${mobileSpan};
+        --row-start-desktop:${rowStart};
+        --row-span:${rowSpan};
+        grid-column: var(--col-start-desktop) / span var(--col-span-desktop);
+        ${hasManualRow ? `grid-row: var(--row-start-desktop) / span var(--row-span);` : ""}
+        justify-content:${justify};
+      "
     >
       <div
         ${htmlId}
@@ -252,6 +250,7 @@ function blockWrapper(block, innerHtml, pageOptions = {}, renderMeta = {}) {
     </section>
   `;
 }
+
 function renderBlock(block, pageOptions = {}, renderMeta = {}) {
   if (!block || block.visible === false) return "";
   const pages = Array.isArray(renderMeta.pages) ? renderMeta.pages : [];
@@ -271,56 +270,45 @@ function renderBlock(block, pageOptions = {}, renderMeta = {}) {
     `, pageOptions, renderMeta);
   }
 
-if (block.type === "section") {
-  return blockWrapper(block,
-    '<div class="section-intro">' +
-      (block.title ? '<h2>' + escapeHtml(block.title) + '</h2>' : '') +
-      (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
-    '</div>'
-  );
-}
+  if (block.type === "section") {
+    return blockWrapper(block, `
+      <div class="section-intro">
+        ${block.title ? `<h2>${escapeHtml(block.title)}</h2>` : ""}
+        ${block.text ? `<p>${escapeHtml(block.text)}</p>` : ""}
+      </div>
+    `, pageOptions, renderMeta);
+  }
 
-if (block.type === "features") {
-  const items = String(block.items || "")
-    .split(/\r?\n/)
-    .map(function(item){ return item.trim(); })
-    .filter(Boolean);
+  if (block.type === "features") {
+    const items = splitLines(block.items);
+    return blockWrapper(block, `
+      <div class="feature-list">
+        ${block.title ? `<h3>${escapeHtml(block.title)}</h3>` : ""}
+        ${block.text ? `<p>${escapeHtml(block.text)}</p>` : ""}
+        <ul>
+          ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+        </ul>
+      </div>
+    `, pageOptions, renderMeta);
+  }
 
-  return blockWrapper(block,
-    '<div class="feature-list">' +
-      (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
-      (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
-      '<ul>' + items.map(function(item){ return '<li>' + escapeHtml(item) + '</li>'; }).join('') + '</ul>' +
-    '</div>'
-  );
-}
-
-if (block.type === "cards") {
-  const cards = String(block.items || "")
-    .split(/\r?\n/)
-    .map(function(line){ return line.trim(); })
-    .filter(Boolean)
-    .map(function(line){
-      const parts = line.split("|");
-      return {
-        title: String(parts[0] || "").trim(),
-        text: String(parts.slice(1).join("|") || "").trim()
-      };
-    });
-
-  return blockWrapper(block,
-    '<div class="cards-block">' +
-      (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
-      (block.text ? '<p class="cards-intro">' + escapeHtml(block.text) + '</p>' : '') +
-      '<div class="cards-grid">' + cards.map(function(card){
-        return '<article class="info-card">' +
-          (card.title ? '<h4>' + escapeHtml(card.title) + '</h4>' : '') +
-          (card.text ? '<p>' + escapeHtml(card.text) + '</p>' : '') +
-        '</article>';
-      }).join('') + '</div>' +
-    '</div>'
-  );
-}
+  if (block.type === "cards") {
+    const cards = parseCardItems(block.items);
+    return blockWrapper(block, `
+      <div class="cards-block">
+        ${block.title ? `<h3>${escapeHtml(block.title)}</h3>` : ""}
+        ${block.text ? `<p class="cards-intro">${escapeHtml(block.text)}</p>` : ""}
+        <div class="cards-grid">
+          ${cards.map((card) => `
+            <article class="info-card">
+              ${card.title ? `<h4>${escapeHtml(card.title)}</h4>` : ""}
+              ${card.text ? `<p>${escapeHtml(card.text)}</p>` : ""}
+            </article>
+          `).join("")}
+        </div>
+      </div>
+    `, pageOptions, renderMeta);
+  }
 
   if (block.type === "stats") {
     const items = parsePairItems(block.items);
@@ -431,17 +419,26 @@ if (block.type === "cards") {
       renderMeta.isDesigner
         ? ` data-block-id="${escapeHtml(block.id || "")}" data-block-type="${escapeHtml(block.type || "")}"`
         : "";
+    const totalCols = Math.max(1, Math.min(MAX_GRID_COLUMNS, Number(pageOptions.gridColumns || 12)));
     const rowStart = Number(block.rowStartDesktop || 1);
     const rowSpan = Number(block.rowSpan || 1);
-    const manualRow = block.layoutMode === "free" || rowStart > 1;
-    const totalCols = Math.max(1, Math.min(MAX_GRID_COLUMNS, Number(pageOptions.gridColumns || 12)));
+    const hasManualRow = block.layoutMode === "free" || rowStart > 1;
+
     return `
-      <div ${designerAttrs} style="grid-column:1 / span ${totalCols};grid-row:${Number(block.rowStartDesktop || 1)} / span ${Number(block.rowSpan || 1)};height:${Number(block.height || 32)}px"></div>
+      <div
+        ${designerAttrs}
+        style="
+          grid-column:1 / span ${totalCols};
+          ${hasManualRow ? `grid-row:${rowStart} / span ${rowSpan};` : ""}
+          height:${Number(block.height || 32)}px
+        "
+      ></div>
     `;
   }
 
   return "";
 }
+
 function render404() {
   return `<!DOCTYPE html>
 <html lang="tr">
@@ -485,9 +482,9 @@ function render404() {
       color:#fff;
     }
     .table-wrap{width:100%;overflow:auto}
-.table-wrap table{width:100%;border-collapse:collapse;background:#fff}
-.table-wrap th,.table-wrap td{border:1px solid var(--border-color);padding:10px 12px;text-align:left;font-size:14px}
-.table-wrap th{background:#f8fafc;font-weight:700}
+    .table-wrap table{width:100%;border-collapse:collapse;background:#fff}
+    .table-wrap th,.table-wrap td{border:1px solid var(--border-color);padding:10px 12px;text-align:left;font-size:14px}
+    .table-wrap th{background:#f8fafc;font-weight:700}
 
     .section-intro{display:grid;gap:10px}
     .section-intro h2,.section-intro h3,.feature-list h3,.cards-block h3{margin:0;font-size:clamp(22px,3vw,34px)}
@@ -586,6 +583,33 @@ function renderDesignerBridge(page, currentPath) {
         return "";
       }
 
+      function splitLines(value){
+        return String(value || "")
+          .split(/\\r?\\n/)
+          .map(function(item){ return item.trim(); })
+          .filter(Boolean);
+      }
+
+      function parseCardItems(value){
+        return splitLines(value).map(function(line){
+          const parts = line.split("|");
+          return {
+            title: String(parts[0] || "").trim(),
+            text: String(parts.slice(1).join("|") || "").trim()
+          };
+        });
+      }
+
+      function parsePairItems(value){
+        return splitLines(value).map(function(line){
+          const parts = line.split("|");
+          return {
+            title: String(parts[0] || "").trim(),
+            text: String(parts.slice(1).join("|") || "").trim()
+          };
+        });
+      }
+
       function getNodeById(id){
         return document.querySelector('[data-block-id="' + CSS.escape(String(id || "")) + '"]');
       }
@@ -633,7 +657,7 @@ function renderDesignerBridge(page, currentPath) {
 
         const rowStart = Number(block.rowStartDesktop || 1);
         const rowSpan = Number(block.rowSpan || 1);
-        const manualRow = block.layoutMode === 'free' || rowStart > 1;
+        const manualRow = block.layoutMode === "free" || rowStart > 1;
         const minHeight = Number(block.minHeight || 0);
         const innerMaxWidth = Number(block.innerMaxWidth || 100);
         const useSurface = block.surface !== false && block.type !== "spacer";
@@ -650,7 +674,7 @@ function renderDesignerBridge(page, currentPath) {
             data-block-type="\${escapeHtml(block.type || "")}"
             style="
               grid-column:\${desktopStart} / span \${desktopSpan};
-              ${"${manualRow ? `grid-row:${rowStart} / span ${rowSpan};` : ``}"}
+              \${manualRow ? 'grid-row:' + rowStart + ' / span ' + rowSpan + ';' : ''}
               justify-content:\${justify};
             "
           >
@@ -682,63 +706,105 @@ function renderDesignerBridge(page, currentPath) {
         if (!block || block.visible === false) return "";
 
         if (block.type === "hero") {
-          return blockWrapper(block, \`
-            <div class="hero">
-              <h1>\${escapeHtml(block.title)}</h1>
-              <p>\${escapeHtml(block.text)}</p>
-              <div class="actions">
-                \${block.primaryText ? '<a class="btn primary" href="' + escapeHtml(normalizeLink(block.primaryLink, "#")) + '">' + escapeHtml(block.primaryText) + '</a>' : ""}
-                \${block.secondaryText ? '<a class="btn" href="' + escapeHtml(normalizeLink(block.secondaryLink, "#")) + '">' + escapeHtml(block.secondaryText) + '</a>' : ""}
-              </div>
-            </div>
-          \`);
+          return blockWrapper(block,
+            '<div class="hero">' +
+              '<h1>' + escapeHtml(block.title) + '</h1>' +
+              '<p>' + escapeHtml(block.text) + '</p>' +
+              '<div class="actions">' +
+                (block.primaryText ? '<a class="btn primary" href="' + escapeHtml(normalizeLink(block.primaryLink, "#")) + '">' + escapeHtml(block.primaryText) + '</a>' : '') +
+                (block.secondaryText ? '<a class="btn" href="' + escapeHtml(normalizeLink(block.secondaryLink, "#")) + '">' + escapeHtml(block.secondaryText) + '</a>' : '') +
+              '</div>' +
+            '</div>'
+          );
         }
 
         if (block.type === "section") {
-          return blockWrapper(block, '<div class="section-intro">' +
-            (block.title ? '<h2>' + escapeHtml(block.title) + '</h2>' : '') +
-            (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
-          '</div>', pageOptions, renderMeta);
+          return blockWrapper(block,
+            '<div class="section-intro">' +
+              (block.title ? '<h2>' + escapeHtml(block.title) + '</h2>' : '') +
+              (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
+            '</div>'
+          );
         }
 
         if (block.type === "features") {
           const items = splitLines(block.items);
-          return blockWrapper(block, '<div class="feature-list">' +
-            (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
-            (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
-            '<ul>' + items.map(function(item){ return '<li>' + escapeHtml(item) + '</li>'; }).join('') + '</ul>' +
-          '</div>', pageOptions, renderMeta);
+          return blockWrapper(block,
+            '<div class="feature-list">' +
+              (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
+              (block.text ? '<p>' + escapeHtml(block.text) + '</p>' : '') +
+              '<ul>' + items.map(function(item){ return '<li>' + escapeHtml(item) + '</li>'; }).join('') + '</ul>' +
+            '</div>'
+          );
         }
 
         if (block.type === "cards") {
           const cards = parseCardItems(block.items);
-          return blockWrapper(block, '<div class="cards-block">' +
-            (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
-            (block.text ? '<p class="cards-intro">' + escapeHtml(block.text) + '</p>' : '') +
-            '<div class="cards-grid">' + cards.map(function(card){
-              return '<article class="info-card">' +
-                (card.title ? '<h4>' + escapeHtml(card.title) + '</h4>' : '') +
-                (card.text ? '<p>' + escapeHtml(card.text) + '</p>' : '') +
-              '</article>';
-            }).join('') + '</div>' +
-          '</div>', pageOptions, renderMeta);
+          return blockWrapper(block,
+            '<div class="cards-block">' +
+              (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
+              (block.text ? '<p class="cards-intro">' + escapeHtml(block.text) + '</p>' : '') +
+              '<div class="cards-grid">' + cards.map(function(card){
+                return '<article class="info-card">' +
+                  (card.title ? '<h4>' + escapeHtml(card.title) + '</h4>' : '') +
+                  (card.text ? '<p>' + escapeHtml(card.text) + '</p>' : '') +
+                '</article>';
+              }).join('') + '</div>' +
+            '</div>'
+          );
+        }
+
+        if (block.type === "stats") {
+          const items = parsePairItems(block.items);
+          return blockWrapper(block,
+            '<div class="stats-block">' +
+              (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
+              (block.text ? '<p class="cards-intro">' + escapeHtml(block.text) + '</p>' : '') +
+              '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px">' +
+                items.map(function(item){
+                  return '<article class="info-card" style="text-align:center">' +
+                    (item.title ? '<strong style="display:block;font-size:28px;line-height:1.1;margin-bottom:8px">' + escapeHtml(item.title) + '</strong>' : '') +
+                    (item.text ? '<p>' + escapeHtml(item.text) + '</p>' : '') +
+                  '</article>';
+                }).join('') +
+              '</div>' +
+            '</div>'
+          );
+        }
+
+        if (block.type === "faq") {
+          const items = parsePairItems(block.items);
+          return blockWrapper(block,
+            '<div class="faq-block">' +
+              (block.title ? '<h3>' + escapeHtml(block.title) + '</h3>' : '') +
+              (block.text ? '<p class="cards-intro">' + escapeHtml(block.text) + '</p>' : '') +
+              '<div style="display:grid;gap:12px">' +
+                items.map(function(item){
+                  return '<article class="info-card">' +
+                    (item.title ? '<h4>' + escapeHtml(item.title) + '</h4>' : '') +
+                    (item.text ? '<p>' + escapeHtml(item.text) + '</p>' : '') +
+                  '</article>';
+                }).join('') +
+              '</div>' +
+            '</div>'
+          );
         }
 
         if (block.type === "text") {
-          return blockWrapper(block, \`
-            <div class="text-block">
-              \${block.title ? '<h2>' + escapeHtml(block.title) + '</h2>' : ""}
-              <p>\${escapeHtml(block.text)}</p>
-            </div>
-          \`);
+          return blockWrapper(block,
+            '<div class="text-block">' +
+              (block.title ? '<h2>' + escapeHtml(block.title) + '</h2>' : '') +
+              '<p>' + escapeHtml(block.text) + '</p>' +
+            '</div>'
+          );
         }
 
         if (block.type === "button") {
-          return blockWrapper(block, \`
-            <div class="button-block \${block.align || "left"}">
-              <a class="btn \${block.style === "primary" ? "primary" : ""}" href="\${escapeHtml(normalizeLink(block.link, "#"))}">\${escapeHtml(block.text)}</a>
-            </div>
-          \`);
+          return blockWrapper(block,
+            '<div class="button-block ' + (block.align || "left") + '">' +
+              '<a class="btn ' + (block.style === "primary" ? "primary" : "") + '" href="' + escapeHtml(normalizeLink(block.link, "#")) + '">' + escapeHtml(block.text) + '</a>' +
+            '</div>'
+          );
         }
 
         if (block.type === "image") {
@@ -748,43 +814,41 @@ function renderDesignerBridge(page, currentPath) {
             ? '<img src="' + escapeHtml(safeSrc) + '" alt="' + escapeHtml(block.alt || "") + '" loading="lazy" decoding="async" style="max-width:' + escapeHtml(block.width || "100%") + ';width:100%;height:auto;">'
             : '<p>Görsel URL girilmedi.</p>';
 
-          return blockWrapper(block, \`
-            <div class="image-block">
-              \${safeLink ? '<a href="' + escapeHtml(safeLink) + '">' + imageHtml + '</a>' : imageHtml}
-            </div>
-          \`);
+          return blockWrapper(block,
+            '<div class="image-block">' +
+              (safeLink ? '<a href="' + escapeHtml(safeLink) + '">' + imageHtml + '</a>' : imageHtml) +
+            '</div>'
+          );
         }
 
         if (block.type === "table") {
           const headers = String(block.tableHeaders || "")
             .split(",")
-            .map((item) => item.trim())
+            .map(function(item){ return item.trim(); })
             .filter(Boolean);
 
           const rows = String(block.tableRows || "")
             .split("\\n")
-            .map((line) => line.trim())
+            .map(function(line){ return line.trim(); })
             .filter(Boolean)
-            .map((line) => line.split("|").map((cell) => cell.trim()));
+            .map(function(line){ return line.split("|").map(function(cell){ return cell.trim(); }); });
 
           const tableHead = headers.length
-            ? '<thead><tr>' + headers.map((header) => '<th>' + escapeHtml(header) + '</th>').join("") + '</tr></thead>'
+            ? '<thead><tr>' + headers.map(function(header){ return '<th>' + escapeHtml(header) + '</th>'; }).join('') + '</tr></thead>'
             : '';
 
           const tableBody = rows.length
-            ? '<tbody>' + rows.map((row) => '<tr>' + row.map((cell) => '<td>' + escapeHtml(cell) + '</td>').join("") + '</tr>').join("") + '</tbody>'
+            ? '<tbody>' + rows.map(function(row){
+                return '<tr>' + row.map(function(cell){ return '<td>' + escapeHtml(cell) + '</td>'; }).join('') + '</tr>';
+              }).join('') + '</tbody>'
             : '<tbody><tr><td>Tablo verisi yok.</td></tr></tbody>';
 
-          return blockWrapper(block, \`
-            <div class="table-block">
-              <div class="table-wrap">
-                <table>
-                  \${tableHead}
-                  \${tableBody}
-                </table>
-              </div>
-            </div>
-          \`);
+          return blockWrapper(block,
+            '<div class="table-block"><div class="table-wrap"><table>' +
+              tableHead +
+              tableBody +
+            '</table></div></div>'
+          );
         }
 
         if (block.type === "html") {
@@ -792,8 +856,11 @@ function renderDesignerBridge(page, currentPath) {
         }
 
         if (block.type === "spacer") {
-                    const totalCols = Math.max(1, Math.min(${MAX_GRID_COLUMNS}, Number(CURRENT_PAGE.pageOptions?.gridColumns || 12)));
-          return '<div data-block-id="' + escapeHtml(block.id || "") + '" data-block-type="' + escapeHtml(block.type || "") + '" style="grid-column:1 / span ' + totalCols + ';grid-row:' + Number(block.rowStartDesktop || 1) + ' / span ' + Number(block.rowSpan || 1) + ';height:' + Number(block.height || 32) + 'px"></div>';
+          const totalCols = Math.max(1, Math.min(${MAX_GRID_COLUMNS}, Number(CURRENT_PAGE.pageOptions?.gridColumns || 12)));
+          const rowStart = Number(block.rowStartDesktop || 1);
+          const rowSpan = Number(block.rowSpan || 1);
+          const manualRow = block.layoutMode === "free" || rowStart > 1;
+          return '<div data-block-id="' + escapeHtml(block.id || "") + '" data-block-type="' + escapeHtml(block.type || "") + '" style="grid-column:1 / span ' + totalCols + ';' + (manualRow ? 'grid-row:' + rowStart + ' / span ' + rowSpan + ';' : '') + 'height:' + Number(block.height || 32) + 'px"></div>';
         }
 
         return "";
@@ -902,7 +969,6 @@ function renderDesignerBridge(page, currentPath) {
   </script>`;
 }
 
-
 function defaultSiteSettings() {
   return {
     siteName: "Vera",
@@ -971,7 +1037,9 @@ function normalizeSiteSettings(raw = {}) {
     topCtaAction: normalizeAction(raw.topCtaAction, raw.topCtaLink || base.topCtaLink),
     header: {
       ...header,
-      ctaStyle: ["primary", "secondary", "ghost"].includes(header.ctaStyle) ? header.ctaStyle : (["primary", "secondary", "ghost"].includes(raw.topCtaStyle) ? raw.topCtaStyle : base.header.ctaStyle)
+      ctaStyle: ["primary", "secondary", "ghost"].includes(header.ctaStyle)
+        ? header.ctaStyle
+        : (["primary", "secondary", "ghost"].includes(raw.topCtaStyle) ? raw.topCtaStyle : base.header.ctaStyle)
     },
     footer: {
       ...footer,
@@ -989,7 +1057,6 @@ function ctaClassName(style = "primary") {
   if (style === "ghost") return "top-cta top-cta-ghost";
   return "top-cta";
 }
-
 
 function renderPage({ siteSettings, page, currentPath, isDesigner, pages = [] }) {
   const settings = normalizeSiteSettings(siteSettings);
@@ -1132,7 +1199,10 @@ function renderPage({ siteSettings, page, currentPath, isDesigner, pages = [] })
     .text-block h2{margin:0 0 10px;font-size:24px}
     .text-block p{margin:0;line-height:1.8;white-space:pre-line}
     .image-block img{max-width:100%;border-radius:12px;display:inline-block;height:auto}
-    .button-block{display:flex}.button-block.left{justify-content:flex-start}.button-block.center{justify-content:center}.button-block.right{justify-content:flex-end}
+    .button-block{display:flex}
+    .button-block.left{justify-content:flex-start}
+    .button-block.center{justify-content:center}
+    .button-block.right{justify-content:flex-end}
     .html-block{line-height:1.8}
     .site-footer{margin-top:28px;border-top:1px solid var(--border-color);background:var(--footer-bg)}
     .site-footer-inner{padding-top:24px;padding-bottom:24px;display:grid;gap:18px}
@@ -1145,11 +1215,25 @@ function renderPage({ siteSettings, page, currentPath, isDesigner, pages = [] })
     .footer-bottom{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border-color)}
     .footer-muted{color:var(--muted-text);font-size:14px;white-space:pre-line}
     .footer-social{display:flex;gap:12px;flex-wrap:wrap}
+    .section-intro{display:grid;gap:10px}
+    .section-intro h2,.section-intro h3,.feature-list h3,.cards-block h3,.stats-block h3,.faq-block h3{margin:0;font-size:clamp(22px,3vw,34px)}
+    .section-intro p,.feature-list p,.cards-block p,.stats-block p,.faq-block p,.info-card p{margin:0;color:var(--muted-text);line-height:1.7}
+    .feature-list ul{margin:16px 0 0;padding-left:18px;display:grid;gap:10px}
+    .feature-list li{line-height:1.6}
+    .cards-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:16px}
+    .info-card{border:1px solid var(--border-color);border-radius:16px;padding:18px;background:rgba(255,255,255,.7)}
+    .info-card h4{margin:0 0 8px;font-size:18px}
+    .cards-intro{margin-bottom:16px !important}
+    .table-wrap{width:100%;overflow:auto}
+    .table-wrap table{width:100%;border-collapse:collapse;background:#fff}
+    .table-wrap th,.table-wrap td{border:1px solid var(--border-color);padding:10px 12px;text-align:left;font-size:14px}
+    .table-wrap th{background:#f8fafc;font-weight:700}
     @media(max-width:1024px){
       .block-shell{grid-column: var(--col-start-tablet) / span var(--col-span-tablet) !important}
     }
     @media(max-width:640px){
       .block-shell{grid-column: var(--col-start-mobile) / span var(--col-span-mobile) !important}
+      .cards-grid{grid-template-columns:1fr}
     }
     @media(max-width:900px){
       .site-header-inner{flex-direction:column;align-items:flex-start}
