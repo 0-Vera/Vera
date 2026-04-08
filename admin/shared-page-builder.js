@@ -20,7 +20,7 @@ window.VeraPageBuilder = (() => {
     const n = toNumber(value, fallback);
     return Math.max(min, Math.min(max, n));
   }
-
+  const MAX_GRID_COLUMNS = 24;
   function baseBlock(type, order = 0) {
     return {
       id: uid(),
@@ -219,9 +219,10 @@ window.VeraPageBuilder = (() => {
       actionNewTab: !!block.actionNewTab
     };
 
-    const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, 12);
-    const tablet = normalizeStartSpan(block.colStartTablet, block.colSpanTablet, 12);
-    const mobile = normalizeStartSpan(block.colStartMobile, block.colSpanMobile, 12);
+    const layoutCols = clamp(block.gridColumns || state?.pageLayout?.gridColumns, 1, MAX_GRID_COLUMNS, 12);
+    const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, layoutCols);
+    const tablet = normalizeStartSpan(block.colStartTablet, block.colSpanTablet, layoutCols);
+    const mobile = normalizeStartSpan(block.colStartMobile, block.colSpanMobile, layoutCols);
 
     normalized.colStartDesktop = desktop.start;
     normalized.colSpanDesktop = desktop.span;
@@ -232,11 +233,11 @@ window.VeraPageBuilder = (() => {
 
     if (normalized.fullWidth) {
       normalized.colStartDesktop = 1;
-      normalized.colSpanDesktop = 12;
+      normalized.colSpanDesktop = layoutCols;
       normalized.colStartTablet = 1;
-      normalized.colSpanTablet = 12;
+      normalized.colSpanTablet = layoutCols;
       normalized.colStartMobile = 1;
-      normalized.colSpanMobile = 12;
+      normalized.colSpanMobile = layoutCols;
     }
 
     return normalized;
@@ -314,7 +315,7 @@ window.VeraPageBuilder = (() => {
         contentWidth: clamp(layout.contentWidth, 480, 2400, 1200),
         pagePaddingX: clamp(layout.pagePaddingX, 0, 120, 24),
         sectionGap: clamp(layout.sectionGap, 0, 120, 18),
-        gridColumns: clamp(layout.gridColumns, 1, 12, 12)
+        gridColumns: clamp(layout.gridColumns, 1, MAX_GRID_COLUMNS, 12)
       };
       renderPreview();
     }
