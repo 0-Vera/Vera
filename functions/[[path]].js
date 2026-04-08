@@ -741,29 +741,152 @@ function renderDesignerBridge(page, currentPath) {
   </script>`;
 }
 
-function renderPage({ siteSettings, page, currentPath, isDesigner }) {
-  const theme = page.theme || {
-    bodyBg: "#f8fafc",
-    bodyText: "#0f172a",
-    borderColor: "#e2e8f0",
-    primaryColor: "#2563eb",
-    containerWidth: 1200
+
+function defaultSiteSettings() {
+  return {
+    siteName: "Vera",
+    logoText: "Vera",
+    logoLink: "/",
+    contactEmail: "",
+    contactPhone: "",
+    contactAddress: "",
+    footerText: "© Vera",
+    showHeader: true,
+    showFooter: true,
+    showTopCta: false,
+    topCtaText: "",
+    topCtaLink: "#",
+    topCtaStyle: "primary",
+    topCtaAction: { type: "url", url: "#", pageId: "", anchor: "", email: "", phone: "", whatsapp: "", downloadUrl: "", newTab: false },
+    menuItems: [],
+    header: {
+      sticky: true,
+      transparent: false,
+      showContactBar: false,
+      contactBarText: "",
+      ctaStyle: "primary"
+    },
+    footer: {
+      showContactInfo: true,
+      bottomText: "© Vera",
+      columns: [],
+      socialLinks: []
+    },
+    theme: {
+      bodyBg: "#f8fafc",
+      bodyText: "#0f172a",
+      borderColor: "#e2e8f0",
+      primaryColor: "#2563eb",
+      secondaryColor: "#0f172a",
+      surfaceColor: "#ffffff",
+      mutedText: "#64748b",
+      headerBg: "#ffffff",
+      footerBg: "#ffffff",
+      containerWidth: 1200,
+      fontFamily: "Arial, sans-serif",
+      radius: 18,
+      buttonRadius: 12
+    },
+    custom: {
+      headHtml: "",
+      beforeBodyHtml: "",
+      afterBodyHtml: ""
+    }
   };
+}
+
+function normalizeSiteSettings(raw = {}) {
+  const base = defaultSiteSettings();
+  const header = { ...base.header, ...(raw.header || {}) };
+  const footer = { ...base.footer, ...(raw.footer || {}) };
+  const theme = { ...base.theme, ...(raw.theme || {}) };
+  const custom = { ...base.custom, ...(raw.custom || {}) };
+
+  return {
+    ...base,
+    ...raw,
+    contactAddress: normalizeText(raw.contactAddress),
+    topCtaStyle: ["primary", "secondary", "ghost"].includes(raw.topCtaStyle) ? raw.topCtaStyle : header.ctaStyle,
+    topCtaAction: normalizeAction(raw.topCtaAction, raw.topCtaLink || base.topCtaLink),
+    header: {
+      ...header,
+      ctaStyle: ["primary", "secondary", "ghost"].includes(header.ctaStyle) ? header.ctaStyle : (["primary", "secondary", "ghost"].includes(raw.topCtaStyle) ? raw.topCtaStyle : base.header.ctaStyle)
+    },
+    footer: {
+      ...footer,
+      bottomText: normalizeText(footer.bottomText || raw.footerText, base.footer.bottomText),
+      columns: Array.isArray(footer.columns) ? footer.columns : [],
+      socialLinks: Array.isArray(footer.socialLinks) ? footer.socialLinks : []
+    },
+    theme,
+    custom
+  };
+}
+
+function ctaClassName(style = "primary") {
+  if (style === "secondary") return "top-cta top-cta-secondary";
+  if (style === "ghost") return "top-cta top-cta-ghost";
+  return "top-cta";
+}
+
+
+function renderPage({ siteSettings, page, currentPath, isDesigner, pages = [] }) {
+  const settings = normalizeSiteSettings(siteSettings);
+  const theme = { ...settings.theme, ...(page.theme || {}) };
 
   const pageOptions = page.pageOptions || {};
-  const headerVisible = siteSettings.showHeader !== false && pageOptions.showHeader !== false;
-  const footerVisible = siteSettings.showFooter !== false && pageOptions.showFooter !== false;
+  const headerVisible = settings.showHeader !== false && pageOptions.showHeader !== false;
+  const footerVisible = settings.showFooter !== false && pageOptions.showFooter !== false;
   const blocks = Array.isArray(page.blocks) ? page.blocks : [];
   const overrides = page.overrides || {};
   const code = page.code || { html: "", css: "", js: "" };
   const isCodeMode = page.editorMode === "code";
   const canonicalUrl = currentPath ? currentPath : "/";
-  const title = page.metaTitle || page.title || siteSettings.siteName || "Vera";
+  const title = page.metaTitle || page.title || settings.siteName || "Vera";
   const description = page.metaDescription || "";
+  const headerCtaStyle = settings.header?.ctaStyle || settings.topCtaStyle || "primary";
 
   const contentHtml = isCodeMode
     ? `${code.html || ""}`
     : blocks.map((block) => renderBlock(block, pageOptions, { isDesigner, pages })).join("") + (overrides.html || "");
+
+  const topCtaHtml = settings.showTopCta && settings.topCtaText
+    ? (() => {
+        const ctaHref = resolveActionHref(settings.topCtaAction, pages, settings.topCtaLink || "#");
+        return `<a class="${ctaClassName(headerCtaStyle)}" href="${escapeHtml(ctaHref)}"${actionAttrs(settings.topCtaAction, ctaHref)}>${escapeHtml(settings.topCtaText)}</a>`;
+      })()
+    : "";
+
+  const footerColumnsHtml = Array.isArray(settings.footer?.columns) && settings.footer.columns.length
+    ? `<div class="footer-columns">${
+        settings.footer.columns.map((column) => {
+          const links = Array.isArray(column.links) ? column.links : [];
+          return `<section class="footer-column">
+            ${column.title ? `<h3>${escapeHtml(column.title)}</h3>` : ""}
+            ${column.text ? `<p>${escapeHtml(column.text)}</p>` : ""}
+            ${links.length ? `<div class="footer-links">${
+              links.map((link) => {
+                const href = resolveActionHref(link.action, pages, link.action?.url || "#");
+                return `<a href="${escapeHtml(href)}"${actionAttrs(link.action, href)}>${escapeHtml(link.text || "Link")}</a>`;
+              }).join("")
+            }</div>` : ""}
+          </section>`;
+        }).join("")
+      }</div>`
+    : "";
+
+  const footerSocialHtml = Array.isArray(settings.footer?.socialLinks) && settings.footer.socialLinks.length
+    ? `<div class="footer-social">${
+        settings.footer.socialLinks.map((item) => {
+          const href = resolveActionHref(item.action, pages, item.action?.url || "#");
+          return `<a href="${escapeHtml(href)}"${actionAttrs(item.action, href)}>${escapeHtml(item.label || "Sosyal")}</a>`;
+        }).join("")
+      }</div>`
+    : "";
+
+  const footerContactHtml = settings.footer?.showContactInfo !== false
+    ? [settings.contactEmail, settings.contactPhone, settings.contactAddress].filter(Boolean).join(" • ")
+    : "";
 
   return `<!DOCTYPE html>
 <html lang="tr">
@@ -785,22 +908,33 @@ function renderPage({ siteSettings, page, currentPath, isDesigner }) {
       --body-text:${theme.bodyText || "#0f172a"};
       --border-color:${theme.borderColor || "#e2e8f0"};
       --primary-color:${theme.primaryColor || "#2563eb"};
+      --secondary-color:${theme.secondaryColor || "#0f172a"};
+      --surface-color:${theme.surfaceColor || "#ffffff"};
+      --muted-text:${theme.mutedText || "#64748b"};
+      --header-bg:${theme.headerBg || "#ffffff"};
+      --footer-bg:${theme.footerBg || "#ffffff"};
       --container-width:${Number(theme.containerWidth || 1200)}px;
+      --card-radius:${Number(theme.radius || 18)}px;
+      --button-radius:${Number(theme.buttonRadius || 12)}px;
     }
     html{scroll-behavior:smooth}
-    body{margin:0;font-family:Arial,sans-serif;background:var(--body-bg);color:var(--body-text)}
+    body{margin:0;font-family:${escapeHtml(theme.fontFamily || "Arial, sans-serif")};background:var(--body-bg);color:var(--body-text)}
     a{color:inherit}
     .skip-link{position:absolute;left:-9999px;top:12px;background:#fff;color:#0f172a;padding:10px 14px;border-radius:10px;border:1px solid var(--border-color);z-index:1000;text-decoration:none;font-weight:700}
     .skip-link:focus{left:12px}
-    .site-header{border-bottom:1px solid var(--border-color);background:rgba(255,255,255,.92);backdrop-filter:blur(10px);position:sticky;top:0;z-index:30}
-    .site-header-inner,.site-footer-inner{max-width:var(--container-width);margin:0 auto;padding-left:24px;padding-right:24px}
+    .contact-bar{background:var(--secondary-color);color:#fff;font-size:13px}
+    .contact-bar-inner,.site-header-inner,.site-footer-inner{max-width:var(--container-width);margin:0 auto;padding-left:24px;padding-right:24px}
+    .contact-bar-inner{min-height:36px;display:flex;align-items:center}
+    .site-header{border-bottom:1px solid var(--border-color);background:${settings.header?.transparent ? "transparent" : "var(--header-bg)"};backdrop-filter:blur(10px);${settings.header?.sticky !== false ? "position:sticky;top:0;" : "position:relative;"}z-index:30}
     .site-header-inner{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}
     .site-brand{text-decoration:none;font-size:24px;font-weight:800}
     .site-nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
     .site-nav a{text-decoration:none;color:#334155;font-weight:700;font-size:14px;padding:8px 10px;border-radius:10px;transition:background .18s ease,color .18s ease}
     .site-nav a:hover,.site-nav a.active{background:#eff6ff;color:#1d4ed8}
-    .top-cta{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;padding:11px 16px;font-weight:700;background:var(--primary-color);color:#ffffff;border:1px solid var(--primary-color);transition:transform .18s ease,box-shadow .18s ease}
+    .top-cta{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:var(--button-radius);padding:11px 16px;font-weight:700;background:var(--primary-color);color:#ffffff;border:1px solid var(--primary-color);transition:transform .18s ease,box-shadow .18s ease}
     .top-cta:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(37,99,235,.18)}
+    .top-cta-secondary{background:var(--secondary-color);border-color:var(--secondary-color)}
+    .top-cta-ghost{background:transparent;color:var(--body-text);border-color:var(--border-color);box-shadow:none}
     .wrap{
       max-width:${Number(pageOptions.contentWidth || theme.containerWidth || 1200)}px;
       margin:0 auto;
@@ -818,22 +952,20 @@ function renderPage({ siteSettings, page, currentPath, isDesigner }) {
       align-items:start;
       min-height:40vh;
     }
-    .block-shell{
-      width:100%;
-      display:flex;
-      min-width:0;
-    }
+    .block-shell{width:100%;display:flex;min-width:0}
     .block-inner{
       width:100%;
       min-width:0;
       border:1px solid var(--border-color);
       box-shadow:0 1px 2px rgba(15,23,42,.05);
       overflow-wrap:anywhere;
+      border-radius:var(--card-radius);
+      background:var(--surface-color);
     }
     .hero h1{margin:0 0 12px;font-size:38px;line-height:1.15}
     .hero p{margin:0 0 24px;line-height:1.7;font-size:16px}
     .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-    a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;padding:12px 18px;font-weight:700;border:1px solid #cbd5e1;color:#0f172a;background:#ffffff;min-width:120px;transition:transform .18s ease,box-shadow .18s ease}
+    a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:var(--button-radius);padding:12px 18px;font-weight:700;border:1px solid #cbd5e1;color:#0f172a;background:#ffffff;min-width:120px;transition:transform .18s ease,box-shadow .18s ease}
     a.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(15,23,42,.08)}
     a.btn.primary{background:var(--primary-color);color:#ffffff;border-color:var(--primary-color)}
     .text-block h2{margin:0 0 10px;font-size:24px}
@@ -841,64 +973,63 @@ function renderPage({ siteSettings, page, currentPath, isDesigner }) {
     .image-block img{max-width:100%;border-radius:12px;display:inline-block;height:auto}
     .button-block{display:flex}.button-block.left{justify-content:flex-start}.button-block.center{justify-content:center}.button-block.right{justify-content:flex-end}
     .html-block{line-height:1.8}
-    .site-footer{margin-top:28px;border-top:1px solid var(--border-color);background:#ffffff}
-    .site-footer-inner{padding-top:18px;padding-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
-    .footer-muted{color:#64748b;font-size:14px}
-
+    .site-footer{margin-top:28px;border-top:1px solid var(--border-color);background:var(--footer-bg)}
+    .site-footer-inner{padding-top:24px;padding-bottom:24px;display:grid;gap:18px}
+    .footer-columns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+    .footer-column h3{margin:0 0 10px;font-size:18px}
+    .footer-column p{margin:0 0 10px;color:var(--muted-text);line-height:1.7;white-space:pre-line}
+    .footer-links{display:grid;gap:8px}
+    .footer-links a,.footer-social a{text-decoration:none;color:var(--muted-text);font-size:14px}
+    .footer-links a:hover,.footer-social a:hover{color:var(--body-text)}
+    .footer-bottom{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border-color)}
+    .footer-muted{color:var(--muted-text);font-size:14px;white-space:pre-line}
+    .footer-social{display:flex;gap:12px;flex-wrap:wrap}
     @media(max-width:1024px){
-      .block-shell{
-        grid-column: var(--col-start-tablet) / span var(--col-span-tablet) !important;
-      }
+      .block-shell{grid-column: var(--col-start-tablet) / span var(--col-span-tablet) !important}
     }
-
     @media(max-width:640px){
-      .block-shell{
-        grid-column: var(--col-start-mobile) / span var(--col-span-mobile) !important;
-      }
+      .block-shell{grid-column: var(--col-start-mobile) / span var(--col-span-mobile) !important}
     }
-
     @media(max-width:900px){
-      .site-header-inner,.site-footer-inner{flex-direction:column;align-items:flex-start}
+      .site-header-inner{flex-direction:column;align-items:flex-start}
+      .footer-columns{grid-template-columns:1fr}
       .hero h1{font-size:30px}
     }
-
     ${overrides.css || ""}
     ${isCodeMode ? code.css || "" : ""}
   </style>
-  ${siteSettings.custom?.headHtml || ""}
+  ${settings.custom?.headHtml || ""}
   ${isDesigner ? renderDesignerBridge(page, currentPath) : ""}
 </head>
 <body class="${escapeHtml(pageOptions.customBodyClass || "")}">
   <a class="skip-link" href="#content">İçeriğe geç</a>
-
-  ${siteSettings.custom?.beforeBodyHtml || ""}
-
+  ${settings.custom?.beforeBodyHtml || ""}
   ${headerVisible ? `
-  <header class="site-header">
-    <div class="site-header-inner">
-      <a class="site-brand" href="${escapeHtml(normalizeLink(siteSettings.logoLink || "/", "/"))}">${escapeHtml(siteSettings.logoText || siteSettings.siteName || "Vera")}</a>
-      <nav class="site-nav" aria-label="Site menüsü">${renderMenuItems(siteSettings.menuItems || [], currentPath, pages)}</nav>
-      ${siteSettings.showTopCta && siteSettings.topCtaText ? (() => {
-        const ctaHref = resolveActionHref(siteSettings.topCtaAction, pages, siteSettings.topCtaLink || "#");
-        return `<a class="top-cta" href="${escapeHtml(ctaHref)}"${actionAttrs(siteSettings.topCtaAction, ctaHref)}>${escapeHtml(siteSettings.topCtaText)}</a>`;
-      })() : ""}
-    </div>
-  </header>` : ""}
-
+    ${settings.header?.showContactBar && settings.header?.contactBarText ? `<div class="contact-bar"><div class="contact-bar-inner">${escapeHtml(settings.header.contactBarText)}</div></div>` : ""}
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="site-brand" href="${escapeHtml(normalizeLink(settings.logoLink || "/", "/"))}">${escapeHtml(settings.logoText || settings.siteName || "Vera")}</a>
+        <nav class="site-nav" aria-label="Site menüsü">${renderMenuItems(settings.menuItems || [], currentPath, pages)}</nav>
+        ${topCtaHtml}
+      </div>
+    </header>
+  ` : ""}
   <main class="wrap">
     <div id="content" class="stack">${contentHtml}</div>
   </main>
-
   ${footerVisible ? `
-  <footer class="site-footer">
-    <div class="site-footer-inner">
-      <div class="footer-muted">${escapeHtml(siteSettings.footerText || "")}</div>
-      <div class="footer-muted">${escapeHtml([siteSettings.contactEmail, siteSettings.contactPhone].filter(Boolean).join(" • "))}</div>
-    </div>
-  </footer>` : ""}
-
-  ${siteSettings.custom?.afterBodyHtml || ""}
-
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        ${footerColumnsHtml}
+        <div class="footer-bottom">
+          <div class="footer-muted">${escapeHtml(settings.footer?.bottomText || settings.footerText || "")}</div>
+          <div class="footer-muted">${escapeHtml(footerContactHtml)}</div>
+          ${footerSocialHtml}
+        </div>
+      </div>
+    </footer>
+  ` : ""}
+  ${settings.custom?.afterBodyHtml || ""}
   <script>
     try {
       ${overrides.js || ""}
@@ -946,16 +1077,7 @@ export async function onRequest(context) {
   const contentRaw = await env.AUTH_KV.get("site:content", { type: "json" });
 
   const pages = Array.isArray(pagesRaw?.pages) ? pagesRaw.pages : [];
-  const siteSettings = settingsRaw || {
-    siteName: "Vera",
-    logoText: "Vera",
-    logoLink: "/",
-    footerText: "© Vera",
-    showHeader: true,
-    showFooter: true,
-    showTopCta: false,
-    menuItems: []
-  };
+  const siteSettings = normalizeSiteSettings(settingsRaw || {});
 
   const slug = pathname === "/" ? "" : slugify(pathname.replace(/^\/+|\/+$/g, ""), "");
 
@@ -997,5 +1119,5 @@ export async function onRequest(context) {
   }
 
   const canonicalPath = pathname || "/";
-  return html(renderPage({ siteSettings, page, currentPath: canonicalPath, isDesigner }));
+  return html(renderPage({ siteSettings, page, currentPath: canonicalPath, isDesigner, pages }));
 }
