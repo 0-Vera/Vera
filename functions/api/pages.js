@@ -103,12 +103,14 @@ function clampNumber(value, min, max, fallback) {
   return Math.min(max, Math.max(min, n));
 }
 
-function normalizeGridStartSpan(start, span) {
-  let safeSpan = clampNumber(span, 1, 12, 12);
-  let safeStart = clampNumber(start, 1, 12, 1);
+const MAX_GRID_COLUMNS = 24;
 
-  if (safeStart + safeSpan - 1 > 12) {
-    safeStart = Math.max(1, 12 - safeSpan + 1);
+function normalizeGridStartSpan(start, span, maxCols = MAX_GRID_COLUMNS) {
+  let safeSpan = clampNumber(span, 1, maxCols, maxCols);
+  let safeStart = clampNumber(start, 1, maxCols, 1);
+
+  if (safeStart + safeSpan - 1 > maxCols) {
+    safeStart = Math.max(1, maxCols - safeSpan + 1);
   }
 
   return { start: safeStart, span: safeSpan };
@@ -122,14 +124,14 @@ function normalizePageOptions(options = {}) {
     contentWidth: clampNumber(options.contentWidth, 480, 2400, 1200),
     pagePaddingX: clampNumber(options.pagePaddingX, 0, 120, 24),
     sectionGap: clampNumber(options.sectionGap, 0, 120, 18),
-    gridColumns: clampNumber(options.gridColumns, 1, 12, 12)
+    gridColumns: clampNumber(options.gridColumns, 1, MAX_GRID_COLUMNS, 12)
   };
 }
 
-function normalizeBlock(block = {}, blockIndex = 0) {
-  const desktop = normalizeGridStartSpan(block?.colStartDesktop, block?.colSpanDesktop);
-  const tablet = normalizeGridStartSpan(block?.colStartTablet, block?.colSpanTablet);
-  const mobile = normalizeGridStartSpan(block?.colStartMobile, block?.colSpanMobile);
+function normalizeBlock(block = {}, blockIndex = 0, maxCols = MAX_GRID_COLUMNS) {
+  const desktop = normalizeGridStartSpan(block?.colStartDesktop, block?.colSpanDesktop, maxCols);
+  const tablet = normalizeGridStartSpan(block?.colStartTablet, block?.colSpanTablet, maxCols);
+  const mobile = normalizeGridStartSpan(block?.colStartMobile, block?.colSpanMobile, maxCols);
 
   const normalized = {
     ...block,
@@ -201,11 +203,11 @@ function normalizeBlock(block = {}, blockIndex = 0) {
 
   if (normalized.fullWidth) {
     normalized.colStartDesktop = 1;
-    normalized.colSpanDesktop = 12;
+    normalized.colSpanDesktop = maxCols;
     normalized.colStartTablet = 1;
-    normalized.colSpanTablet = 12;
+    normalized.colSpanTablet = maxCols;
     normalized.colStartMobile = 1;
-    normalized.colSpanMobile = 12;
+    normalized.colSpanMobile = maxCols;
   }
 
   return normalized;
@@ -223,7 +225,11 @@ function normalizePage(page = {}, index = 0) {
     metaDescription: normalizeText(page.metaDescription),
     editorMode: ["blocks", "code"].includes(page.editorMode) ? page.editorMode : "blocks",
     pageOptions: normalizePageOptions(page.pageOptions || {}),
-    blocks: Array.isArray(page.blocks) ? page.blocks.map((block, blockIndex) => normalizeBlock(block, blockIndex)) : [],
+        blocks: Array.isArray(page.blocks)
+      ? page.blocks.map((block, blockIndex) =>
+          normalizeBlock(block, blockIndex, normalizePageOptions(page.pageOptions || {}).gridColumns)
+        )
+      : [],
     overrides: {
       html: String(page.overrides?.html || ""),
       css: String(page.overrides?.css || ""),
