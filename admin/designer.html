@@ -32,6 +32,7 @@
         radial-gradient(circle at top left, rgba(37,99,235,.06), transparent 24%),
         radial-gradient(circle at top right, rgba(14,165,233,.05), transparent 20%),
         var(--bg);
+      overflow:hidden;
     }
     .loading{
       min-height:100vh;
@@ -44,12 +45,14 @@
     }
 
     .app{
+      height:100vh;
       min-height:100vh;
       display:grid;
-      grid-template-columns: 340px minmax(0,1fr) 390px;
+      grid-template-columns:340px minmax(0,1fr) 390px;
       gap:18px;
       padding:18px;
-      align-items:start;
+      align-items:stretch;
+      overflow:hidden;
     }
 
     .panel{
@@ -58,14 +61,21 @@
       border-radius:24px;
       box-shadow:var(--shadow);
       overflow:hidden;
-      min-height:calc(100vh - 36px);
+      min-height:0;
+      height:calc(100vh - 36px);
     }
 
     .sidebar, .inspector-shell{
       display:grid;
-      grid-template-rows:auto auto auto 1fr auto;
+      min-height:0;
+      height:calc(100vh - 36px);
+      overflow:hidden;
       position:sticky;
       top:18px;
+    }
+
+    .sidebar{
+      grid-template-rows:auto auto auto 1fr auto;
     }
 
     .inspector-shell{
@@ -314,6 +324,7 @@
       border-radius:12px;
       padding:4px;
       gap:4px;
+      flex-wrap:wrap;
     }
     .seg-btn{
       flex:1;
@@ -323,6 +334,7 @@
       background:transparent;
       color:#334155;
       border-color:transparent;
+      min-width:72px;
     }
     .seg-btn.active{
       background:#fff;
@@ -457,6 +469,8 @@
 
     .stage{
       min-width:0;
+      min-height:0;
+      height:calc(100vh - 36px);
       display:grid;
       grid-template-rows:auto 1fr;
       gap:14px;
@@ -483,14 +497,34 @@
     }
     .stage-main{
       min-width:0;
+      min-height:0;
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:24px;
       box-shadow:var(--shadow);
       padding:16px;
+      overflow:auto;
     }
+
+    .preview-viewport{
+      width:100%;
+      min-height:100%;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      overflow:auto;
+    }
+
+    .preview-canvas{
+      width:1920px;
+      flex:0 0 1920px;
+      transform-origin:top center;
+      will-change:transform;
+    }
+
     .preview-shell{
-      width:min(100%, 1900px);
+      width:1920px;
+      max-width:none;
       margin:0 auto;
       background:#fff;
       border:1px solid #d7e0ec;
@@ -559,6 +593,12 @@
       color:#334155;
     }
 
+    .block-list,
+    .inspector-body{
+      min-height:0;
+      overflow:auto;
+    }
+
     @media (max-width: 1500px){
       .app{
         grid-template-columns:320px minmax(0,1fr) 360px;
@@ -566,16 +606,21 @@
     }
 
     @media (max-width: 1240px){
+      body{overflow:auto}
       .app{
+        height:auto;
+        min-height:100vh;
         grid-template-columns:1fr;
+        overflow:visible;
       }
       .sidebar,.inspector-shell{
         position:relative;
         top:auto;
-        min-height:auto;
+        height:auto;
       }
-      .panel{
-        min-height:auto;
+      .panel,
+      .stage{
+        height:auto;
       }
     }
 
@@ -588,37 +633,6 @@
       .stage-main{padding:10px}
       .preview-topbar{padding:0 10px}
     }
-    .preview-viewport{
-  width:100%;
-  height:100%;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  overflow:auto;
-}
-
-.preview-canvas{
-  width:1920px;
-  flex:0 0 1920px;
-  transform-origin:top center;
-}
-
-.preview-shell{
-  width:1920px;
-  max-width:none;
-  margin:0 auto;
-}
-    .sidebar{
-  overflow:auto;
-}
-
-.inspector-shell{
-  overflow:auto;
-}
-
-.stage-main{
-  overflow:auto;
-}
   </style>
 </head>
 <body>
@@ -685,17 +699,17 @@
         </div>
       </div>
 
-<div class="stage-main">
-  <div class="preview-viewport">
-    <div class="preview-canvas">
-      <div class="preview-shell">
-          <div class="preview-topbar">
-            <div class="preview-dots"><i></i><i></i><i></i></div>
-            <div class="preview-url" id="previewUrlChip">/</div>
-          </div>
-          <iframe id="previewFrame" class="preview-frame" title="Sayfa önizleme"></iframe>
+      <div class="stage-main">
+        <div class="preview-viewport">
+          <div class="preview-canvas">
+            <div class="preview-shell">
+              <div class="preview-topbar">
+                <div class="preview-dots"><i></i><i></i><i></i></div>
+                <div class="preview-url" id="previewUrlChip">/</div>
               </div>
-    </div>
+              <iframe id="previewFrame" class="preview-frame" title="Sayfa önizleme"></iframe>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -767,6 +781,13 @@
       return { start: safeStart, span: safeSpan };
     }
 
+    function getGridColumns() {
+      const pageGrid = Number(pageData?.maxGrid || pageData?.gridColumns || 0);
+      const siteGrid = Number(siteSettings?.maxGrid || siteSettings?.gridColumns || 0);
+      const fallback = 24;
+      return Math.min(240, Math.max(1, pageGrid || siteGrid || fallback));
+    }
+
     function blockSummary(block = {}) {
       if (block.type === "hero") return block.title || "Hero alanı";
       if (block.type === "text") return block.title || block.text || "Metin bloğu";
@@ -780,6 +801,8 @@
     }
 
     function newBlock(type, order = 0) {
+      const maxCols = getGridColumns();
+
       const base = {
         id: "b-" + Math.random().toString(36).slice(2) + Date.now(),
         order,
@@ -797,11 +820,11 @@
         fullWidth: false,
         surface: true,
         colStartDesktop: 1,
-        colSpanDesktop: 12,
+        colSpanDesktop: maxCols,
         colStartTablet: 1,
-        colSpanTablet: 12,
+        colSpanTablet: maxCols,
         colStartMobile: 1,
-        colSpanMobile: 12,
+        colSpanMobile: maxCols,
         rowStartDesktop: 1,
         rowSpan: 1,
         minHeight: 0,
@@ -812,19 +835,20 @@
       };
 
       if (type === "hero") return { ...base, title: "Başlık", text: "Açıklama", primaryText: "Buton", primaryLink: "#", secondaryText: "", secondaryLink: "", align: "center", padding: 32, radius: 20, fullWidth: true };
-      if (type === "text") return { ...base, title: "", text: "Metin", colStartDesktop: 1, colSpanDesktop: 6 };
-      if (type === "button") return { ...base, text: "Buton", link: "#", style: "primary", surface: false, colStartDesktop: 1, colSpanDesktop: 4 };
-      if (type === "image") return { ...base, src: "", alt: "", width: "100%", link: "", align: "center", colStartDesktop: 7, colSpanDesktop: 6 };
+      if (type === "text") return { ...base, title: "", text: "Metin", colStartDesktop: 1, colSpanDesktop: Math.max(1, Math.round(maxCols / 2)) };
+      if (type === "button") return { ...base, text: "Buton", link: "#", style: "primary", surface: false, colStartDesktop: 1, colSpanDesktop: Math.max(1, Math.round(maxCols / 3)) };
+      if (type === "image") return { ...base, src: "", alt: "", width: "100%", link: "", align: "center", colStartDesktop: Math.max(1, Math.round(maxCols / 2) + 1), colSpanDesktop: Math.max(1, Math.round(maxCols / 2)) };
       if (type === "html") return { ...base, html: "<div>Özel HTML</div>" };
       if (type === "spacer") return { ...base, height: 32, background: "transparent", padding: 0, radius: 0, fullWidth: true, surface: false };
-      if (type === "table") return { ...base, tableHeaders: "Sütun 1,Sütun 2", tableRows: "Değer 1|Değer 2\nDeğer 3|Değer 4", colStartDesktop: 1, colSpanDesktop: 12 };
+      if (type === "table") return { ...base, tableHeaders: "Sütun 1,Sütun 2", tableRows: "Değer 1|Değer 2\nDeğer 3|Değer 4", colStartDesktop: 1, colSpanDesktop: maxCols };
       return base;
     }
 
     function normalizeBlock(block = {}, index = 0) {
-      const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, 12);
-      const tablet = normalizeStartSpan(block.colStartTablet, block.colSpanTablet, 12);
-      const mobile = normalizeStartSpan(block.colStartMobile, block.colSpanMobile, 12);
+      const maxCols = getGridColumns();
+      const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, maxCols);
+      const tablet = normalizeStartSpan(block.colStartTablet, block.colSpanTablet, maxCols);
+      const mobile = normalizeStartSpan(block.colStartMobile, block.colSpanMobile, maxCols);
 
       const normalized = {
         ...block,
@@ -847,7 +871,7 @@
         colStartMobile: mobile.start,
         colSpanMobile: mobile.span,
         rowStartDesktop: clamp(block.rowStartDesktop, 1, 500, 1),
-        rowSpan: clamp(block.rowSpan, 1, 12, 1),
+        rowSpan: clamp(block.rowSpan, 1, 50, 1),
         minHeight: clamp(block.minHeight, 0, 2000, 0),
         contentWidthMode: block.contentWidthMode === "boxed" ? "boxed" : "full",
         innerMaxWidth: clamp(block.innerMaxWidth, 20, 100, 100),
@@ -857,11 +881,11 @@
 
       if (normalized.fullWidth) {
         normalized.colStartDesktop = 1;
-        normalized.colSpanDesktop = 12;
+        normalized.colSpanDesktop = maxCols;
         normalized.colStartTablet = 1;
-        normalized.colSpanTablet = 12;
+        normalized.colSpanTablet = maxCols;
         normalized.colStartMobile = 1;
-        normalized.colSpanMobile = 12;
+        normalized.colSpanMobile = maxCols;
       }
 
       return normalized;
@@ -922,7 +946,7 @@
       if (index < 0) return;
       const block = pageData.blocks[index];
       if (block.fullWidth) return;
-      updateSelected({ colSpanDesktop: Number(block.colSpanDesktop || 12) + delta });
+      updateSelected({ colSpanDesktop: Number(block.colSpanDesktop || getGridColumns()) + delta });
     }
 
     function moveSelectedRow(delta) {
@@ -1251,7 +1275,7 @@
           pageData.blocks[index] = normalizeBlock({ ...pageData.blocks[index], [key]: value }, index);
           renderLocalUi();
         };
-        field.addEventListener("input", apply);
+        field.addEventListener("blur", apply);
         field.addEventListener("change", apply);
       });
     }
@@ -1300,9 +1324,15 @@
     function bindPatch(id, key, parser = (v) => v, type = "input") {
       const el = document.getElementById(id);
       if (!el) return;
+
       const apply = () => updateSelected({ [key]: parser(type === "checkbox" ? el.checked : el.value) });
-      el.addEventListener("input", apply);
-      el.addEventListener("change", apply);
+
+      if (type === "checkbox" || el.tagName === "SELECT") {
+        el.addEventListener("change", apply);
+      } else {
+        el.addEventListener("blur", apply);
+        el.addEventListener("change", apply);
+      }
     }
 
     function renderSharedSections() {
@@ -1335,6 +1365,8 @@
 
     function renderInspector() {
       const block = getSelectedBlock();
+      const activeGrid = getGridColumns();
+
       selectedTypeChip.textContent = block ? (BLOCK_LABELS[block.type] || block.type) : "Blok seçilmedi";
       selectedPositionChip.textContent = block ? `D:${block.colStartDesktop}/${block.colSpanDesktop} · S:${block.rowStartDesktop}/${block.rowSpan}` : "—";
 
@@ -1352,6 +1384,11 @@
           ${renderSharedSections()}
         `;
       } else {
+        const widthPresets = [0.25, 0.33, 0.5, 0.66, 1].map((r) => {
+          const span = Math.max(1, Math.round(activeGrid * r));
+          return `<button class="seg-btn ${block.colSpanDesktop === span ? "active" : ""}" data-width="${span}" type="button">${span}/${activeGrid}</button>`;
+        }).join("");
+
         inspectorBody.innerHTML = `
           <div class="card">
             <div class="card-head">
@@ -1372,14 +1409,14 @@
           <div class="card">
             <div class="card-head">
               <h3>Yerleşim</h3>
-              <p>12 kolon sistem korunur ama kontroller okunur hale getirildi.</p>
+              <p>Sayfanın aktif grid yapısı korunur ve kontroller buna göre uyarlanır.</p>
             </div>
             <div class="card-body">
               <div class="field-grid">
-                ${renderField({ id: "fColStart", label: "Masaüstü başlangıç", type: "number", value: block.colStartDesktop, min: 1, max: 12 })}
-                ${renderField({ id: "fColSpan", label: "Masaüstü genişlik", type: "number", value: block.colSpanDesktop, min: 1, max: 12 })}
+                ${renderField({ id: "fColStart", label: "Masaüstü başlangıç", type: "number", value: block.colStartDesktop, min: 1, max: activeGrid })}
+                ${renderField({ id: "fColSpan", label: "Masaüstü genişlik", type: "number", value: block.colSpanDesktop, min: 1, max: activeGrid })}
                 ${renderField({ id: "fRowStart", label: "Satır başlangıç", type: "number", value: block.rowStartDesktop, min: 1, max: 500 })}
-                ${renderField({ id: "fRowSpan", label: "Satır yüksekliği", type: "number", value: block.rowSpan, min: 1, max: 12 })}
+                ${renderField({ id: "fRowSpan", label: "Satır yüksekliği", type: "number", value: block.rowSpan, min: 1, max: 50 })}
                 ${renderField({ id: "fMinHeight", label: "Min yükseklik", type: "number", value: block.minHeight, min: 0, max: 2000 })}
                 ${renderField({ id: "fAlign", label: "İç hizalama", type: "select", value: block.align, options: [
                   { value: "left", label: "Sol" },
@@ -1389,23 +1426,17 @@
               </div>
 
               <div class="field-grid">
-                ${renderField({ id: "fTabletStart", label: "Tablet başlangıç", type: "number", value: block.colStartTablet, min: 1, max: 12 })}
-                ${renderField({ id: "fTabletSpan", label: "Tablet genişlik", type: "number", value: block.colSpanTablet, min: 1, max: 12 })}
-                ${renderField({ id: "fMobileStart", label: "Mobil başlangıç", type: "number", value: block.colStartMobile, min: 1, max: 12 })}
-                ${renderField({ id: "fMobileSpan", label: "Mobil genişlik", type: "number", value: block.colSpanMobile, min: 1, max: 12 })}
+                ${renderField({ id: "fTabletStart", label: "Tablet başlangıç", type: "number", value: block.colStartTablet, min: 1, max: activeGrid })}
+                ${renderField({ id: "fTabletSpan", label: "Tablet genişlik", type: "number", value: block.colSpanTablet, min: 1, max: activeGrid })}
+                ${renderField({ id: "fMobileStart", label: "Mobil başlangıç", type: "number", value: block.colStartMobile, min: 1, max: activeGrid })}
+                ${renderField({ id: "fMobileSpan", label: "Mobil genişlik", type: "number", value: block.colSpanMobile, min: 1, max: activeGrid })}
               </div>
 
               <div class="toolbar-title" style="margin:2px 0 0">
                 <span>Hızlı genişlik seçimleri</span>
                 <span class="chip">Desktop</span>
               </div>
-              <div class="segmented">
-                <button class="seg-btn ${block.colSpanDesktop === 3 ? "active" : ""}" data-width="3" type="button">3/12</button>
-                <button class="seg-btn ${block.colSpanDesktop === 4 ? "active" : ""}" data-width="4" type="button">4/12</button>
-                <button class="seg-btn ${block.colSpanDesktop === 6 ? "active" : ""}" data-width="6" type="button">6/12</button>
-                <button class="seg-btn ${block.colSpanDesktop === 8 ? "active" : ""}" data-width="8" type="button">8/12</button>
-                <button class="seg-btn ${block.colSpanDesktop === 12 ? "active" : ""}" data-width="12" type="button">12/12</button>
-              </div>
+              <div class="segmented">${widthPresets}</div>
             </div>
           </div>
 
@@ -1467,15 +1498,15 @@
         bindPatch("fSurface", "surface", (v) => !!v, "checkbox");
         bindPatch("fFullWidth", "fullWidth", (v) => !!v, "checkbox");
         bindPatch("fColStart", "colStartDesktop", (v) => Number(v || 1));
-        bindPatch("fColSpan", "colSpanDesktop", (v) => Number(v || 12));
+        bindPatch("fColSpan", "colSpanDesktop", (v) => Number(v || getGridColumns()));
         bindPatch("fRowStart", "rowStartDesktop", (v) => Number(v || 1));
         bindPatch("fRowSpan", "rowSpan", (v) => Number(v || 1));
         bindPatch("fMinHeight", "minHeight", (v) => Number(v || 0));
         bindPatch("fAlign", "align");
         bindPatch("fTabletStart", "colStartTablet", (v) => Number(v || 1));
-        bindPatch("fTabletSpan", "colSpanTablet", (v) => Number(v || 12));
+        bindPatch("fTabletSpan", "colSpanTablet", (v) => Number(v || getGridColumns()));
         bindPatch("fMobileStart", "colStartMobile", (v) => Number(v || 1));
-        bindPatch("fMobileSpan", "colSpanMobile", (v) => Number(v || 12));
+        bindPatch("fMobileSpan", "colSpanMobile", (v) => Number(v || getGridColumns()));
         bindPatch("fBackground", "background");
         bindPatch("fColor", "color");
         bindPatch("fPadding", "padding", (v) => Number(v || 0));
@@ -1500,7 +1531,7 @@
             pageData.blocks[index] = normalizeBlock({ ...pageData.blocks[index], [key]: value }, index);
             renderLocalUi();
           };
-          field.addEventListener("input", apply);
+          field.addEventListener("blur", apply);
           field.addEventListener("change", apply);
         });
       }
@@ -1634,20 +1665,29 @@
         alert(err.message || "Global bölüm kaydedilemedi.");
       }
     }
-function fitPreviewCanvas() {
 
-  const canvas = document.querySelector(".preview-canvas");
-  const viewport = document.querySelector(".preview-viewport");
+    function fitPreviewCanvas() {
+      const canvas = document.querySelector(".preview-canvas");
+      const viewport = document.querySelector(".preview-viewport");
+      const frame = document.getElementById("previewFrame");
+      const topbar = document.querySelector(".preview-topbar");
 
-  if(!canvas || !viewport) return;
+      if (!canvas || !viewport) return;
 
-  const baseWidth = 1920;
-  const availableWidth = viewport.clientWidth;
+      const baseWidth = 1920;
+      const availableWidth = Math.max(320, viewport.clientWidth - 8);
+      const scale = Math.min(1, availableWidth / baseWidth);
 
-  const scale = Math.min(1, availableWidth / baseWidth);
+      canvas.style.transform = "scale(" + scale + ")";
+      canvas.style.margin = "0 auto";
 
-  canvas.style.transform = "scale(" + scale + ")";
-}
+      if (frame) {
+        const frameHeight = Math.max(920, Number(parseFloat(frame.style.height || frame.offsetHeight || 920)));
+        const topbarHeight = topbar ? topbar.offsetHeight : 0;
+        canvas.style.height = ((frameHeight + topbarHeight) * scale) + "px";
+      }
+    }
+
     function insertReusableSection(sectionId) {
       const section = (siteSettings?.reusableSections || []).find((item) => item.id === sectionId && item.block);
       if (!section) {
@@ -1793,6 +1833,7 @@ function fitPreviewCanvas() {
 
       if (data.type === "vera:snapshot" && data.height) {
         previewFrame.style.height = Math.max(920, Number(data.height || 920)) + "px";
+        fitPreviewCanvas();
       }
     });
 
@@ -1806,7 +1847,10 @@ function fitPreviewCanvas() {
     });
 
     saveBtn.addEventListener("click", saveDesigner);
-    reloadPreviewBtn.addEventListener("click", loadPreview);
+    reloadPreviewBtn.addEventListener("click", () => {
+      loadPreview();
+      fitPreviewCanvas();
+    });
 
     openLiveBtn.addEventListener("click", () => {
       if (!pageData) return;
@@ -1829,7 +1873,9 @@ function fitPreviewCanvas() {
       app.style.display = "grid";
       renderLocalUi();
       loadPreview();
+      fitPreviewCanvas();
     })();
+
     window.addEventListener("resize", fitPreviewCanvas);
   </script>
 </body>
