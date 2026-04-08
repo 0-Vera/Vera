@@ -106,6 +106,104 @@
       .app{grid-template-columns:1fr}
       .side{position:relative;min-height:auto}
     }
+    .side-tabs{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+  padding:10px;
+  border-bottom:1px solid #eef2f7;
+  background:#f8fafc;
+}
+
+.side-tab{
+  border:1px solid #dbe3ee;
+  background:#fff;
+  color:#334155;
+  border-radius:10px;
+  padding:9px 8px;
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.side-tab.active{
+  background:#2563eb;
+  color:#fff;
+  border-color:#2563eb;
+}
+
+.side-panels{
+  min-height:0;
+  overflow:hidden;
+}
+
+.side-panel{
+  display:none;
+  min-height:0;
+}
+
+.side-panel.active{
+  display:block;
+}
+
+.template-panel{
+  padding:12px;
+  border-bottom:1px solid #eef2f7;
+  display:grid;
+  gap:10px;
+  background:#fbfdff;
+}
+
+.template-panel h3{
+  margin:0;
+  font-size:13px;
+  color:#0f172a;
+}
+
+.template-note{
+  margin:0;
+  font-size:11px;
+  line-height:1.5;
+  color:#64748b;
+}
+
+.template-list{
+  display:grid;
+  gap:10px;
+}
+
+.template-item{
+  border:1px solid #dbe3ee;
+  border-radius:14px;
+  padding:12px;
+  background:linear-gradient(180deg,#ffffff 0%, #f8fafc 100%);
+  display:grid;
+  gap:10px;
+  box-shadow:0 4px 14px rgba(15,23,42,.04);
+}
+
+.template-title{
+  font-size:12px;
+  font-weight:700;
+  color:#0f172a;
+}
+
+.template-meta{
+  font-size:11px;
+  color:#64748b;
+  line-height:1.5;
+}
+
+.template-actions{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+}
+
+.tiny-btn.alt{
+  background:#dbeafe;
+  color:#1d4ed8;
+}
   </style>
 </head>
 <body>
@@ -118,33 +216,51 @@
         <p id="designerSub">Sayfa yükleniyor...</p>
       </div>
 
-      <div class="add-toolbar">
-        <div class="add-grid">
-          <button class="tiny-btn" data-add="hero" type="button">Hero</button>
-          <button class="tiny-btn" data-add="text" type="button">Metin</button>
-          <button class="tiny-btn" data-add="button" type="button">Buton</button>
-          <button class="tiny-btn" data-add="image" type="button">Görsel</button>
-          <button class="tiny-btn" data-add="html" type="button">HTML</button>
-          <button class="tiny-btn" data-add="spacer" type="button">Boşluk</button>
-          <button class="tiny-btn" data-add="table" type="button">Tablo</button>
-          <button class="tiny-btn" data-add="section" type="button">Bölüm</button>
-          <button class="tiny-btn" data-add="features" type="button">Özellik</button>
-          <button class="tiny-btn" data-add="cards" type="button">Kartlar</button>
-          <button class="tiny-btn" data-add="stats" type="button">İstatistik</button>
-          <button class="tiny-btn" data-add="faq" type="button">SSS</button>
-        </div>
+<div class="side-tabs">
+  <button class="side-tab active" type="button" data-tab="add">Ekle</button>
+  <button class="side-tab" type="button" data-tab="templates">Bölümler</button>
+  <button class="side-tab" type="button" data-tab="inspector">Ayarlar</button>
+  <button class="side-tab" type="button" data-tab="blocks">Bloklar</button>
+</div>
+
+<div class="side-panels">
+  <div class="side-panel active" data-panel="add">
+    <div class="add-toolbar">
+      <div class="add-grid">
+        <button class="tiny-btn" data-add="hero" type="button">Hero</button>
+        <button class="tiny-btn" data-add="text" type="button">Metin</button>
+        <button class="tiny-btn" data-add="button" type="button">Buton</button>
+        <button class="tiny-btn" data-add="image" type="button">Görsel</button>
+        <button class="tiny-btn" data-add="html" type="button">HTML</button>
+        <button class="tiny-btn" data-add="spacer" type="button">Boşluk</button>
+        <button class="tiny-btn" data-add="table" type="button">Tablo</button>
+        <button class="tiny-btn" data-add="section" type="button">Bölüm</button>
+        <button class="tiny-btn" data-add="features" type="button">Özellik</button>
+        <button class="tiny-btn" data-add="cards" type="button">Kartlar</button>
+        <button class="tiny-btn" data-add="stats" type="button">İstatistik</button>
+        <button class="tiny-btn" data-add="faq" type="button">SSS</button>
       </div>
+    </div>
 
-      <div class="template-panel">
-        <h3>Hazır Bölümler</h3>
-        <p class="template-note">Hazır şablon ekle veya seçili bloğu bu tarayıcıda tekrar kullanılmak üzere kaydet.</p>
-        <div id="templateList" class="template-list"></div>
-      </div>
+    <div id="miniToolbar" class="mini-toolbar"></div>
+  </div>
 
-      <div id="miniToolbar" class="mini-toolbar"></div>
-      <div id="inspector" class="inspector"></div>
-      <div id="blockList" class="block-list"></div>
+  <div class="side-panel" data-panel="templates">
+    <div class="template-panel">
+      <h3>Hazır Bölümler</h3>
+      <p class="template-note">Hazır şablon ekle veya seçili bloğu bu tarayıcıda tekrar kullanılmak üzere kaydet.</p>
+      <div id="templateList" class="template-list"></div>
+    </div>
+  </div>
 
+  <div class="side-panel" data-panel="inspector">
+    <div id="inspector" class="inspector"></div>
+  </div>
+
+  <div class="side-panel" data-panel="blocks">
+    <div id="blockList" class="block-list"></div>
+  </div>
+</div>
       <div class="side-bottom">
         <button id="saveBtn" class="btn btn-primary" type="button">Kaydet</button>
         <button id="reloadPreviewBtn" class="btn btn-secondary" type="button">Önizlemeyi Yenile</button>
@@ -325,10 +441,11 @@
   if (type === "faq") return { ...base, title: "Sık Sorulan Sorular", text: "Soru ve cevapları satır satır gir.", items: "Soru 1?|Cevap 1\nSoru 2?|Cevap 2", colStartDesktop: 1, colSpanDesktop: 12 };
   return base;
 }
-   function normalizeBlock(block = {}, index = 0) {
-  const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, 12);
-  const tablet = normalizeStartSpan(block.colStartTablet, block.colSpanTablet, 12);
-  const mobile = normalizeStartSpan(block.colStartMobile, block.colSpanMobile, 12);
+function normalizeBlock(block = {}, index = 0) {
+  const gridCols = clamp(pageData?.pageOptions?.gridColumns, 1, 24, 12);
+  const desktop = normalizeStartSpan(block.colStartDesktop, block.colSpanDesktop, gridCols);
+  const tablet = normalizeStartSpan(block.colStartTablet, block.colSpanTablet, gridCols);
+  const mobile = normalizeStartSpan(block.colStartMobile, block.colSpanMobile, gridCols);
 
   const normalized = {
     ...block,
@@ -410,11 +527,11 @@
 
   if (normalized.fullWidth) {
     normalized.colStartDesktop = 1;
-    normalized.colSpanDesktop = 12;
+    normalized.colSpanDesktop = gridCols;
     normalized.colStartTablet = 1;
-    normalized.colSpanTablet = 12;
+    normalized.colSpanTablet = gridCols;
     normalized.colStartMobile = 1;
-    normalized.colSpanMobile = 12;
+    normalized.colSpanMobile = gridCols;
   }
 
   return normalized;
@@ -573,41 +690,51 @@ function renderTemplateLibrary() {
 
 function autoArrangeBlocks() {
   if (!pageData || !Array.isArray(pageData.blocks)) return;
+
+  const gridCols = clamp(pageData?.pageOptions?.gridColumns, 1, 24, 12);
   let currentRow = 1;
   let currentCol = 1;
+
   pageData.blocks = pageData.blocks.map((block, index) => {
     const normalized = normalizeBlock(block, index);
+
     if (normalized.fullWidth || normalized.type === "section" || normalized.type === "spacer") {
       currentCol = 1;
       const fullBlock = normalizeBlock({
         ...normalized,
         colStartDesktop: 1,
-        colSpanDesktop: 12,
+        colSpanDesktop: gridCols,
         rowStartDesktop: currentRow
       }, index);
       currentRow += Number(fullBlock.rowSpan || 1);
       return fullBlock;
     }
-    const span = Number(normalized.colSpanDesktop || 12);
-    if (currentCol + span - 1 > 12) {
+
+    const span = Number(normalized.colSpanDesktop || gridCols);
+
+    if (currentCol + span - 1 > gridCols) {
       currentRow += 1;
       currentCol = 1;
     }
+
     const arranged = normalizeBlock({
       ...normalized,
       colStartDesktop: currentCol,
       rowStartDesktop: currentRow
     }, index);
+
     currentCol += span;
-    if (currentCol > 12) {
+
+    if (currentCol > gridCols) {
       currentCol = 1;
       currentRow += Math.max(1, Number(arranged.rowSpan || 1));
     }
+
     return arranged;
   });
+
   renderLocalUi();
 }
-
     function getSelectedIndex() {
       return (pageData?.blocks || []).findIndex((block) => block.id === selectedId);
     }
@@ -717,11 +844,11 @@ function renderInspector() {
       <div class="mini-grid">
         <div>
           <label>D Baş.</label>
-          <input id="iColStart" type="number" min="1" max="12" value="${Number(block.colStartDesktop || 1)}" ${block.fullWidth ? "disabled" : ""}>
+          <input id="iColStart" type="number" min="1" max="${clamp(pageData?.pageOptions?.gridColumns, 1, 24, 12)}" value="${Number(block.colStartDesktop || 1)}" ${block.fullWidth ? "disabled" : ""}>
         </div>
         <div>
           <label>D Kol.</label>
-          <input id="iColSpan" type="number" min="1" max="12" value="${Number(block.colSpanDesktop || 12)}" ${block.fullWidth ? "disabled" : ""}>
+          <input id="iColSpan" type="number" min="1" max="${clamp(pageData?.pageOptions?.gridColumns, 1, 24, 12)}" value="${Number(block.colSpanDesktop || clamp(pageData?.pageOptions?.gridColumns, 1, 24, 12))}" ${block.fullWidth ? "disabled" : ""}>
         </div>
         <div>
           <label>Satır Baş.</label>
@@ -1185,7 +1312,16 @@ function renderInspector() {
     backBtn.addEventListener("click", () => {
       location.href = "/admin/pages.html";
     });
-
+document.querySelectorAll(".side-tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const target = tab.getAttribute("data-tab");
+    document.querySelectorAll(".side-tab").forEach((btn) => btn.classList.remove("active"));
+    document.querySelectorAll(".side-panel").forEach((panel) => panel.classList.remove("active"));
+    tab.classList.add("active");
+    const panel = document.querySelector(`.side-panel[data-panel="${target}"]`);
+    if (panel) panel.classList.add("active");
+  });
+});
     (async function init() {
       await loadPagesForActions();
       const ok = await loadPageOnly();
